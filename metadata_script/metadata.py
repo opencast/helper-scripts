@@ -57,7 +57,8 @@ def translate_string(str_to_translate):
     headers = {}
     res = requests.post(url, data=payload, headers=headers)
     soup = BeautifulSoup(res.text, 'html.parser')
-    # print soup.prettify()
+    #print soup.prettify()
+    print soup.script.string
     translated_string = re.findall(r'"([^"]*)"', soup.script.string)
     if len(translated_string[0]) == 0:
         return str_to_translate

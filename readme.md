@@ -1,4 +1,4 @@
-Helper Scripts For opencast
+Helper Scripts For Opencast
 ===========================
 
 This repository contains several small helper scripts to automate certain tasks

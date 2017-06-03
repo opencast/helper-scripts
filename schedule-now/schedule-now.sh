@@ -2,13 +2,26 @@
 
 CAPTURE_AGENT="pyca"
 SERVER="https://octestallinone.virtuos.uos.de"
+USER="opencast_system_account"
+PASSWORD="CHANGE_ME"
+
 
 set -eu
 
+if [ "$#" -eq 0 ]; then
+    START_MIN=1
+    END_MIN=2
+elif [ "$#" -eq 2 ]; then
+    START_MIN="${1}"
+    END_MIN="${2}"
+else
+    echo "Usage: ${0} [start_min end_min]"
+fi
+
 TMP="$(mktemp)"
 NOW="$(date --utc +%Y-%m-%dT%H:%MZ)"
-START="$(date -d "1 min" --utc +%Y-%m-%dT%H:%MZ)"
-END="$(date -d "2 min" --utc +%Y-%m-%dT%H:%MZ)"
+START="$(date -d "${START_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
+END="$(date -d "${END_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"
@@ -31,7 +44,7 @@ org.opencastproject.workflow.definition=fast
 
 cat "${TMP}"
 
-curl -f -i --digest -u opencast_system_account:CHANGE_ME \
+curl -i --digest -u "${USER}:${PASSWORD}" \
     -H "X-Requested-Auth: Digest" \
     "${SERVER}/recordings/" \
     -F "dublincore=@${TMP}" \

@@ -29,11 +29,7 @@ ocData=$(echo $oc | grep -o 'karaf.data=\(/[a-zA-Z0-9\.\-]*\)*' | cut -f 2 -d "=
 ocCustom=$ocConf/custom.properties
 ocOrgFile=$ocConf/org.opencastproject.organization-mh_default_org.cfg
 ocLogFile=$ocConf/org.ops4j.pax.logging.cfg
-currentLog=$(grep '^log4j.appender.out.file' $ocLogFile | cut -f 2 -d "=")
-isKarafData=$(echo $currentLog | grep -o "karaf.data")
-if [ -n "$isKarafData" ]; then
-  currentLog="$ocData/log/opencast.log"
-fi
+currentLog=/var/log/opencast/opencast.log
 
 echo "Log file can be found at $outputFile"
 log "Detecting file locations..."
@@ -44,11 +40,17 @@ log "ActiveMQ groups config is at: $amqGroups"
 log "Opencast custom.properties is at: $ocCustom"
 log "Opencast organization config is at: $ocOrgFile"
 log "Opencast logging config is at: $ocLogFile"
-log "Opencast logfile is at: $currentLog"
+log "Guessing that Opencast logfile is at: $currentLog"
 
 #is oc running?
 if [ -n "$oc" ]; then
   log "Opencast is running"
+  currentLog=$(grep '^log4j.appender.out.file' $ocLogFile | cut -f 2 -d "=")
+  isKarafData=$(echo $currentLog | grep -o "karaf.data")
+  if [ -n "$isKarafData" ]; then
+    currentLog="$ocData/log/opencast.log"
+  fi
+  log "Opencast logfile is at: $currentLog"
 else
   log "Opencast is NOT running"
 fi
@@ -120,8 +122,12 @@ redact karaf.shutdown.command $customTmp
 log "\ncustom.properties"
 cat $customTmp >> $outputFile
 
-log "\nLast 500 lines of the logfile"
-tail -n 500 $currentLog >> $outputFile
+if [ -f $currentLog ]; then
+  log "\nLast 500 lines of the logfile"
+  tail -n 500 $currentLog >> $outputFile
+else
+  log "\nLog file not found at $currentLog"
+fi
  
 log "\nMemory Stats"
 free -m >> $outputFile

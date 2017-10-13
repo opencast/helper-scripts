@@ -20,7 +20,8 @@ fi
 TMP_MP="$(mktemp)"
 TMP_DC="$(mktemp)"
 START="$(date -d "${START_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
-END="$(date -d "${END_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
+END_CALC=$((START_MIN + END_MIN)) #We want the end time to be start time + duration
+END="$(date -d "${END_CALC} min" --utc +%Y-%m-%dT%H:%MZ)"
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"

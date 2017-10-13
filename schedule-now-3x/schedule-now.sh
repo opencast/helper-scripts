@@ -1,12 +1,11 @@
 #!/bin/bash
 
 CAPTURE_AGENT="pyca"
-SERVER="https://octestallinone.virtuos.uos.de"
+HOST="http://localhost:8080"
 USER="opencast_system_account"
 PASSWORD="CHANGE_ME"
 
-
-set -eu
+set -eux
 
 if [ "$#" -eq 0 ]; then
     START_MIN=1
@@ -21,7 +20,8 @@ fi
 TMP="$(mktemp)"
 NOW="$(date --utc +%Y-%m-%dT%H:%MZ)"
 START="$(date -d "${START_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
-END="$(date -d "${END_MIN} min" --utc +%Y-%m-%dT%H:%MZ)"
+END_CALC=$((START_MIN + END_MIN)) #We want the end time to be start time + duration
+END="$(date -d "${END_CALC} min" --utc +%Y-%m-%dT%H:%MZ)"
 
 echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/"

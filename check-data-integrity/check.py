@@ -19,7 +19,7 @@ from rest_requests.request_error import RequestError
 from args.url_builder import URLBuilder
 
 
-def check_assets_of_series(series, opencast_url, digest_login, asset_type, error_collector):
+def check_assets_of_series(series, opencast_url, digest_login, asset_type, error_collector, pp):
     """
     Get ACLs or dublincores of all series and put them in a dict. If some of them are malformed, collect their errors.
 
@@ -39,7 +39,9 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_type, error
 
     series_asset_map = {}
 
-    for serie in series:
+    for count, serie in enumerate(series):
+
+        pp.print_progress(count, len(series))
 
         series_asset = get_asset_of_series(serie, opencast_url, digest_login, asset_type)
 
@@ -53,7 +55,7 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_type, error
 
     return series_asset_map
 
-def check_series_of_events(events, series, error_collector):
+def check_series_of_events(events, series, error_collector, pp, no_series_error):
     """
     Get series for each event if it belongs to one. If some of them are malformed, collect their errors.
 
@@ -69,9 +71,11 @@ def check_series_of_events(events, series, error_collector):
 
     event_series_map = {}
 
-    for event in events:
+    for count, event in enumerate(events):
 
-        series_of_event = get_series_of_event(series, event)
+        pp.print_progress(count, len(events))
+
+        series_of_event = get_series_of_event(series, event, no_series_error)
 
         if isinstance(series_of_event, Malformed): error_collector.collect_errors(series_of_event, get_id(event))
 
@@ -80,7 +84,7 @@ def check_series_of_events(events, series, error_collector):
     return event_series_map
 
 def check_assets_of_events(events, event_series_map, series_asset_map, opencast_url, digest_login, asset_type,
-                           error_collector):
+                           error_collector, pp):
     """
     Get ACLs or dublincores of all events and put them in a dict. If some of them are malformed, collect their errors.
 
@@ -104,7 +108,9 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
 
     event_asset_map = {}
 
-    for event in events:
+    for count, event in enumerate(events):
+
+        pp.print_progress(count, len(events))
 
         series_of_event = event_series_map[get_id(event)]
 
@@ -123,7 +129,8 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
 
     return event_asset_map
 
-def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, digest_login, error_collector, base_url):
+def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, digest_login, error_collector, base_url,
+                 pp):
     """
     Check OAIPMH by getting all ACLs and dublincore catalogs from each record and comparing them with those from the
     corresponding event. Collect any errors.
@@ -145,7 +152,9 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
     :return:
     """
 
-    for event in oaipmh_events:
+    for count, event in enumerate(oaipmh_events):
+
+        pp.print_progress(count, len(oaipmh_events))
 
         series_of_event = event_series_map[get_id(event)]
         episode_dc, series_dc = event_dc_map[get_id(event)]
@@ -188,23 +197,35 @@ def main():
     print them out in the end.
     """
 
-    opencast, https, digest_login, silent, check = parse_args()
+    opencast, tenants, exclude_tenants, https, digest_login, silent,  no_fancy_output, no_series_error, check, \
+        results_dir = parse_args()
 
     url_builder = URLBuilder(opencast, https)
     check_settings = CheckSettings(check)
 
-    pp = ProgressPrinter(silent)
+    pp = ProgressPrinter(silent, no_fancy_output)
     error_collector = ErrorCollector ()
 
     try:
-        # get tenants
-        pp.print('Requesting tenants...',0)
-        tenants = get_tenants(url_builder.get_base_url(None), digest_login)
-        pp.print("...{} tenant(s) received.\n".format(len(tenants)), 0)
+
+        if not tenants:
+            # get tenants
+            pp.print_message("Requesting tenants... ", 0, False, True)
+            tenants = get_tenants(url_builder.get_base_url(None), digest_login)
+            pp.print_message("{} tenant(s) received.\n".format(len(tenants)), 0, True, False)
+
+        if exclude_tenants:
+            pp.print_message("Filtering tenants... ", 0, False, True)
+            tenants = [tenant for tenant in tenants if tenant not in exclude_tenants]
+            pp.print_message("{} tenant(s) remain.\n".format(len(tenants)), 0, True, False)
+
+        tenants.sort()
+
+        pp.print_message('Starting checks for the following tenants: {}\n'.format(", ".join(tenants)), 0)
 
         for tenant in tenants:
 
-            pp.print("Starting check for tenant {}...\n".format(tenant), 0)
+            pp.print_message("Starting check for tenant {}...\n".format(tenant), 0)
             error_collector.tenant(tenant)
             series_dc_map, series_acl_map, event_dc_map, event_acl_map = {}, {}, {}, {}
 
@@ -212,74 +233,66 @@ def main():
 
             try:
                 # SERIES #
-                pp.print("Requesting series...", 1)
+                pp.print_message("Requesting series... ", 1, False, True)
                 series = get_series(opencast_url, digest_login)
-                pp.print("...{} series received.\n".format(len(series)), 1)
+                pp.print_message("{} series received.\n".format(len(series)), 1, True, False)
 
                 if series:
 
                     if check_settings.check_dc():
-                        pp.print("Starting check of dublincore catalogs of series...", 2)
+                        pp.print_message("Starting check of dublincore catalogs of series... ", 2)
                         series_dc_map = check_assets_of_series(series, opencast_url, digest_login, AssetType.DC,
-                                                               error_collector)
-                        pp.print("...finished.\n", 2)
+                                                               error_collector, pp)
 
                     if check_settings.check_acl():
-                        pp.print("Starting check of ACLs of series...", 2)
+                        pp.print_message("Starting check of ACLs of series... ", 2)
                         series_acl_map = check_assets_of_series(series, opencast_url, digest_login, AssetType.ACL,
-                                                                error_collector)
-                        pp.print("...finished.\n", 2)
+                                                                error_collector, pp)
 
                 # EVENTS #
-                pp.print("Requesting events...", 1)
+                pp.print_message("Requesting events... ", 1, False, True)
                 events = get_events(opencast_url, digest_login)
-                pp.print("...{} event(s) received.\n".format(len(events)), 1)
+                pp.print_message("{} event(s) received.\n".format(len(events)), 1, True, False)
 
                 if events:
 
-                    pp.print("Starting check of series of events...", 2)
-                    event_series_map = check_series_of_events(events, series, error_collector)
-                    pp.print("...finished.\n", 2)
-
-                    events_without_series = [event for event in events if not event_series_map[get_id(event)]]
-
-                    # TODO optionally interpret as error and print with other results?
-                    pp.print("Info: {} event(s) have no series.\n".format(len(events_without_series)), 2)
+                    pp.print_message("Starting check of series of events... ", 2)
+                    event_series_map = check_series_of_events(events, series, error_collector, pp, no_series_error)
 
                     if check_settings.check_dc():
-                        pp.print("Starting check of dublincore catalogs of events", 2)
+                        pp.print_message("Starting check of dublincore catalogs of events... ", 2)
                         event_dc_map = check_assets_of_events(events, event_series_map, series_dc_map, opencast_url,
-                                                              digest_login, AssetType.DC, error_collector)
-                        pp.print("...finished.\n", 2)
+                                                              digest_login, AssetType.DC, error_collector, pp)
 
                     if check_settings.check_acl():
-                        pp.print("Starting check of ACLs of events", 2)
+                        pp.print_message("Starting check of ACLs of events... ", 2)
                         event_acl_map = check_assets_of_events(events, event_series_map, series_acl_map, opencast_url,
-                                                               digest_login, AssetType.ACL, error_collector)
-                        pp.print("...finished.\n", 2)
+                                                               digest_login, AssetType.ACL, error_collector, pp)
 
                     if check_settings.check_oaipmh():
-                        pp.print("Filtering events...", 1)
+                        pp.print_message("Filtering events... ", 1, False, True)
                         oaipmh_events = [event for event in events if published_to_oaipmh(event)]
-                        pp.print("...{} of {} event(s) are published to OAIPMH.\n".format(len(oaipmh_events), len(events)), 1)
+                        pp.print_message("{} of {} event(s) are published to OAIPMH.\n".format(len(oaipmh_events), len(events)), 1, True, False)
 
                         if oaipmh_events:
-                            pp.print("Starting check of OAIPMH...", 2)
+                            pp.print_message("Starting check of OAIPMH... ", 2)
                             check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, digest_login,
-                                         error_collector, url_builder.get_base_url(None))
-                            pp.print("...finished.\n", 2)
+                                         error_collector, url_builder.get_base_url(None), pp)
 
-                pp.print("...all checks for tenant finished.\n", 0)
+                pp.print_message("...all checks for tenant {} finished. ".format(tenant), 0, False, True)
 
             except RequestError as err:
                 error_collector.set_tenant_error(err.error)
+                pp.print_message("failed.\n", 0, True, False)
+                pp.print_message("...checks for tenant {} could not be completed: ".format(tenant), 0, False, True)
 
             error_collector.print_results_for_current_tenant()
 
         error_collector.print_all_results()
+        error_collector.write_to_file(results_dir)
 
     except RequestError as err:
-        print(err.full_message)
+        print(err.error)
 
 if __name__ == '__main__':
     main()

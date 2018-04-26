@@ -2,21 +2,6 @@
 This module contains methods to build error messages.
 """
 
-from util.enum import enum
-
-Errors = enum(
-    MISSING = "{} is missing the {} {}",
-    MORE = "{} has more than one {} {}",
-
-    ASSET_NOT_EQUAL="{} have nonequal {} {}s",
-
-    ASSET_WITHOUT_SERIES="{} has series {} but no series",
-
-    MORE_SERIES = "Event has more than one series",
-    SERIES_NOT_FOUND = "Series of event could not be found",
-
-    PARSING_ERROR = "{} {} of {} could not be parsed: {}"
-)
 
 def missing(elementtype, catalogtype, assettype):
     """
@@ -28,10 +13,12 @@ def missing(elementtype, catalogtype, assettype):
     :type catalogtype: CatalogType
     :param assettype: DC, ACL
     :type assettype: AssetType
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
-    return Errors.MISSING.format(elementtype, catalogtype, assettype)
+    error = "{} missing the {} {}".format(elementtype.unknown, catalogtype.singular, assettype.singular)
+
+    return error
 
 def more(elementtype, catalogtype, assettype):
     """
@@ -43,26 +30,33 @@ def more(elementtype, catalogtype, assettype):
     :type catalogtype: CatalogType
     :param assettype: DC, ACL
     :type assettype: AssetType
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
-    return Errors.MORE.format(elementtype, catalogtype, assettype)
+    error = "{} with more than one {} {}".format(elementtype.unknown, catalogtype.singular, assettype.singular)
 
-def asset_not_equal(elementtype, catalogtype, assettype):
+    return error
+
+def asset_not_equal(first_elementtype, second_elementtype, catalogtype, assettype):
     """
     Formats error message for nonequal assets.
 
-    :param elementtype: SERIES_EVENT, EVENT_OAIPMH
-    :type elementtype: ElementType
+    :param first_elementtype: SERIES, EVENT or OAIPMH
+    :type first_elementtype: ElementType
+    :param second_elementtype: SERIES, EVENT or OAIPMH
+    :type second_elementtype: ElementType
     :param catalogtype: SERIES, EPISODE
     :type catalogtype: CatalogType
     :param assettype: DC, ACL
     :type assettype: AssetType
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
+    error = "{} with a {} {} unequal with that of their {}".format(first_elementtype.unknown,
+                                                                         catalogtype.singular, assettype.singular,
+                                                                         second_elementtype.singular)
 
-    return Errors.ASSET_NOT_EQUAL.format(elementtype, catalogtype, assettype)
+    return error
 
 def asset_without_series(elementtype, assettype):
     """
@@ -72,28 +66,48 @@ def asset_without_series(elementtype, assettype):
     :type elementtype: ElementType
     :param assettype: DC, ACL
     :type assettype: AssetType
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
-    return Errors.ASSET_WITHOUT_SERIES.format(elementtype, assettype)
+
+    error = "{} with a series {} but no series".format(elementtype.unknown, assettype.singular)
+
+    return error
 
 def more_series():
     """
     Formats error message for event with more than one series.
 
-    :return: formatted error message
-    :rtype: str
+    :return: error message
+    :rtype: strr
     """
-    return Errors.MORE_SERIES
+
+    error = "event(s) with more than one series"
+
+    return error
 
 def series_not_found():
     """
     Formats error message for event with missing series.
 
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
-    return Errors.SERIES_NOT_FOUND
+
+    error = "event(s) where their series could not be found"
+
+    return error
+
+def no_series():
+    """
+    Formats error message for event with missing series.
+
+    :return: error message
+    :rtype: str
+    """
+
+    error = "event(s) without a series"
+    return error
 
 def parsing_error(elementtype, catalogtype, assettype, error):
     """
@@ -105,8 +119,11 @@ def parsing_error(elementtype, catalogtype, assettype, error):
     :type catalogtype: CatalogType
     :param assettype: DC, ACL (but currently only ACL)
     :type assettype: AssetType
-    :return: formatted error message
+    :return: error message
     :rtype: str
     """
 
-    return Errors.PARSING_ERROR.format(catalogtype, assettype, elementtype, error)
+    error = "{} have a {} {} that could not be parsed: {}".format(elementtype.unknown, catalogtype.singular,
+                                                                  assettype.singular, error)
+
+    return error

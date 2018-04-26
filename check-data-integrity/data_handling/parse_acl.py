@@ -24,8 +24,8 @@ def parse_acl(acl):
 def parse_xml_acl(xml_acl):
     """
     Parses an ACL in xml format into a dict.
-    :param acl:
-    :type acl: ElementTree.Element
+    :param xml_acl:
+    :type xml_acl: ElementTree.Element
     :return: dict with (role, action) as key and allow as value
     :rtype: dict
     """
@@ -54,8 +54,8 @@ def parse_xml_acl(xml_acl):
 def parse_json_acl(json_acl):
     """
     Parses an ACL in json format into a dict.
-    :param acl:
-    :type acl: dict
+    :param json_acl:
+    :type json_acl: dict
     :return: dict with (role, action) as key and allow as value
     :rtype: dict
     """

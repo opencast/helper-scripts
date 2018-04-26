@@ -6,20 +6,27 @@ This script can be used to check the integrity of certain data in Opencast. The 
 
 This script can be called with the following parameters (all parameters in brackets are optional, the others required; options in braces represent alternatives):
 
-    main.py -o OPENCAST -u USER [-p PASSWORD] [-c {dc,acl,oaipmh,all}] [-s] [-t]
+    main.py -o OPENCAST [-t TENANTS] [-e EXCLUDE-TENANTS] -u USER [-p PASSWORD] [-c {dc,acl,dc_acl,oaipmh,all}] [-s] [-l] [-n] [-r] [-d]
 
 | Short option    | Long option  | Description                                                                                           | Default                           |
 | :-------------: | :----------- | :---------------------------------------------------------------------------------------------------- | :-------------------------------- |
-| `-o`            | `--opencast` | URL of the Opencast instance                                                                          |                                   |
-| `-u`            | `--user`     | User for digest authentication                                                                        |                                   |
-| `-p`            | `--password` | Password for digest authentication                                                                    | Prompt for password after startup |
-| `-c`            | `--check`    | Defines which checks are to be performed; valid arguments are: `dc`, `acl`, `dc&acl`, `oaipmh`, `all` | All checks are performed          |
-| `-s`            | `--silent`   | Flag for disabling progress output                                                                    | Progress output enabled           |
-| `-t`            | `--https`    | Flag for enabling HTTPS                                                                               | HTTP                              |
+| `-o`            | `--opencast`        | URL of the Opencast instance                                                                          |                                   |
+| `-t`            | `--tenants`         | List* of tenants to be checked (can't be used in combination with `--exclude-tenants`)                 | All tenants are checked           |
+| `-e`            | `--exclude-tenants` | List* of tenants to be excluded (can't be used in combination with `--tenants`)                | No tenants are excluded           |
+| `-u`            | `--user`            | User for digest authentication                                                                        |                                   |
+| `-p`            | `--password`        | Password for digest authentication                                                                    | Prompt for password after startup |
+| `-c`            | `--check`           | Defines which checks are to be performed; valid arguments are: `dc`, `acl`, `dc_acl`, `oaipmh`, `all` | All checks are performed          |
+| `-s`            | `--silent`          | Flag for disabling progress output                                                                    | Progress output enabled           |
+| `-l`            | `--https`           | Flag for enabling HTTPS                                                                               | HTTP                              |
+| `-n`            | `--no-fancy-output` | Flag for disabling the progress bars and similar improvements to the output if the terminal in use can't display them properly          | Fancy output enabled |
+| `-r`            | `--no-series-error`  | Flag for treating events without series as errors                                                     | Events without series are valid |
+| `-d`            | `--results-dir`     | Path to directory for results                                                                         | Current working directory         |
+
+(\* Options with multiple arguments can be used by specifying the option once, followed by at least one or more argument(s) seperated by spaces (see example below.)
 
 ##### Usage example
 
-    main.py -o producer.opencast.org -u opencast_system_account -p CHANGE_ME -c dc -t
+    main.py -o producer.opencast.org -e tube mh_default_org -u opencast_system_account -p CHANGE_ME -c dc -t -r -d /home/me/Desktop/results
 
 ### Requirements
 
@@ -38,23 +45,24 @@ The checks that are performed by this script can be limited with the `--check` p
 | :------- | :------------------------------------------------------------------------------------------------ |
 | `dc`     | Only check Dublin Core catalogs, skip ACLs and OAI-PMH.                                           |
 | `acl`    | Only check ACLs, skip Dublin Core catalogs and OAI-PMH.                                           |
-| `dc&acl` | Check ACLs and Dublin Core catalogs, skip OAI-PMH.                                                |
+| `dc_acl` | Check ACLs and Dublin Core catalogs, skip OAI-PMH.                                                |
 | `oaipmh` | Same effect as `all` since the Dublin Core catalogs and ACLs are needed for the check of OAI-PMH. |
 | `all`    | Default setting, all checks are performed.                                                        |
 
 By default, all checks are performed. They can be grouped into the following subcategories, each with its own set of conditions:
 
 - General checks that are always performed:
-  * If an event belongs to a series, the series ID of the event should match exactly one series of those that currently exist (not more than one and not one that doesn't currently exist).
+  * If an event belongs to a series, the series ID of the event should match exactly one series of those that currently exist (not more than one, not none).
+  * Additionally with the `--no-series-error` flag it can be enforced that events should always belong to series.
 
 - Dublin Core catalog checks:
-  * An event should have exactly one episode Dublin Core catalog (not more than one and not none).
+  * An event should have exactly one episode Dublin Core catalog (not more than one, not none).
   * If an event belongs to a series, it should have exactly one series Dublin Core catalog (not more than one, not none).
     * Additionally that Dublin Core catalog should match that of the series itself.
   * If an event doesn't belong to a series, it shouldn't have one (or more) series Dublin Core catalogs
 
 - ACL checks:
-  * If an event doesn't belong to a series*, it should have exactly one episode ACL (not more than one and not none).
+  * If an event doesn't belong to a series*, it should have exactly one episode ACL (not more than one, not none).
   * If an event belongs to a series, it should have exactly one series ACL (not more than one, not none).
     * Additionally that ACL should match that of the series itself.
   * If an event doesn't belong to a series, it shouldn't have one (or more) series ACLs.
@@ -89,7 +97,8 @@ The data integrity checks are executed as follows:
 
     Parse arguments, check for correctness, set settings
     If no digest password: Ask for digest password
-    Get tenants
+    If no tenants: Get tenants
+    If exclude-tenants: Filter tenants
     For each tenant:
         Get all series
         If necessary: Get Dublin Core catalogs of series

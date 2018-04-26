@@ -1,10 +1,7 @@
-import requests
-from requests.auth import HTTPDigestAuth
-
+from check_data.types import ElementType
 from data_handling.element_util import get_id
 from rest_requests.get_request import __get_request
 from rest_requests.get_response_content import get_xml_content
-from rest_requests.request_error import RequestError
 
 def get_oaipmh_publications(event):
 
@@ -35,7 +32,7 @@ def get_oaipmh_record(event, repo_url, repo, digest_login, base_url):
         url = '{}{}?verb=GetRecord&metadataPrefix=matterhorn-inlined&identifier={}'.format(base_url, repo_url.split('?')[0],
                                                                                         get_id(event))
 
-    response = __get_request(url, digest_login, "oaipmh record of repository {}".format(repo))
+    response = __get_request(url, digest_login, ElementType.OAIPMH.singular.format(repo))
 
     record = get_xml_content(response)
 

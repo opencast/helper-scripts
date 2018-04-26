@@ -3,7 +3,7 @@ from util.enum import enum
 Checks = enum(
     DC = "dc",
     ACL = "acl",
-    DC_ACL = "dc&acl",
+    DC_ACL = "dc_acl",
     OAIPMH = "oaipmh",
     ALL = "all"
 )

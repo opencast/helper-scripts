@@ -6,7 +6,6 @@ encountered errors is returned instead.
 from check_data import errors
 from check_data.check_data import check_episode_asset_of_event, check_series_asset_of_event, check_asset_equality, \
     check_series_of_event
-from check_data.errors import Errors
 from check_data.malformed import Malformed
 from check_data.types import ElementType, AssetType, CatalogType
 from data_handling.element_util import has_series
@@ -108,7 +107,7 @@ def get_assets_of_event(event, opencast_url, digest_login, has_series, series_as
 
     if not isinstance(series_asset, Malformed) and not isinstance(series_asset_of_series, Malformed):
 
-        errors = check_asset_equality(series_asset, series_asset_of_series, ElementType.SERIES_EVENT, CatalogType.SERIES,
+        errors = check_asset_equality(series_asset, series_asset_of_series, ElementType.EVENT, ElementType.SERIES, CatalogType.SERIES,
                                       assettype)
         if errors:
             series_asset = Malformed(errors=errors)
@@ -147,7 +146,7 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
 
     if not isinstance(episode_asset, Malformed) and not isinstance(original_episode_asset, Malformed):
 
-        errors = check_asset_equality(episode_asset, original_episode_asset, ElementType.EVENT_OAIPMH.format(repository), CatalogType.EPISODE, assettype)
+        errors = check_asset_equality(episode_asset, original_episode_asset, ElementType.EVENT, ElementType.OAIPMH.format(repository), CatalogType.EPISODE, assettype)
         if errors:
             episode_asset = Malformed(errors=errors)
 
@@ -164,14 +163,14 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
 
     if not isinstance(series_asset, Malformed) and not isinstance(original_series_asset, Malformed):
 
-        errors = check_asset_equality(series_asset, original_series_asset, ElementType.EVENT_OAIPMH.format(repository), CatalogType.SERIES, assettype)
+        errors = check_asset_equality(series_asset, original_series_asset, ElementType.EVENT, ElementType.OAIPMH.format(repository), CatalogType.SERIES, assettype)
         if errors:
             series_asset = Malformed(errors=errors)
 
     return episode_asset, series_asset
 
 
-def get_series_of_event(series, event):
+def get_series_of_event(series, event, no_series_error):
     """
     Get series of event from a list of series and check if valid. If there are any errors, a Malformed object
     containing the errors is returned instead.
@@ -187,7 +186,7 @@ def get_series_of_event(series, event):
     series_of_event = [serie for serie in series if
                             ("series" in event and serie["id"] == event["series"]["id"])]
 
-    errors = check_series_of_event(series_of_event, has_series(event))
+    errors = check_series_of_event(series_of_event, has_series(event), no_series_error)
 
     if errors:
         return Malformed(errors=errors)

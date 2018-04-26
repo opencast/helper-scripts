@@ -1,6 +1,3 @@
-import requests
-from requests.auth import HTTPDigestAuth
-
 from rest_requests.get_request import __get_request
 from rest_requests.get_response_content import get_json_content
 

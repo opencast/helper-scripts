@@ -4,7 +4,8 @@ This module checks the data for errors and builds corresponding error messages.
 (ACLs and Dublincores of series don't need to be checked because there can only ever be one, and if that's missing a
 404 error will have been encountered.)
 """
-from check_data.errors import missing, more, asset_without_series, more_series, series_not_found, asset_not_equal
+from check_data.errors import missing, more, asset_without_series, more_series, series_not_found, asset_not_equal, \
+    no_series
 from check_data.types import CatalogType, AssetType
 from data_handling.compare_assets import compare_dc, compare_acl
 
@@ -66,7 +67,7 @@ def check_series_asset_of_event(assets, has_series, elementtype, assettype):
 
     return errors
 
-def check_series_of_event(series_of_event, has_series):
+def check_series_of_event(series_of_event, has_series, no_series_error):
     """
     Check series of event for errors.
 
@@ -84,16 +85,20 @@ def check_series_of_event(series_of_event, has_series):
         errors.append(more_series())
     if not series_of_event and has_series:
         errors.append(series_not_found())
+    if not has_series and no_series_error:
+        errors.append(no_series())
     return errors
 
-def check_asset_equality(asset1, asset2, elementtype, catalogtype, assettype):
+def check_asset_equality(asset1, asset2, first_elementtype, second_elementtype, catalogtype, assettype):
     """
     Check whether two ACLs or dublincores are equal and return an error if not.
 
     :param asset1: ACL or dublincore
     :param asset2: ACL or dublincore
-    :param elementtype: Series and Event or Event and OAIPMH
-    :type elementtype: ElementType
+    :param first_elementtype: Series, Event or OAIPMH
+    :type first_elementtype: ElementType
+    :param second_elementtype: Series, Event or OAIPMH
+    :type second_elementtype: ElementType
     :param catalogtype: Series or Episode
     :type catalogtype: CatalogType
     :param assettype: ACL or dublincore
@@ -110,5 +115,5 @@ def check_asset_equality(asset1, asset2, elementtype, catalogtype, assettype):
         asset_equal = compare_acl(asset1, asset2)
 
     if not asset_equal:
-        errors.append(asset_not_equal(elementtype, catalogtype, assettype))
+        errors.append(asset_not_equal(first_elementtype, second_elementtype, catalogtype, assettype))
     return errors

@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument("-p", "--password", type=str, help="digest password", required=False)
 
     parser.add_argument("-b","--backup", type=str, help="path to backup", required=True)
-    parser.add_argument("-m", "--mediapackages", type=str, nargs='+', help="list of media package ids to be restored", required=False)
+    parser.add_argument("-m", "--media-packages", type=str, nargs='+', help="list of media package ids to be restored", required=False)
     parser.add_argument("-t","--tenant", type=str, help="tenant id", required=False)
     parser.add_argument('-w', "--workflow-id", type=str, help="id for workflow on ingest", required = False)
     parser.add_argument('-l', "--lastversion", action='store_true', help="always recover last version of mediapackage")
@@ -51,5 +51,5 @@ def parse_args():
 
     digest_login = DigestLogin(user= args.user, password = digest_pw)
 
-    return args.opencast, args.https, digest_login , args.backup, args.mediapackages, args.tenant, args.workflow_id, \
+    return args.opencast, args.https, digest_login , args.backup, args.media_packages, args.tenant, args.workflow_id, \
            args.lastversion

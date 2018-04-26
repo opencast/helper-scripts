@@ -1,60 +1,64 @@
-# Script for the recovery of mediapackages
+# Script for the recovery of media packages
 
 This script can be used to re-ingest one or more media packages from a backup of the archive.
 
 ### Usage
 
-`main.py -o OPENCAST [-s] -u USER [-p PASSWORD] -b BACKUP [-m MEDIAPACKAGES [MEDIAPACKAGES ...]] [-t TENANT] [-w WORKFLOW_ID] [-l]`
+`main.py -o OPENCAST [-s] -u USER [-p PASSWORD] -b BACKUP [-m MEDIA_PACKAGE [MEDIA_PACKAGE ...]] [-t TENANT] [-w WORKFLOW_ID] [-l]`
 
-| Short option       | Long option          | Description  | Default |
-| :-------------: |:-------------| :-----| :-----------|
-| `-o`            | `--opencast` | URL of the opencast instance ||
-| `-s`      | `-- https`      |   Flag for enabling https | http|
-| `-u` | `--user`      |   User for digest authentication |  |
-| `-p` | `--password` | Password for digest authentication | Read password in after start-up |
-| `-b` | `--backup` | Path to backup of archive |  |
-| `-m` | `--mediapackages` | One or multiple mediapackage IDs to be recovered | Recover all mediapackages contained in backup for specified tenant |
-| `-t` | `--tenant` | A tenant ID | mh_default_org |
-| `-w`| `--workflow-id` | Workflow to run on the re-ingested mediapackage | Default workflow configured in opencast |
-| `-l` | `--last-version` | Flag for always choosing the last version of a mediapackage | Ask user for version
+| Short option    | Long option       | Description                                                  | Default                                                            |
+| :-------------: | :---------------- | :----------------------------------------------------------- | :----------------------------------------------------------------- |
+| `-o`            | `--opencast`      | URL of the Opencast instance                                 |                                                                    |
+| `-s`            | `--https`         | Flag for enabling HTTPS                                      | HTTP                                                               |
+| `-u`            | `--user`          | User for digest authentication                               |                                                                    |
+| `-p`            | `--password`      | Password for digest authentication                           | Prompt for password after star                                     |
+| `-b`            | `--backup`        | Path to backup of archive                                    |                                                                    |
+| `-t`            | `--tenant`        | A tenant ID                                                  | `mh_default_org`                                                   |
+| `-m`            | `--mediapackages` | One or more media package IDs to be recovered                | Recover all media packages contained in backup for specified tenant |
+| `-w`            | `--workflow-id`   | Workflow to run on the re-ingested mediapackage              | Default workflow configured in opencast                            |
+| `-l`            | `--last-version`  | Flag for always choosing the last version of a media package | Ask user for version                                               |
 
 All parameters in braces are optional, the others required.
 
-##### Usage Example:
-`main.py` `-o` develop.opencast.org `-s` `-u` opencast_system_account `-p` CHANGE_ME `-b` /backups/archive_backup `-m` 8834ac27-f930-4042-b2e7-4f5c6c4db14a 446576e6-56d2-439e-9b9d-555cc8c910b3 `-t` mh_default_org `-w` schedule-and-upload `-l`
+##### Usage example
+
+    main.py -o develop.opencast.org -s -u opencast_system_account -p CHANGE_ME -b /backups/archive_backup -m 8834ac27-f930-4042-b2e7-4f5c6c4db14a 446576e6-56d2-439e-9b9d-555cc8c910b3 -t mh_default_org -w schedule-and-upload -l
 
 ### Requirements
+
 - Python 3
 - `requests`-Package
 
-### A few things to consider:
-- Neither the mediapackage itself nor all its subelements (tracks, catalogs, attachments) retain their IDs since this poses the risk of conflicts.
-- Tags are also not retained for all mediapackage elements, so the workflow on ingest will have to retag them.
-- The Tenant ID is not only used for finding the mediapackages in the backup but also for re-ingesting them, so it's currently not possible to re-ingest a mediapackage to another tenant than the one it originally belonged.
+### A few things to consider
+
+- Neither the media package itself nor any of its subelements (tracks, catalogs, attachments) retain their IDs since this poses the risk of conflicts.
+- Tags are also not retained for any media package element, so the given workflow will have to retag them upon ingest.
+- The Tenant ID is not only used for finding the media packages in the backup but also for re-ingesting them, so it's currently not possible to re-ingest a media package to a different tenant from the one to which it originally belonged.
 
 # The Recovery Process
-The recovery of one or more mediapackage(s) from backup is executed the following way:
+
+The recovery of one or more media package(s) from a backup is executed in the following way:
 
     Parse arguments, check for correctness
-    If no digest password: Read in digest password
+    If no digest password: Ask for digest password
     If no tenant: Set default tenant
-    If no mediapackage ids: Get ids of all mediapackages contained in backup for tenant
-    For each mediapackage id:
-        Find mediapackage folder in backup
-        If not found: Print error, skip recovery of this mediapackage
-        If last-version-Flag set: Pick last version
+    If no media package IDs: Get IDs of all media packages for tenant contained in backup
+    For each media package ID:
+        Find media package folder in backup
+        If not found: Print error, skip recovery of this media package
+        If last-version-flag set: Pick last version
         Else: Ask user for version to be recovered by presenting all available versions
-    Present user with all mediapackages that can be recovered (id, version, path) and ask for confirmation
+    Present user with all media packages that can be recovered (id, version, path) and ask for confirmation
     If no confirmation: Abort recovery
     Else:
-        For each recoverable mediapackage:
-            Create new mediapackage with /ingest/createMediaPackage
-            Get all mediapackage elements (tracks, catalogs, attachments) of old mediapackage by parsing manifest
-            If manifest can't be parsed: Print error, skip mediapackage
-            If mediapackage is missing a type of elements or has unexpected elements: Print warning
-            Add all tracks to new mediapackage with /ingest/addTrack
-            Add all attachments to new mediapackage with ingest/addAttachment
-            Add all catalogs to new mediapackage with ingest/addCatalog
-            Ingest new mediapackage with provided workflow or default workflow
-            If successful: Print new id of mediapackage and started workflow with id
+        For each recoverable media package:
+            Create new media package with /ingest/createMediaPackage
+            Get all media package elements (tracks, catalogs, attachments) of old media package by parsing manifest
+            If manifest can't be parsed: Print error, skip media package
+            If media package is missing a type of element or has unexpected elements: Print warning
+            Add all tracks to new media package with /ingest/addTrack
+            Add all attachments to new media package with /ingest/addAttachment
+            Add all catalogs to new media package with /ingest/addCatalog
+            Ingest new media package with provided workflow or default workflow
+            If successful: Print new ID of media package and started workflow with ID
             Else: Print error

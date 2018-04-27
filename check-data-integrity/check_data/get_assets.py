@@ -62,7 +62,7 @@ def get_asset_of_series(series, opencast_url, digest_login, assettype):
 
     return series_asset
 
-def get_assets_of_event(event, opencast_url, digest_login, has_series, series_asset_of_series, assettype):
+def get_assets_of_event(event, opencast_url, digest_login, series_of_event, series_asset_of_series, assettype):
     """
     Get episode and series ACLs and or dublincore from event and check if valid. If there are any errors, two Malformed
     objects containing the errors are returned instead.
@@ -72,8 +72,8 @@ def get_assets_of_event(event, opencast_url, digest_login, has_series, series_as
     :type opencast_url: str
     :param digest_login:
     :type digest_login: DigestLogin
-    :param has_series:
-    :type has_series: bool
+    :param series_of_event:
+    :type series_of_event: dict or Malformed
     :param series_asset_of_series:
     :param assettype:
     :type assettype: AssetType
@@ -85,7 +85,7 @@ def get_assets_of_event(event, opencast_url, digest_login, has_series, series_as
     except RequestError as e:
         return Malformed(errors=[e.error]), Malformed(errors=[e.error])
 
-    errors = check_episode_asset_of_event(episode_assets, ElementType.EVENT, assettype, has_series)
+    errors = check_episode_asset_of_event(episode_assets, ElementType.EVENT, assettype, series_of_event)
 
     if errors:
         episode_asset = Malformed(errors=errors)
@@ -95,7 +95,7 @@ def get_assets_of_event(event, opencast_url, digest_login, has_series, series_as
     if episode_asset and not isinstance(episode_asset, Malformed):
         episode_asset = __parse_for_comparison(episode_asset, ElementType.EVENT, CatalogType.EPISODE, assettype)
 
-    errors = check_series_asset_of_event(series_assets, has_series, ElementType.EVENT, assettype)
+    errors = check_series_asset_of_event(series_assets, series_of_event, ElementType.EVENT, assettype)
 
     if errors:
         series_asset = Malformed(errors=errors)
@@ -114,7 +114,7 @@ def get_assets_of_event(event, opencast_url, digest_login, has_series, series_as
 
     return episode_asset, series_asset
 
-def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_asset, has_series, assettype, repository):
+def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_asset, series_of_event, assettype, repository):
     """
     Get episode and series ACLs or dublincores from an oaipmh record and check for errors. Also check whether they match
     the ACLs and dublincores from the event. If there are any errors, two Malformed objects containing the errors are
@@ -124,8 +124,8 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
     :type oaipmh_record: ElementTree.Element
     :param original_episode_asset:
     :param original_series_asset:
-    :param has_series:
-    :type has_series: bool
+    :param series_of_event:
+    :type series_of_event: bool
     :param assettype: ACL or dublincore
     :type assettype: AssetType
     :return: Episode asset, series asset or Malformed*2 or None*2
@@ -134,7 +134,7 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
     episode_assets, series_assets = get_assets_from_oaipmh(oaipmh_record, assettype)
 
     # check episode asset
-    errors = check_episode_asset_of_event(episode_assets, ElementType.OAIPMH.format(repository), assettype, has_series)
+    errors = check_episode_asset_of_event(episode_assets, ElementType.OAIPMH.format(repository), assettype, series_of_event)
 
     if errors:
         episode_asset = Malformed(errors=errors)
@@ -151,7 +151,7 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
             episode_asset = Malformed(errors=errors)
 
     # check series asset
-    errors = check_series_asset_of_event(series_assets, has_series, ElementType.OAIPMH.format(repository), assettype)
+    errors = check_series_asset_of_event(series_assets, series_of_event, ElementType.OAIPMH.format(repository), assettype)
 
     if errors:
         series_asset = Malformed(errors=errors)

@@ -6,10 +6,11 @@ This module checks the data for errors and builds corresponding error messages.
 """
 from check_data.errors import missing, more, asset_without_series, more_series, series_not_found, asset_not_equal, \
     no_series
+from check_data.malformed import Malformed
 from check_data.types import CatalogType, AssetType
 from data_handling.compare_assets import compare_dc, compare_acl
 
-def check_episode_asset_of_event(assets, elementtype, assettype, has_series):
+def check_episode_asset_of_event(assets, elementtype, assettype, series_of_event):
     """
     Check episode ACL or dublincore of event for errors.
 
@@ -19,8 +20,8 @@ def check_episode_asset_of_event(assets, elementtype, assettype, has_series):
     :type elementtype: ElementType
     :param assettype: ACL or dublincore
     :type assettype: AssetType
-    :param has_series: Whether the event belongs to a series
-    :type has_series: bool
+    :param series_of_event: Series of event
+    :type series_of_event: dict or Malformed
     :return: errors
     :rtype: list
     """
@@ -31,21 +32,21 @@ def check_episode_asset_of_event(assets, elementtype, assettype, has_series):
         if assettype == AssetType.DC:
             errors.append(missing(elementtype, CatalogType.EPISODE, assettype)) # episode dc should never be missing
         elif assettype == AssetType.ACL:
-            if not has_series:
+            if not series_of_event or isinstance(series_of_event, Malformed):
                 errors.append(missing(elementtype, CatalogType.EPISODE, assettype)) # episode acl can be missing if
                                                                                     # there's a series acl
     if len(assets) > 1:
         errors.append(more(elementtype, CatalogType.EPISODE, assettype))
     return errors
 
-def check_series_asset_of_event(assets, has_series, elementtype, assettype):
+def check_series_asset_of_event(assets, series_of_event, elementtype, assettype):
     """
     Check series ACL or dublincore of event for errors.
 
     :param assets: Series ACLs or Dublincores of event
     :type assets: list
-    :param has_series: Whether the event has a series
-    :type has_series: bool
+    :param series_of_event: Series of event
+    :type series_of_event: dict or Malformed
     :param elementtype: Event or OAIPMH
     :type elementtype: ElementType
     :param assettype: ACL or dublincore
@@ -56,13 +57,13 @@ def check_series_asset_of_event(assets, has_series, elementtype, assettype):
 
     errors = []
 
-    if has_series and not assets:
+    if series_of_event and not isinstance(series_of_event, Malformed) and not assets:
         errors.append(missing(elementtype, CatalogType.SERIES, assettype))
 
     if len(assets) > 1:
         errors.append(more(elementtype, CatalogType.SERIES, assettype))
 
-    if assets and not has_series:
+    if assets and not series_of_event:
         errors.append(asset_without_series(elementtype, assettype))
 
     return errors

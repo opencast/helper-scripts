@@ -288,7 +288,8 @@ def main():
 
             error_collector.print_results_for_current_tenant()
 
-        error_collector.print_all_results()
+        if len(tenants) > 1:
+            error_collector.print_all_results()
         error_collector.write_to_file(results_dir)
 
     except RequestError as err:

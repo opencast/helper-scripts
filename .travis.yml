@@ -1,0 +1,29 @@
+sudo: false
+
+install: skip
+
+jobs:
+  include:
+    - stage: test
+      env: name=ingest
+      script:
+        - shellcheck ingest/*.sh
+
+    - stage: test
+      env: name=series
+      script:
+        - shellcheck create-series/create-series.sh
+
+    - stage: test
+      env: name=schedule
+      script:
+        - shellcheck schedule-now-*/*.sh
+
+    - stage: test
+      env: name=changelog
+      language: python
+      python: "3.6"
+      install:
+        - pip install flake8
+      script:
+        - flake8 create-changelog/changelog.py

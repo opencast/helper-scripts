@@ -41,7 +41,7 @@ SERIES_ACL='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 ###################################
 
-for i in $(seq $SERIES_SEQ); do
+for i in $(seq "$SERIES_SEQ"); do
 SERIES_DATE="$(date -Iseconds)"
 
 # opencast series dublincore catalog template
@@ -71,7 +71,7 @@ read -r -d '' SERIES_XML << EOM
 </dublincore>
 EOM
 
-curl -f -w "\n" --digest -u $OC_DIGEST_USER:$OC_DIGEST_PASSWORD -H "X-Requested-Auth: Digest" \
+curl -f -w "\\n" --digest -u $OC_DIGEST_USER:$OC_DIGEST_PASSWORD -H "X-Requested-Auth: Digest" \
   -X POST "$OC_URL/series/" \
   --data-urlencode "series=$SERIES_XML" \
   --data-urlencode "acl=$SERIES_ACL" &
@@ -79,14 +79,14 @@ curl -f -w "\n" --digest -u $OC_DIGEST_USER:$OC_DIGEST_PASSWORD -H "X-Requested-
 PIDS[$((i%PARALlEL_PS))]="$!"
 if [ "$((i%PARALlEL_PS))" -eq "0" ]; then
 	for waitidx in $(seq 0 $((PARALlEL_PS-1))); do
-		wait "${PIDS[$waitidx]}" 2>1 >/dev/null
+		wait "${PIDS[$waitidx]}" >/dev/null 2>&1
 	done
 fi
 done
 
 # wait for running processes
 for waitidx in $(seq 0 $((PARALlEL_PS-1))); do
-	wait "${PIDS[$waitidx]}" 2>1 >/dev/null
+	wait "${PIDS[$waitidx]}" >/dev/null 2>&1
 done
 
 echo "series range $SERIES_SEQ created"

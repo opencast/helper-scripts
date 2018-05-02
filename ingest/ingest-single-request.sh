@@ -1,9 +1,9 @@
 #!/bin/sh
 
-NUMBER_OF_INGESTS=10
-SERVER='http://localhost:8080'
+NUMBER_OF_INGESTS=2
+SERVER='https://develop.opencast.org'
 DIGEST_LOGIN='opencast_system_account:CHANGE_ME'
-VIDEO_FILE='test.mp4'
+VIDEO_FILE='video.webm'
 WORKFLOW='fast'
 
 set -eux

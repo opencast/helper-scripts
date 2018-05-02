@@ -1,9 +1,6 @@
 Ingest Scripts
 ==============
 
-*Note that all audio and video files are dummies and need to be replaced for
-actual ingests*
-
 ingest-single-request.sh
 ------------------------
 

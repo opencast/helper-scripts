@@ -2,7 +2,7 @@
 
 set -eux
 
-HOST="http://localhost:8080"
+HOST="https://develop.opencast.org"
 USER="opencast_system_account"
 PASSWORD="CHANGE_ME"
 WORKFLOW='fast'
@@ -39,12 +39,12 @@ curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
 # Add Track
 curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
   "${HOST}/ingest/addTrack" -F flavor=presenter/source \
-  -F "mediaPackage=<${TMP_MP}" -F Body=@video.mp4 -o "${TMP_MP}"
+  -F "mediaPackage=<${TMP_MP}" -F Body=@video.webm -o "${TMP_MP}"
 
 # Add Track
 curl -f --digest -u ${USER}:${PASSWORD} -H "X-Requested-Auth: Digest" \
-  "${HOST}/ingest/addTrack" -F flavor=presenter/source \
-  -F "mediaPackage=<${TMP_MP}" -F Body=@audio.m4a -o "${TMP_MP}"
+  "${HOST}/ingest/addTrack" -F flavor=presentation/source \
+  -F "mediaPackage=<${TMP_MP}" -F Body=@video.webm -o "${TMP_MP}"
 
 curl -f -v -i --digest -u ${USER}:${PASSWORD} \
     -H "X-Requested-Auth: Digest" \

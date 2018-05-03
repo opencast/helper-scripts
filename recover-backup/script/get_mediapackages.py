@@ -8,6 +8,7 @@ from util.input import get_number
 
 MediaPackage = namedtuple('MediaPackage', ["id", "version", "path"])
 
+
 def get_all_mediapackages(backup_path, tenant, use_last_version):
     """
     Find all mediapackages in the directory given by the backup path and the tenant for recovery, ask for the version
@@ -90,6 +91,6 @@ def get_mediapackages(mediapackage_ids, backup_path, tenant, use_last_version):
 
         version_dir = os.path.join(mp_dir, str(version))
 
-        mps_to_recover.append(MediaPackage(id = mp_id, version = version, path = version_dir))
+        mps_to_recover.append(MediaPackage(id=mp_id, version=version, path=version_dir))
 
     return sorted(mps_to_recover, key=attrgetter('id'))

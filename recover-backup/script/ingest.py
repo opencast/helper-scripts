@@ -5,7 +5,8 @@ from util.request import post_request, get_request
 
 Workflow = namedtuple("Workflow", ["id", "template", "mp_id"])
 
-def createMediapackage(base_url, digest_login):
+
+def create_mediapackage(base_url, digest_login):
     """
     Creates a new mediapackage represented by an XML string.
 
@@ -24,7 +25,7 @@ def createMediapackage(base_url, digest_login):
     return response.content.decode('utf8')
 
 
-def addAttachment(base_url, digest_login, mp, attachment):
+def add_attachment(base_url, digest_login, mp, attachment):
     """
     Adds an attachment to a new mediapackage.
 
@@ -50,7 +51,7 @@ def addAttachment(base_url, digest_login, mp, attachment):
     return response.content
 
 
-def addCatalog(base_url, digest_login, mp, catalog):
+def add_catalog(base_url, digest_login, mp, catalog):
     """
     Adds a catalog to a new mediapackage.
 
@@ -75,7 +76,8 @@ def addCatalog(base_url, digest_login, mp, catalog):
 
     return response.content
 
-def addTrack(base_url, digest_login, mp, track):
+
+def add_track(base_url, digest_login, mp, track):
     """
     Adds a track to a new mediapackage.
 
@@ -93,12 +95,13 @@ def addTrack(base_url, digest_login, mp, track):
 
     url = '{}/ingest/addTrack'.format(base_url)
 
-    data = {'flavor': track.flavor, 'mediaPackage': mp} # TODO tags
+    data = {'flavor': track.flavor, 'mediaPackage': mp}
     files = {'BODY': open(track.path, 'rb')}
 
     response = post_request(url, digest_login, "/ingest/addTrack", data, files)
 
     return response.content
+
 
 def ingest(base_url, digest_login, mp, workflow_id):
     """
@@ -126,6 +129,7 @@ def ingest(base_url, digest_login, mp, workflow_id):
     response = post_request(url, digest_login, "/ingest/ingest", data, None)
     return __parse_ingest_response(response)
 
+
 def __parse_ingest_response(response):
     """
     Parses relevant information from the response of /ingest.
@@ -135,7 +139,7 @@ def __parse_ingest_response(response):
     :rtype: Workflow
     """
 
-    namespaces = {"mp":"http://mediapackage.opencastproject.org", "wf":"http://workflow.opencastproject.org"}
+    namespaces = {"mp": "http://mediapackage.opencastproject.org", "wf": "http://workflow.opencastproject.org"}
 
     workflow = get_xml_content(response)
     workflow_id = workflow.get("id")
@@ -143,4 +147,4 @@ def __parse_ingest_response(response):
     mediapackage = workflow.find("mp:mediapackage", namespaces)
     mp_id = mediapackage.get("id")
 
-    return Workflow(id = workflow_id, template = workflow_template, mp_id = mp_id)
+    return Workflow(id=workflow_id, template=workflow_template, mp_id=mp_id)

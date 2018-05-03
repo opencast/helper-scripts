@@ -2,6 +2,7 @@
 This module provides functionality to get additional input from the user.
 """
 
+
 def get_yes_no_answer(question):
     """
     Ask user a yes/no-question.
@@ -23,6 +24,7 @@ def get_yes_no_answer(question):
         else:
             print("Invalid answer.")
 
+
 def get_number(prompt, invalid, valid_numbers):
     """
     Ask the user for a number, can check for validity.
@@ -40,13 +42,12 @@ def get_number(prompt, invalid, valid_numbers):
     while True:
 
         try:
-            number = int(
-                input(prompt)) # TODO
+            number = int(input(prompt))
 
             if number in valid_numbers or not valid_numbers:
                 return number
             else:
-                print(invalid) # TODO
+                print(invalid)
 
         except ValueError:
             print("Input has to be a number!")

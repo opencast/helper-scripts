@@ -1,5 +1,6 @@
 from util.input import get_yes_no_answer
 
+
 def check_recovery_start(mps_to_recover):
     """
     Present the mediapackages about to be recovered to the user and ask whether a recovery should be attempted under

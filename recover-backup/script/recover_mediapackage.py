@@ -1,5 +1,6 @@
-from script.ingest import createMediapackage, addAttachment, addCatalog, addTrack, ingest
+from script.ingest import create_mediapackage, add_attachment, add_catalog, add_track, ingest
 from script.get_mediapackage_elements import get_mediapackage_elements
+
 
 def recover_mp(mp, base_url, digest_login, workflow_id):
     """
@@ -17,23 +18,21 @@ def recover_mp(mp, base_url, digest_login, workflow_id):
     :raise MediaPackageError:
     """
 
-
-    new_mp = createMediapackage(base_url, digest_login)
+    new_mp = create_mediapackage(base_url, digest_login)
 
     tracks, catalogs, attachments = get_mediapackage_elements(mp)
 
     for track in tracks:
 
-        new_mp = addTrack(base_url, digest_login, new_mp, track)
+        new_mp = add_track(base_url, digest_login, new_mp, track)
 
     for attachment in attachments:
 
-        new_mp = addAttachment(base_url, digest_login, new_mp, attachment)
+        new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
 
     for catalog in catalogs:
 
-        new_mp = addCatalog(base_url, digest_login, new_mp, catalog)
+        new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
 
     workflow = ingest(base_url, digest_login, new_mp, workflow_id)
     return workflow
-

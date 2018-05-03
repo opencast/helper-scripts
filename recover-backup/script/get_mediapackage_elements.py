@@ -1,10 +1,11 @@
 from collections import defaultdict, namedtuple
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 
 import os
 
 namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
 Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags'])
+
 
 class MediapackageError(Exception):
     """
@@ -12,6 +13,7 @@ class MediapackageError(Exception):
     Simply contains an error message and nothing else.
     """
     pass
+
 
 def get_mediapackage_elements(mp):
     """
@@ -29,7 +31,7 @@ def get_mediapackage_elements(mp):
         raise MediapackageError("Mediapackage {} is missing it's manifest.".format(mp.id))
 
     try:
-        manifest = ET.parse(manifest_file)
+        manifest = ElementTree.parse(manifest_file)
     except Exception:
         raise MediapackageError("Manifest of mediapackage {} could not be parsed.".format(mp.id))
 
@@ -37,28 +39,29 @@ def get_mediapackage_elements(mp):
 
     for element in ["media", "metadata", "attachments"]:
 
-        for medium in manifest.findall("./manifest:" + element+"/", namespaces):
+        for subelement in manifest.findall("./manifest:" + element+"/", namespaces):
 
-            subtype = medium.tag.split("}")[-1]
+            subtype = subelement.tag.split("}")[-1]
 
-            id = medium.get("id")
-            flavor = medium.get("type")
-            mimetype = medium.find("manifest:mimetype", namespaces).text
-            file_extension = medium.find("manifest:url", namespaces).text.split(".")[-1]
-            filename = id + "." + file_extension
+            subelement_id = subelement.get("id")
+            flavor = subelement.get("type")
+            mimetype = subelement.find("manifest:mimetype", namespaces).text
+            file_extension = subelement.find("manifest:url", namespaces).text.split(".")[-1]
+            filename = subelement_id + "." + file_extension
             path = os.path.join(mp.path, filename)
 
-            tag_elements = medium.findall("manifest:tags/manifest:tag", namespaces)
+            tag_elements = subelement.findall("manifest:tags/manifest:tag", namespaces)
             tags = None
 
             if tag_elements:
                 tags = [element.text for element in tag_elements]
 
             if not os.path.isfile(path):
-                raise MediapackageError("Mediapackage {} is missing a {} with id {}.".format(mp.id, subtype, id))
+                raise MediapackageError("Mediapackage {} is missing a {} with id {}.".format(mp.id, subtype,
+                                                                                             subelement_id))
 
-            elements[element][subtype].append(Element(id=id, flavor=flavor, mimetype=mimetype, filename=filename,
-                                                      path=path, tags=tags))
+            elements[element][subtype].append(Element(id=subelement_id, flavor=flavor, mimetype=mimetype,
+                                                      filename=filename, path=path, tags=tags))
 
     tracks = __get_subtype_elements(elements, "media", "track", mp.id)
     catalogs = __get_subtype_elements(elements, "metadata", "catalog", mp.id)
@@ -66,13 +69,15 @@ def get_mediapackage_elements(mp):
 
     return tracks, catalogs, attachments
 
-def __get_subtype_elements(elements, type, subtype, mp_id):
 
-    if not type in elements.keys() or not subtype in elements[type].keys():
-        print("Warning: Mediapackage {} has no {}s.".format(mp_id, subtype))
+def __get_subtype_elements(elements, element_type, subelement_type, mp_id):
+
+    if element_type not in elements.keys() or subelement_type not in elements[element_type].keys():
+        print("Warning: Mediapackage {} has no {}s.".format(mp_id, subelement_type))
         return None
 
-    if len(elements[type].keys()) > 1:
-        print("Warning: Mediapackage {} has {} elements that aren't {}s, these will not be recovered.".format(mp_id, type, subtype))
+    if len(elements[element_type].keys()) > 1:
+        print("Warning: Mediapackage {} has {} elements that aren't {}s, these will not be recovered."
+              .format(mp_id, element_type, subelement_type))
 
-    return elements[type][subtype]
+    return elements[element_type][subelement_type]

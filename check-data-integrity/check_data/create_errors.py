@@ -20,6 +20,7 @@ def missing(elementtype, catalogtype, assettype):
 
     return error
 
+
 def more(elementtype, catalogtype, assettype):
     """
     Formats error message for more than one asset of same type.
@@ -37,6 +38,7 @@ def more(elementtype, catalogtype, assettype):
 
     return error
 
+
 def asset_not_equal(first_elementtype, second_elementtype, catalogtype, assettype):
     """
     Formats error message for nonequal assets.
@@ -53,10 +55,11 @@ def asset_not_equal(first_elementtype, second_elementtype, catalogtype, assettyp
     :rtype: str
     """
     error = "{} with a {} {} unequal with that of their {}".format(first_elementtype.unknown,
-                                                                         catalogtype.singular, assettype.singular,
-                                                                         second_elementtype.singular)
+                                                                   catalogtype.singular, assettype.singular,
+                                                                   second_elementtype.singular)
 
     return error
+
 
 def asset_without_series(elementtype, assettype):
     """
@@ -74,6 +77,7 @@ def asset_without_series(elementtype, assettype):
 
     return error
 
+
 def more_series():
     """
     Formats error message for event with more than one series.
@@ -85,6 +89,7 @@ def more_series():
     error = "event(s) with more than one series"
 
     return error
+
 
 def series_not_found():
     """
@@ -98,6 +103,7 @@ def series_not_found():
 
     return error
 
+
 def no_series():
     """
     Formats error message for event with missing series.
@@ -109,6 +115,7 @@ def no_series():
     error = "event(s) without a series"
     return error
 
+
 def parsing_error(elementtype, catalogtype, assettype, error):
     """
     Formats error message for parsing error of asset.
@@ -119,6 +126,8 @@ def parsing_error(elementtype, catalogtype, assettype, error):
     :type catalogtype: CatalogType
     :param assettype: DC, ACL (but currently only ACL)
     :type assettype: AssetType
+    :param error: encountered error
+    :type error: str
     :return: error message
     :rtype: str
     """

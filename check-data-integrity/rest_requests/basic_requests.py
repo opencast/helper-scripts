@@ -3,6 +3,7 @@ from rest_requests.get_response_content import get_json_content
 
 JAVA_MAX_INT = 2147483647
 
+
 def get_tenants(base_url, digest_login):
     """
     Returns a sorted list of unique tenant ids
@@ -27,6 +28,7 @@ def get_tenants(base_url, digest_login):
         tenants = [json_content["organizations"]["organization"]["id"]]
     return tenants
 
+
 def get_series(base_url, digest_login):
     """
     Returns all series of one tenant.
@@ -45,6 +47,7 @@ def get_series(base_url, digest_login):
     json_content = get_json_content(response)
 
     return json_content["results"]
+
 
 def get_events(base_url, digest_login):
     """

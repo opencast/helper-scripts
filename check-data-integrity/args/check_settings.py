@@ -1,12 +1,13 @@
 from util.enum import enum
 
 Checks = enum(
-    DC = "dc",
-    ACL = "acl",
-    DC_ACL = "dc_acl",
-    OAIPMH = "oaipmh",
-    ALL = "all"
+    DC="dc",
+    ACL="acl",
+    DC_ACL="dc_acl",
+    OAIPMH="oaipmh",
+    ALL="all"
 )
+
 
 class CheckSettings:
     """
@@ -43,4 +44,4 @@ class CheckSettings:
         :return: whether OAIPMH is supposed to be checked for errors.
         :rtype: bool
         """
-        return (self.check == Checks.ALL or self.check == Checks.OAIPMH)
+        return self.check == Checks.ALL or self.check == Checks.OAIPMH

@@ -2,6 +2,7 @@
 This module provides functionality to compare assets (ACLs and dublincore catalogs).
 """
 
+
 def compare_dc(dc1, dc2):
     """
     Compares two dublincore catalogs by comparing the tag and text of every child.
@@ -41,6 +42,7 @@ def compare_dc(dc1, dc2):
             return False
 
     return True
+
 
 def compare_acl(acl1, acl2):
     """

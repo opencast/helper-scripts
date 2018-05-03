@@ -1,6 +1,8 @@
 """
 This module makes enum definition easier.
 """
+
+
 def enum(**named_values):
     """
     Create an enum with the following values.

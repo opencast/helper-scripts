@@ -6,6 +6,7 @@ from xml.etree import ElementTree
 
 from data_handling.namespaces import namespaces
 
+
 def parse_acl(acl):
     """
     Parses an ACL in json or xml format into a dict.

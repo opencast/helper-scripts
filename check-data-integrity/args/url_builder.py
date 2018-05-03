@@ -1,5 +1,6 @@
 DEFAULT_TENANT = "mh_default_org"
 
+
 class URLBuilder:
 
     def __init__(self, opencast, https):

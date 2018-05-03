@@ -2,6 +2,7 @@
 This module provides utility methods for series and events.
 """
 
+
 def get_id(element) -> str:
     """
     Returns the id of an event or series.
@@ -19,6 +20,7 @@ def get_id(element) -> str:
     else:
         raise ValueError("Element has no ID")
 
+
 def has_series(event) -> bool:
     """
     Checks if the event belongs to a series.
@@ -28,6 +30,7 @@ def has_series(event) -> bool:
     :rtype: bool
     """
     return "series" in event and event["series"]["id"]
+
 
 def published_to_oaipmh(event) -> bool:
     """

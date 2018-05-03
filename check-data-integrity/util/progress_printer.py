@@ -49,7 +49,7 @@ class ProgressPrinter:
             self.last_message = message
 
             if not self.previous_line_ended:
-                print ("\n")
+                print("\n")
 
             if newline_after:
                 print("{}{}".format(self.indent, message))
@@ -104,8 +104,10 @@ class ProgressPrinter:
 
                 print("{}Progress: {} {:2}%".format(self.indent, progress_bar, percent), end='\r', flush=True)
 
-    def __clear_line(self):
+    @staticmethod
+    def __clear_line():
         sys.stdout.write("\033[K")  # clear line
 
-    def __back_to_previous_line(self):
+    @staticmethod
+    def __back_to_previous_line():
         sys.stdout.write("\033[F")

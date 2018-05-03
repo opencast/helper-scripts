@@ -23,6 +23,7 @@ def __get_dcs_from_oaipmh(record):
 
     return episode_dcs, series_dcs
 
+
 def __get_acls_from_oaipmh(record):
     """
     Get all ACLs from an oaipmh record.
@@ -39,6 +40,7 @@ def __get_acls_from_oaipmh(record):
     series_acls = [acl.find("acl:Policy", namespaces) for acl in acls if acl.get('type') == 'security/xacml+series']
 
     return episode_acls, series_acls
+
 
 def get_assets_from_oaipmh(record, assettype):
     """

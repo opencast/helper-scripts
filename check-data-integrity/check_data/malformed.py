@@ -5,4 +5,4 @@ It contains the error messages for the encountered errors.
 
 from collections import namedtuple
 
-Malformed = namedtuple('Malformed',['errors'])
+Malformed = namedtuple('Malformed', ['errors'])

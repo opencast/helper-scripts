@@ -27,18 +27,18 @@ class ErrorCollector:
         self.errors[tenant] = defaultdict(list)
         self.current_tenant = tenant
 
-    def collect_errors(self, malformed, id):
+    def collect_errors(self, malformed, element_id):
         """
         Collects the errors from a malformed object and adds them to those of the current tenant.
 
         :param malformed:
         :type malformed: Malformed
-        :param id:
-        :type id: str
+        :param element_id:
+        :type element_id: str
         """
 
         for error in malformed.errors:
-            self.errors[self.current_tenant][error].append(id)
+            self.errors[self.current_tenant][error].append(element_id)
 
     def set_tenant_error(self, error):
         """
@@ -86,23 +86,23 @@ class ErrorCollector:
             self.__print_results_for_tenant(tenant)
             print()
 
-    def write_to_file(self, dir):
+    def write_to_file(self, directory):
         """
         Writes the encountered into files.
 
-        :param dir: The directory for the results
-        :type dir: str
+        :param directory: The directory for the results
+        :type directory: str
         """
 
         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
 
-        results_dir = os.path.join(dir, 'data_integrity_check_results_{}'.format(timestamp))
+        results_dir = os.path.join(directory, 'data_integrity_check_results_{}'.format(timestamp))
         os.makedirs(results_dir)
 
         tenants = sorted(self.errors.keys())
         for tenant in tenants:
 
-            if self.errors[tenant].keys() and not self.TENANT_ERROR in self.errors[tenant].keys():
+            if self.errors[tenant].keys() and self.TENANT_ERROR not in self.errors[tenant].keys():
                 tenant_dir = os.path.join(results_dir, tenant)
                 os.makedirs(tenant_dir)
 
@@ -116,5 +116,5 @@ class ErrorCollector:
 
                     filename = os.path.join(tenant_dir, '{}.txt'.format(message))
                     with open(filename, 'w', newline='') as file:
-                        for id in id_list:
-                            file.write("{}\n".format(id))
+                        for element_id in id_list:
+                            file.write("{}\n".format(element_id))

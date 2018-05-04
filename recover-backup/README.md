@@ -12,7 +12,7 @@ This script can be used to re-ingest one or more media packages from a backup of
 | `-s`            | `--https`         | Flag for enabling HTTPS                                      | HTTP                                                               |
 | `-u`            | `--user`          | User for digest authentication                               |                                                                    |
 | `-p`            | `--password`      | Password for digest authentication                           | Prompt for password after start-up                                 |
-| `-b`            | `--backup`        | Path to backup of archive                                    |                                                                    |
+| `-b`            | `--backup`        | Path to backup of archive (raw copy of the archive tree)     |                                                                    |
 | `-t`            | `--tenant`        | A tenant ID                                                  | `mh_default_org`                                                   |
 | `-m`            | `--media-packages`| One or more media package IDs to be recovered                | Recover all media packages contained in backup for specified tenant|
 | `-w`            | `--workflow-id`   | Workflow to run on the re-ingested mediapackage              | Default workflow configured in opencast                            |

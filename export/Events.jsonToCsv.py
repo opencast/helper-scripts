@@ -1,23 +1,23 @@
-#/bin/python
+#!/usr/bin/env python
 
 import json
 
-import json
 from pprint import pprint
 
-csvString='Titel;Startdatum;SERIES;ID\n'
+if __name__ == '__main__':
 
-with open('events.json') as data_file:
-    data = json.load(data_file)
-for u in data['results']:
-    Seriestitle = ''
-    if u.get('series'):
-        Seriestitle = u.get('series')['title']
+    csvString='Titel;Startdatum;SERIES;ID\n'
 
-    csvString+=u['title'] + ';' + u['technical_start'] + ';' + Seriestitle + ';' + u['id'] + '\n'
+    with open('events.json') as data_file:
+        data = json.load(data_file)
+    for u in data['results']:
+        seriestitle = ''
+        if u.get('series'):
+            seriestitle = u.get('series')['title']
 
-print csvString
+        csvString+=u['title'] + ';' + u['technical_start'] + ';' + seriestitle + ';' + u['id'] + '\n'
 
-file = open('events.csv','w')
-file.write(csvString.encode('utf-8'))
-file.close()
+    print (csvString)
+
+    with open('events.csv','w') as file:
+        file.write(csvString.encode('utf-8'))

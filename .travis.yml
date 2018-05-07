@@ -27,3 +27,15 @@ jobs:
         - pip install flake8
       script:
         - flake8 create-changelog/changelog.py
+
+    - stage: test
+      env: name=csv-export
+      language: python
+      python:
+        - "2.7"
+        - "3.6"
+      install:
+        - pip install flake8
+      script:
+        - shellcheck csv-export/getEvents.sh
+        - flake8 csv-export/events2csv.py

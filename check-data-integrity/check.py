@@ -4,36 +4,36 @@
 This script checks if certain data in opencast is missing, out-of-date or otherwise malformed and reports the affected
 series and events for each tenant.
 """
+from check.args.check_settings import CheckSettings
+from check.args.parse_args import parse_args
+from check.check_data.error_collector import ErrorCollector
+from check.check_data.get_assets import get_asset_of_series, get_series_of_event, get_assets_of_event, \
+    get_assets_of_oaipmh
+from check.check_data.malformed import Malformed
+from check.check_data.types import AssetDescription
+from shared.args.url_builder import URLBuilder
+from shared.data.elements import get_id, published_to_oaipmh, get_oaipmh_publications
+from shared.rest_requests.basic_requests import get_tenants, get_events, get_series
+from shared.rest_requests.oaipmh_requests import get_oaipmh_record
+from shared.rest_requests.request_error import RequestError
+from shared.util.progress_printer import ProgressPrinter
 
-from args.check_settings import CheckSettings
-from check_data.get_assets import get_asset_of_series, get_series_of_event, get_assets_of_event, get_assets_of_oaipmh
-from check_data.malformed import Malformed
-from check_data.types import AssetType
-from data_handling.element_util import get_id, published_to_oaipmh
-from rest_requests.oaipmh_requests import get_oaipmh_record, get_oaipmh_publications
-from util.error_collector import ErrorCollector
-from rest_requests.basic_requests import get_events, get_tenants, get_series
-from args.parse_args import parse_args
-from util.progress_printer import ProgressPrinter
-from rest_requests.request_error import RequestError
-from args.url_builder import URLBuilder
 
-
-def check_assets_of_series(series, opencast_url, digest_login, asset_type, error_collector, progress_printer):
+def check_assets_of_series(series, opencast_url, digest_login, asset_description, error_collector, progress_printer):
     """
     Get ACLs or dublincores of all series and put them in a dict. If some of them are malformed, collect their errors.
 
     :param series: all series
     :type series: list
-    :param opencast_url:
+    :param opencast_url: The URL to an opencast instance
     :type opencast_url: str
-    :param digest_login:
+    :param digest_login: The login data for digest authentication
     :type digest_login: DigestLogin
-    :param asset_type:
-    :type asset_type: AssetType
-    :param error_collector:
+    :param asset_description: ACLs or dublincore catalogs
+    :type asset_description: AssetDescription
+    :param error_collector: The error collector
     :type error_collector: ErrorCollector
-    :param progress_printer:
+    :param progress_printer: The progress printer
     :type progress_printer: ProgressPrinter
     :return: Map with series ids and the associated assets
     :rtype: dict
@@ -45,7 +45,7 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_type, error
 
         progress_printer.print_progress(count, len(series))
 
-        series_asset = get_asset_of_series(a_series, opencast_url, digest_login, asset_type)
+        series_asset = get_asset_of_series(a_series, opencast_url, digest_login, asset_description)
 
         if isinstance(series_asset, Malformed):
             error_collector.collect_errors(series_asset, get_id(a_series))
@@ -53,7 +53,7 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_type, error
         series_asset_map[get_id(a_series)] = series_asset
 
     if len(series) != len(series_asset_map.keys()):
-        raise ValueError("Less series {}s than series!".format(asset_type))
+        raise ValueError("Less series {} than series!".format(asset_description.BOTH))
 
     return series_asset_map
 
@@ -62,15 +62,15 @@ def check_series_of_events(events, series, error_collector, progress_printer, no
     """
     Get series for each event if it belongs to one. If some of them are malformed, collect their errors.
 
-    :param events:
+    :param events: The events of the current tenant
     :type events: list
-    :param series:
+    :param series: The series of the current tenant
     :type series: list
-    :param error_collector:
+    :param error_collector: The error collector
     :type error_collector: ErrorCollector
-    :param progress_printer:
+    :param progress_printer: The progress printer
     :type progress_printer: ProgressPrinter
-    :param no_series_error: Whether events without series are wrong
+    :param no_series_error: Whether events without series are considered malformed
     :type no_series_error: bool
     :return: Map with event id and the associated series or None
     :rtype: dict
@@ -92,26 +92,26 @@ def check_series_of_events(events, series, error_collector, progress_printer, no
     return event_series_map
 
 
-def check_assets_of_events(events, event_series_map, series_asset_map, opencast_url, digest_login, asset_type,
+def check_assets_of_events(events, event_series_map, series_asset_map, opencast_url, digest_login, asset_description,
                            error_collector, progress_printer):
     """
     Get ACLs or dublincores of all events and put them in a dict. If some of them are malformed, collect their errors.
 
-    :param events:
+    :param events: The events of the current tenant
     :type events: list
-    :param event_series_map:
+    :param event_series_map: Dictionary mapping events to their series
     :type event_series_map: dict
-    :param series_asset_map:
+    :param series_asset_map: Dictionary mapping series to their assets
     :type series_asset_map: dict
-    :param opencast_url:
+    :param opencast_url: The URL to an opencast instance
     :type opencast_url: str
-    :param digest_login:
+    :param digest_login: The login data for digest authentication
     :type digest_login: DigestLogin
-    :param asset_type:
-    :type asset_type: AssetType
-    :param error_collector:
+    :param asset_description: ACLs or dublincore catalogs
+    :type asset_description: AssetDescription
+    :param error_collector: The error collector
     :type error_collector: ErrorCollector
-    :param progress_printer:
+    :param progress_printer: The progress printer
     :type progress_printer: ProgressPrinter
     :return: Map with event ids and the associated assets
     :rtype: dict
@@ -131,7 +131,7 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
             series_asset_of_series = None
 
         episode_asset, series_asset = get_assets_of_event(event, opencast_url, digest_login, series_of_event,
-                                                          series_asset_of_series, asset_type)
+                                                          series_asset_of_series, asset_description)
 
         if isinstance(episode_asset, Malformed):
             error_collector.collect_errors(episode_asset, get_id(event))
@@ -153,19 +153,19 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
 
     :param oaipmh_events: All events published to OAIPMH
     :type oaipmh_events: list
-    :param event_series_map:
+    :param event_series_map: Dictionary mapping events to their series
     :type event_series_map: dict
-    :param event_dc_map:
+    :param event_dc_map: Dictionary mapping events to their dublincore catalogs
     :type event_dc_map: dict
-    :param event_acl_map:
+    :param event_acl_map: Dictionary mapping events to their ACLs
     :type event_acl_map: dict
-    :param digest_login:
+    :param digest_login: The login data for digest authentication
     :type digest_login: DigestLogin
-    :param error_collector:
+    :param error_collector: The error collector
     :type error_collector: ErrorCollector
-    :param opencast_url:
+    :param opencast_url: The URL to an opencast instance
     :type opencast_url: str
-    :param progress_printer:
+    :param progress_printer: The progress printer
     :type progress_printer: ProgressPrinter
     """
 
@@ -187,7 +187,8 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
 
                 # check dublincore catalogs of oaipmh
                 oaipmh_episode_dc, oaipmh_series_dc = get_assets_of_oaipmh(oaipmh_record, episode_dc, series_dc,
-                                                                           series_of_event, AssetType.DC, oaipmh_repo)
+                                                                           series_of_event, AssetDescription.DC,
+                                                                           oaipmh_repo)
 
                 if isinstance(oaipmh_episode_dc, Malformed):
                     error_collector.collect_errors(oaipmh_episode_dc, get_id(event))
@@ -196,7 +197,7 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
 
                 # check acls of oaipmh
                 oaipmh_episode_acl, oaipmh_series_acl = get_assets_of_oaipmh(oaipmh_record, episode_acl, series_acl,
-                                                                             series_of_event, AssetType.ACL,
+                                                                             series_of_event, AssetDescription.ACL,
                                                                              oaipmh_repo)
 
                 if isinstance(oaipmh_episode_acl, Malformed):
@@ -209,14 +210,48 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
                 error_collector.collect_errors(oaipmh_record, get_id(event))
 
 
-def main():
+def filter_tenants(chosen_tenants, excluded_tenants, progress_printer, url_builder, digest_login):
     """
-    Iterates over all series, and events and checks ACLs and/or dublincore catalogs, collects the error messages of all
-    malformed elements
-    print them out in the end.
+    Filter tenants by either choosing or excluding them (both at the same time isn't possible).
+
+    :param chosen_tenants: The chosen tenants
+    :type chosen_tenants: list or None
+    :param excluded_tenants: The excluded tenants
+    :type excluded_tenants: list or None
+    :param progress_printer: The progress printer
+    :type progress_printer: ProgressPrinter
+    :param url_builder: The URL builder
+    :type url_builder: URLBuilder
+    :param digest_login: The login data for digest authentication
+    :type digest_login: DigestLogin
+    :return: A sorted list with tenants to check
+    :rtype: list
     """
 
-    opencast, tenants, exclude_tenants, https, digest_login, silent,  no_fancy_output, no_series_error, check, \
+    if chosen_tenants:
+        tenants = chosen_tenants
+    else:
+        # request tenants
+        progress_printer.print_message("Requesting tenants... ", 0, False, True)
+        tenants = get_tenants(url_builder.get_base_url(None), digest_login)
+        progress_printer.print_message("{} tenant(s) received.\n".format(len(tenants)), 0, True, False)
+
+    if excluded_tenants:
+        progress_printer.print_message("Filtering tenants... ", 0, False, True)
+        tenants = [tenant for tenant in tenants if tenant not in excluded_tenants]
+        progress_printer.print_message("{} tenant(s) remain.\n".format(len(tenants)), 0, True, False)
+
+    tenants.sort()
+    return tenants
+
+
+def main():
+    """
+    Iterate over all series, events and/or OAIPMH records and check ACLs and/or dublincore catalogs, collect the error
+    messages of all malformed elements and print them out in the end as well as save them to files.
+    """
+
+    opencast, chosen_tenants, excluded_tenants, https, digest_login, silent,  no_fancy_output, no_series_error, check, \
         results_dir = parse_args()
 
     url_builder = URLBuilder(opencast, https)
@@ -227,18 +262,7 @@ def main():
 
     try:
 
-        if not tenants:
-            # get tenants
-            progress_printer.print_message("Requesting tenants... ", 0, False, True)
-            tenants = get_tenants(url_builder.get_base_url(None), digest_login)
-            progress_printer.print_message("{} tenant(s) received.\n".format(len(tenants)), 0, True, False)
-
-        if exclude_tenants:
-            progress_printer.print_message("Filtering tenants... ", 0, False, True)
-            tenants = [tenant for tenant in tenants if tenant not in exclude_tenants]
-            progress_printer.print_message("{} tenant(s) remain.\n".format(len(tenants)), 0, True, False)
-
-        tenants.sort()
+        tenants = filter_tenants(chosen_tenants, excluded_tenants, progress_printer, url_builder, digest_login)
 
         progress_printer.print_message('Starting checks for the following tenants: {}\n'.format(", ".join(tenants)), 0)
 
@@ -260,13 +284,13 @@ def main():
 
                     if check_settings.check_dc():
                         progress_printer.print_message("Starting check of dublincore catalogs of series... ", 2)
-                        series_dc_map = check_assets_of_series(series, opencast_url, digest_login, AssetType.DC,
+                        series_dc_map = check_assets_of_series(series, opencast_url, digest_login, AssetDescription.DC,
                                                                error_collector, progress_printer)
 
                     if check_settings.check_acl():
                         progress_printer.print_message("Starting check of ACLs of series... ", 2)
-                        series_acl_map = check_assets_of_series(series, opencast_url, digest_login, AssetType.ACL,
-                                                                error_collector, progress_printer)
+                        series_acl_map = check_assets_of_series(series, opencast_url, digest_login,
+                                                                AssetDescription.ACL, error_collector, progress_printer)
 
                 # EVENTS #
                 progress_printer.print_message("Requesting events... ", 1, False, True)
@@ -282,13 +306,13 @@ def main():
                     if check_settings.check_dc():
                         progress_printer.print_message("Starting check of dublincore catalogs of events... ", 2)
                         event_dc_map = check_assets_of_events(events, event_series_map, series_dc_map, opencast_url,
-                                                              digest_login, AssetType.DC, error_collector,
+                                                              digest_login, AssetDescription.DC, error_collector,
                                                               progress_printer)
 
                     if check_settings.check_acl():
                         progress_printer.print_message("Starting check of ACLs of events... ", 2)
                         event_acl_map = check_assets_of_events(events, event_series_map, series_acl_map, opencast_url,
-                                                               digest_login, AssetType.ACL, error_collector,
+                                                               digest_login, AssetDescription.ACL, error_collector,
                                                                progress_printer)
 
                     if check_settings.check_oaipmh():
@@ -314,7 +338,7 @@ def main():
 
         if len(tenants) > 1:
             error_collector.print_all_results()
-        error_collector.write_to_file(results_dir)
+        error_collector.save_results(results_dir)
 
     except RequestError as err:
         print(err.error)

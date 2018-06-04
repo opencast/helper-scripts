@@ -9,10 +9,14 @@ date and optionally end date as arguments.
 Example for 4.x
 ---------------
 
-    % python changelog.py r/4.x 2018-03-29                                                                                                                       (git)-[master] [148] 
-    - [MH-12923 serviceregistry initializes a db connection twice
-      ](https://github.com/opencast/opencast/pull/267)
-	 ...
+```
+% python changelog.py r/4.x 2018-03-29                                                                                                                       (git)-[master] [148] 
+- [MH-12923 serviceregistry initializes a db connection twice
+  ](https://github.com/opencast/opencast/pull/267)
+...
+```
+
+For version 4.0 you would additionally add the changes listed by
 
     % python3 changelog.py develop 2017-09-22 2018-04-03
 

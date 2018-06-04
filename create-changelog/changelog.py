@@ -8,9 +8,9 @@ URL = 'https://api.github.com/repos/opencast/opencast/pulls' \
       '?state=closed&base='
 
 
-def main(branch, start_date):
+def main(branch, start_date, end_date):
     begin = parse(start_date).replace(tzinfo=None)
-    end = datetime.now()
+    end = parse(end_date).replace(tzinfo=None) if end_date else datetime.now()
     next_url = URL + branch
     pullrequests = []
 
@@ -31,14 +31,21 @@ def main(branch, start_date):
         if not merged:
             continue  # pull request was canceled
         merged = parse(merged).replace(tzinfo=None)
-        if begin < merged < end:
+        if begin <= merged <= end:
             link = pr.get('html_url')
             title = pr.get('title')
             print('- [%s\n  ](%s)' % (title, link))
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    argc = len(sys.argv)
+    if argc < 3 or argc > 4:
         print('Usage: %s branch start-date' % sys.argv[0])
     else:
-        main(sys.argv[1], sys.argv[2])
+        branch = sys.argv[1]
+        start_date = sys.argv[2]
+        end_date = None
+        if argc == 4:
+            end_date = sys.argv[3]
+
+        main(branch, start_date, end_date)

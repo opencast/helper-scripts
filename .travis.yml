@@ -39,3 +39,16 @@ jobs:
       script:
         - shellcheck csv-export/getEvents.sh
         - flake8 csv-export/events2csv.py
+
+    - stage: test
+      env: name=visualize-workflow
+      language: python
+      python:
+        - "3.6"
+      install:
+        - pip install flake8
+      script:
+        - shellcheck visualize-workflow/*.sh
+        - flake8 visualize-workflow/*.py
+        - (! grep -rn '	' visualize-workflow/)
+        - (! grep -rn ' $' visualize-workflow/)

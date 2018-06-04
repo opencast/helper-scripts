@@ -40,7 +40,7 @@ def main(branch, start_date, end_date):
 if __name__ == '__main__':
     argc = len(sys.argv)
     if argc < 3 or argc > 4:
-        print('Usage: %s branch start-date' % sys.argv[0])
+        print('Usage: %s branch start-date [end-date]' % sys.argv[0])
     else:
         branch = sys.argv[1]
         start_date = sys.argv[2]

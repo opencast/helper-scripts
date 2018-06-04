@@ -4,12 +4,12 @@ from collections import namedtuple
 import os
 from operator import attrgetter
 
-from util.input import get_number
+from script.input.util.input import get_number
 
 MediaPackage = namedtuple('MediaPackage', ["id", "version", "path"])
 
 
-def get_all_mediapackages(backup_path, tenant, use_last_version):
+def find_all_mediapackages(backup_path, tenant, use_last_version):
     """
     Find all mediapackages in the directory given by the backup path and the tenant for recovery, ask for the version
     to be recovered or use the last version.
@@ -30,10 +30,10 @@ def get_all_mediapackages(backup_path, tenant, use_last_version):
 
     mediapackage_ids = [subdir for subdir in subdirs]
 
-    return get_mediapackages(mediapackage_ids, backup_path, tenant, use_last_version)
+    return find_mediapackages(mediapackage_ids, backup_path, tenant, use_last_version)
 
 
-def get_mediapackages(mediapackage_ids, backup_path, tenant, use_last_version):
+def find_mediapackages(mediapackage_ids, backup_path, tenant, use_last_version):
     """
     Find the mediapackages to be recovered in the directory given by the backup path, the tenant and the respective id,
     ask for the version to be recovered or use the last version.

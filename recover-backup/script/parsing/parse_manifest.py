@@ -3,19 +3,13 @@ import xml.etree.ElementTree as ElementTree
 
 import os
 
+from script.errors import MediapackageError
+
 namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
 Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags'])
 
 
-class MediapackageError(Exception):
-    """
-    Represents all errors that can hinder the recovery of a mediapackage.
-    Simply contains an error message and nothing else.
-    """
-    pass
-
-
-def get_mediapackage_elements(mp):
+def parse_manifest(mp):
     """
     Parse the manifest file and collect the media package elements with all relevant information.
 
@@ -34,6 +28,11 @@ def get_mediapackage_elements(mp):
         manifest = ElementTree.parse(manifest_file)
     except Exception:
         raise MediapackageError("Manifest of mediapackage {} could not be parsed.".format(mp.id))
+
+    series_id = None
+    series = manifest.find("./manifest:series", namespaces)
+    if series is not None:
+        series_id = series.text
 
     elements = defaultdict(lambda: defaultdict(list))
 
@@ -67,10 +66,25 @@ def get_mediapackage_elements(mp):
     catalogs = __get_subtype_elements(elements, "metadata", "catalog", mp.id)
     attachments = __get_subtype_elements(elements, "attachments", "attachment", mp.id)
 
-    return tracks, catalogs, attachments
+    return series_id, tracks, catalogs, attachments
 
 
 def __get_subtype_elements(elements, element_type, subelement_type, mp_id):
+    """
+    Get all elements of a specific type and subtype from elements of specific mediapackage, print warnings if there are
+    no such elements or if there are elements of a different subtype.
+
+    :param elements: All elements of the specified mediapackage
+    :type elements: dict of dicts
+    :param element_type: The type of elements to get
+    :type element_type: str
+    :param subelement_type: The subtype of elements to get
+    :type subelement_type: str
+    :param mp_id: The ID of the mediapackage
+    :type mp_id: str
+    :return: All elements with specified type and subtype belonging to the specified mediapackage
+    :rtype: list
+    """
 
     if element_type not in elements.keys() or subelement_type not in elements[element_type].keys():
         print("Warning: Mediapackage {} has no {}s.".format(mp_id, subelement_type))

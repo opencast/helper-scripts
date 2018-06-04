@@ -1,14 +1,14 @@
 from collections import namedtuple
 
-from util.get_response_content import get_xml_content
-from util.request import post_request, get_request
+from script.requests.util.get_response_content import get_xml_content
+from script.requests.util.request import post_request, get_request
 
 Workflow = namedtuple("Workflow", ["id", "template", "mp_id"])
 
 
 def create_mediapackage(base_url, digest_login):
     """
-    Creates a new mediapackage represented by an XML string.
+    Create a new mediapackage represented by an XML string.
 
     :param base_url: Base URL for request.
     :type base_url: str
@@ -27,7 +27,7 @@ def create_mediapackage(base_url, digest_login):
 
 def add_attachment(base_url, digest_login, mp, attachment):
     """
-    Adds an attachment to a new mediapackage.
+    Add an attachment to a new mediapackage.
 
     :param base_url: Base URL for request.
     :type base_url: str
@@ -53,7 +53,7 @@ def add_attachment(base_url, digest_login, mp, attachment):
 
 def add_catalog(base_url, digest_login, mp, catalog):
     """
-    Adds a catalog to a new mediapackage.
+    Add a catalog to a new mediapackage.
 
     :param base_url: Base URL for request.
     :type base_url: str
@@ -79,7 +79,7 @@ def add_catalog(base_url, digest_login, mp, catalog):
 
 def add_track(base_url, digest_login, mp, track):
     """
-    Adds a track to a new mediapackage.
+    Add a track to a new mediapackage.
 
     :param base_url: Base URL for request.
     :type base_url: str
@@ -105,6 +105,7 @@ def add_track(base_url, digest_login, mp, track):
 
 def ingest(base_url, digest_login, mp, workflow_id):
     """
+    Ingest mediapackage and start a workflow.
 
     :param base_url: Base URL for request.
     :type base_url: str
@@ -132,7 +133,7 @@ def ingest(base_url, digest_login, mp, workflow_id):
 
 def __parse_ingest_response(response):
     """
-    Parses relevant information from the response of /ingest.
+    Parse relevant information from the response of /ingest.
 
     :param response:
     :return: Information about the started workflow.

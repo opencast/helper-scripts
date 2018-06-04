@@ -15,7 +15,7 @@ def get_yes_no_answer(question):
 
     while True:
 
-        answer = input(question + " [y/n]").lower()
+        answer = input(question + " [y/n] ").lower()
 
         if answer == "y" or answer == "yes":
             return True

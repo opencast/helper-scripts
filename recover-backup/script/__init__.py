@@ -1,3 +1,3 @@
 """
-This package contains modules that provide vital functionality for the script.
+This package contains modules that provide necessary functionality for the script.
 """

@@ -1,4 +1,4 @@
-from util.input import get_yes_no_answer
+from script.input.util.input import get_yes_no_answer
 
 
 def check_recovery_start(mps_to_recover):

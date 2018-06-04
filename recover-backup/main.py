@@ -4,13 +4,13 @@
 
 import sys
 
-from script.check_mediapackages import check_recovery_start
-from script.get_mediapackages import get_mediapackages, get_all_mediapackages
-from script.parse_args import parse_args
-from script.recover_mediapackage import recover_mp
-from util.base_url import get_base_url, DEFAULT_TENANT
-from script.get_mediapackage_elements import MediapackageError
-from util.request_error import RequestError
+from script.input.check_recovery_start import check_recovery_start
+from script.find_mediapackages import find_mediapackages, find_all_mediapackages
+from script.input.parse_args import parse_args
+from script.recover import recover_mp
+from script.input.base_url import get_base_url, DEFAULT_TENANT
+from script.parsing.parse_manifest import MediapackageError
+from script.requests.util.request_error import RequestError
 
 
 def main():
@@ -34,10 +34,10 @@ def main():
     if not mediapackages:
         print("No mediapackages provided"
               ", recovering all.")
-        mps_to_recover = get_all_mediapackages(backup, tenant, lastversion)
+        mps_to_recover = find_all_mediapackages(backup, tenant, lastversion)
 
     else:
-        mps_to_recover = get_mediapackages(mediapackages, backup, tenant, lastversion)
+        mps_to_recover = find_mediapackages(mediapackages, backup, tenant, lastversion)
 
     if not mps_to_recover:
         # abort recovery
@@ -62,11 +62,12 @@ def main():
                 workflow = recover_mp(mp, base_url, digest_login, workflow_id)
                 print("Recovered mediapackage {} (new id: {}) and started workflow {} with id {}.".
                       format(mp.id, workflow.mp_id, workflow.template, workflow.id))
-
             except MediapackageError as e:
                 print("Mediapackage {} could not be recovered: {}".format(mp.id, str(e)))
             except RequestError as e:
                 print("Mediapackage {} could not be recovered: {}".format(mp.id, e.error))
+            except Exception as e:
+                print("Mediapackage {} could not be recovered: {}".format(mp.id, str(e)))
 
         print("Finished.")
 

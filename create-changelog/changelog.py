@@ -6,6 +6,7 @@ from dateutil.parser import parse
 
 URL = 'https://api.github.com/repos/opencast/opencast/pulls' \
       '?state=closed&base='
+JIRA_TICKET_URL = 'https://opencast.jira.com/browse/'
 
 
 def main(branch, start_date, end_date):
@@ -34,7 +35,21 @@ def main(branch, start_date, end_date):
         if begin <= merged <= end:
             link = pr.get('html_url')
             title = pr.get('title')
-            print('- [%s\n  ](%s)' % (title, link))
+            nr = pr.get('number')
+            pretty_print(title, nr, link)
+
+
+def pretty_print(title, pr_number, pr_link):
+    title_re = '^[tTfF]?/?(?:mh|MH)[- ]+(?P<ticketNr>\d{5})\W*(?P<prTitle>.*)$'
+    m = re.search(title_re, title)
+    if m:
+        ticket = m.group('ticketNr')
+        ticket_url = '%sMH-%s' % (JIRA_TICKET_URL, ticket)
+        pr_title = m.group('prTitle')
+        print('- [[MH-%s](%s)][[#%s](%s)] - \n  %s'
+              % (ticket, ticket_url, pr_number, pr_link, pr_title))
+    else:
+        print('- [%s\n  ](%s)' % (title, pr_link))
 
 
 if __name__ == '__main__':

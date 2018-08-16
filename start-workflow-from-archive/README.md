@@ -2,7 +2,7 @@ This script allow you to start a workflow on an archived event.
 
 Install:
 ```
-$ pip install -r requirments.txt
+$ pip3 install -r requirments.txt
 ```
 
 Usage:

@@ -80,7 +80,7 @@ else
     ARGS+=" -w $WORKFLOW"
 fi
 
-if [ "x" != "x$PROPERTIES" ]; then
+if [ -n "${PROPERTIES+x}" ]; then
     for p in "${PROPERTIES[@]}"; do
         ARGS+=" -W $p"
     done
@@ -123,9 +123,9 @@ function get_active_workflows {
 }
 
 function wait_active_workflows {
-  [ $(get_active_workflows) -lt $RUN_WORKFLOWS_CONCURENTLY ] && return
+  [ "$(get_active_workflows)" -lt $RUN_WORKFLOWS_CONCURENTLY ] && return
 
-  until [ $(get_active_workflows) -le $START_WORKFLOWS_THRESHOLD ]; do
+  until [ "$(get_active_workflows)" -le $START_WORKFLOWS_THRESHOLD ]; do
     echo "$(date +'%Y-%m-%d %H:%M:%S') - Wait for active workflows"
     sleep 5
   done
@@ -136,6 +136,7 @@ echo "Please enter one media package id per line (an empty line will exit this p
 while IFS= read -r mp; do
     [ "x" == "x$mp" ]  && exit 0
     echo "$(date +'%Y-%m-%d %H:%M:%S') - Start workflow on media package $mp"
+    # shellcheck disable=SC2086
     python3 StartWorkflow.py -m "$mp" $ARGS || /bin/true
     wait_active_workflows
 done

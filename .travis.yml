@@ -52,3 +52,14 @@ jobs:
         - flake8 visualize-workflow/*.py
         - (! grep -rn '	' visualize-workflow/)
         - (! grep -rn ' $' visualize-workflow/)
+
+    - stage: test
+      env: name=start-workflow-from-archive
+      language: python
+      python:
+        - "3.6"
+      install:
+        - pip install flake8
+      script:
+        - shellcheck start-workflow-from-archive/*.sh
+        - flake8 start-workflow-from-archive/*.py

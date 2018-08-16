@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
-RUN_WORKFLOWS_AT_ONCE=10
-WAIT_SEC_IN_BETWEEN=60
+RUN_WORKFLOWS_CONCURENTLY=10
+START_WORKFLOWS_THRESHOLD=3
+
 
 print_help() {
     echo "usage: $0 -w WORKFLOW [-W PROPERTIES] [-o OPENCAST] [-u USER] [-p PASSWORD] [-h]
@@ -70,6 +71,7 @@ esac
 done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
+
 ARGS=""
 if [ "x" == "x$WORKFLOW" ]; then
     echo "The workflow definition identifier is required. Please set it with the -w param."
@@ -86,25 +88,54 @@ fi
 
 if [ "x" != "x$OC_SERVER_URL" ]; then
     ARGS+=" -o $OC_SERVER_URL"
+elif [ -f "/etc/opencast/custom.properties" ]; then
+    OC_SERVER_URL="$(grep server.url /etc/opencast/custom.properties | cut -d'=' -f 2)"
+else
+    echo "Can't find the opencast configuration file /etc/opencast/custom.properties."
+    echo "Please set the opencast server url."
+    exit 1
 fi
 
 if [ "x" != "x$OC_USER" ]; then
     ARGS+=" -u $OC_USER"
+elif [ -f "/etc/opencast/custom.properties" ]; then
+    OC_USER="$(grep digest.user /etc/opencast/custom.properties | cut -d'=' -f 2)"
+else
+    echo "Can't find the opencast configuration file /etc/opencast/custom.properties."
+    echo "Please set the opencast digest user."
+    exit 1
 fi
 
 if [ "x" != "x$OC_PASSWORD" ]; then
     ARGS+=" -p $OC_PASSWORD"
+elif [ -f "/etc/opencast/custom.properties" ]; then
+    OC_PASSWORD="$(grep digest.pass /etc/opencast/custom.properties | cut -d'=' -f 2)"
+else
+    echo "Can't find the opencast configuration file /etc/opencast/custom.properties."
+    echo "Please set the opencast digest user password."
+    exit 1
 fi
 
+function get_active_workflows {
+  active_workflows=$(curl --digest -u "$OC_USER:$OC_PASSWORD" -H "X-Requested-Auth: Digest" -s \
+      "$OC_SERVER_URL/workflow/count?state=RUNNING")
+  [ ! -z "${active_workflows##*[!0-9]*}" ] && echo "$active_workflows" || echo "999999"
+}
+
+function wait_active_workflows {
+  [ $(get_active_workflows) -lt $RUN_WORKFLOWS_CONCURENTLY ] && return
+
+  until [ $(get_active_workflows) -le $START_WORKFLOWS_THRESHOLD ]; do
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - Wait for active workflows"
+    sleep 5
+  done
+}
+
+wait_active_workflows
 echo "Please enter one media package id per line (an empty line will exit this program):"
-c=0
 while IFS= read -r mp; do
     [ "x" == "x$mp" ]  && exit 0
-    echo "Start workflow on media package $mp"
-    python3 StartWorkflow.py -m $mp $ARGS || /bin/true
-    c=$((c+1))
-    if [ 0 -eq $((c%RUN_WORKFLOWS_AT_ONCE)) ] && [ 0 -lt $WAIT_SEC_IN_BETWEEN ]; then
-        echo "Wait ${WAIT_SEC_IN_BETWEEN}sec..."
-        sleep $WAIT_SEC_IN_BETWEEN
-    fi
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - Start workflow on media package $mp"
+    python3 StartWorkflow.py -m "$mp" $ARGS || /bin/true
+    wait_active_workflows
 done

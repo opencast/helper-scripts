@@ -89,7 +89,7 @@ fi
 if [ "x" != "x$OC_SERVER_URL" ]; then
     ARGS+=" -o $OC_SERVER_URL"
 elif [ -f "/etc/opencast/custom.properties" ]; then
-    OC_SERVER_URL="$(grep server.url /etc/opencast/custom.properties | cut -d'=' -f 2)"
+    OC_SERVER_URL="$(grep -i '^org.opencastproject.server.url=.*$' /etc/opencast/custom.properties | cut -d'=' -f 2)"
 else
     echo "Can't find the opencast configuration file /etc/opencast/custom.properties."
     echo "Please set the opencast server url."

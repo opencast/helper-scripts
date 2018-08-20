@@ -7,9 +7,9 @@ $ pip3 install -r requirments.txt
 
 Usage:
 ```
-$ python3 StartWorkflow.py  --help
-usage: StartWorkflow.py [-h] -m MEDIAPACKAGE -w WORKFLOW [-W PROPERTIES]
-                        [-o OPENCAST] [-u USER] [-p PASSWORD]
+$ python3 start-workflow.py  --help
+usage: start-workflow.py [-h] -m MEDIAPACKAGE -w WORKFLOW [-W PROPERTIES]
+                         [-o OPENCAST] [-u USER] [-p PASSWORD]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -28,8 +28,8 @@ optional arguments:
 
 Example:
 ```
-python3 StartWorkflow.py -o https://develop.opencast.org -m XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -w republish-metadata \
-                         -W publishToEngage=false -W publishToOaiPmh=true
+python3 start-workflow.py -o https://develop.opencast.org -m XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX -w republish-metadata \
+                          -W publishToEngage=false -W publishToOaiPmh=true
 ```
 
 An additional script is created to start workflows on a list of media packages.

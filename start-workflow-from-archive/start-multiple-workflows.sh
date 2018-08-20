@@ -137,6 +137,6 @@ while IFS= read -r mp; do
     [ "x" == "x$mp" ]  && exit 0
     echo "$(date +'%Y-%m-%d %H:%M:%S') - Start workflow on media package $mp"
     # shellcheck disable=SC2086
-    python3 StartWorkflow.py -m "$mp" $ARGS || /bin/true
+    python3 start-workflow.py -m "$mp" $ARGS || true
     wait_active_workflows
 done

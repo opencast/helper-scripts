@@ -46,7 +46,7 @@ def pretty_print(title, pr_number, pr_link):
         ticket = m.group('ticketNr')
         ticket_url = '%sMH-%s' % (JIRA_TICKET_URL, ticket)
         pr_title = m.group('prTitle')
-        print('- [[MH-%s](%s)][[#%s](%s)] - \n  %s'
+        print('- [[MH-%s](%s)][[#%s](%s)] -\n  %s'
               % (ticket, ticket_url, pr_number, pr_link, pr_title))
     else:
         print('- [%s\n  ](%s)' % (title, pr_link))

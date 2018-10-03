@@ -63,3 +63,8 @@ jobs:
       script:
         - shellcheck start-workflow-from-archive/*.sh
         - flake8 start-workflow-from-archive/*.py
+
+    - stage: test
+      env: name=translation-progress
+      script:
+        - shellcheck release-management/translation-progress/translation-progress.sh

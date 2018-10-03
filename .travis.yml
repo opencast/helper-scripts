@@ -26,7 +26,7 @@ jobs:
       install:
         - pip install flake8
       script:
-        - flake8 create-changelog/changelog.py
+        - flake8 release-management/create-changelog/changelog.py
 
     - stage: test
       env: name=csv-export

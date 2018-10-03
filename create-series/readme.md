@@ -1,9 +1,9 @@
-Create Opencast series
+Create Opencast Series
 ======================
 
-This script create a range of test series in opencast.
-The configuration is placed on top of the file.
-By default, this script create 1000 series on server localhost:8080.
+This script creates a number of test series.  The configuration is placed on
+top of the file.
 
 Usage:
-`sh create-series.sh`
+
+    sh create-series.sh

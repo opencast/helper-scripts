@@ -3,7 +3,8 @@
 # set the range of series to be created
 # value: <start> <end>
 # start value must be greater then end value
-SERIES_SEQ="1 1000"
+SERIES_SEQ_BEGIN="1"
+SERIES_SEQ_END="1024"
 
 # set #processes should can run asynchronous
 # ideal value is a multiple of CPU cores on your system
@@ -41,7 +42,7 @@ SERIES_ACL='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 ###################################
 
-for i in $(seq "$SERIES_SEQ"); do
+for i in $(seq "$SERIES_SEQ_BEGIN" "$SERIES_SEQ_END"); do
 SERIES_DATE="$(date -Iseconds)"
 
 # opencast series dublincore catalog template

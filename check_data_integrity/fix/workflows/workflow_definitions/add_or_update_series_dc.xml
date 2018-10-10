@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition xmlns="http://workflow.opencastproject.org">
+
+  <id>add-or-update-series-dc</id>
+  <title>Add or update series dublincore catalog</title>
+  <tags/>
+  <description/>
+
+  <configuration_panel></configuration_panel>
+
+  <operations>
+
+    <!-- Apply dublincore catalog from series to the media package -->
+    <operation
+      id="series"
+      exception-handler-workflow="partial-error"
+      description="Applying access control entries">
+      <configurations>
+        <configuration key="attach">dublincore/series</configuration>
+        <configuration key="apply-acl">false</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Tag that catalog for archival -->
+    <operation
+      id="tag"
+      description="Tagging source material for archival">
+      <configurations>
+        <configuration key="source-flavors">dublincore/series</configuration>
+        <configuration key="target-tags">+archive</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Archive -->
+    <operation
+        id="snapshot"
+        description="Archive raw recording after ingest">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+  </operations>
+
+</definition>

@@ -2,7 +2,7 @@
 <definition xmlns="http://workflow.opencastproject.org">
 
   <id>add-or-update-series-dc</id>
-  <title>Add or update series dublincore catalog</title>
+  <title>Add or update series Dublin Core catalog</title>
   <tags/>
   <description/>
 

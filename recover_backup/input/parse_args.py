@@ -30,7 +30,7 @@ def parse_args():
                                "restored", required=False)
     optional_args.add_argument("-t", "--tenant", type=str, help="tenant id")
     optional_args.add_argument('-w', "--workflow-id", type=str, help="id for workflow on ingest")
-    optional_args.add_argument('-l', "--lastversion", action='store_true', help="always recover last version of "
+    optional_args.add_argument('-l', "--last-version", action='store_true', help="always recover last version of "
                                "media package")
 
     args = parser.parse_args()
@@ -50,4 +50,4 @@ def parse_args():
     digest_login = DigestLogin(user=args.user, password=digest_pw)
 
     return args.opencast, args.https, digest_login, args.backup, args.media_packages, args.tenant, args.workflow_id, \
-        args.lastversion
+        args.last_version

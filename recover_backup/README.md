@@ -35,7 +35,7 @@ This script can be called with the following parameters (all parameters in brack
 
 ### A few things to consider
 
-- Neither the media package itself nor any of its subelements (tracks, catalogs, attachments) retain their IDs since
+- Neither the media package itself nor any of its sub elements (tracks, catalogs, attachments) retain their IDs since
 this poses the risk of conflicts.
 - Contrary to that, a recovered series _does_ retain its ID.
 - Tags are also not retained for any media package element, so the given workflow will have to re-tag them upon ingest.
@@ -72,7 +72,7 @@ The recovery of one or more media package(s) from a backup of the archive is exe
             Else: Print error
 
 ### The workflow
-If no workflow id is specified, the default workflow configured in opencast will be started on the reingested
+If no workflow id is specified, the default workflow configured in opencast will be started on the re-ingested
 media package. Alternatively, a basic workflow that can be further customized is attached to this script as
 `workflow_example.xml`. It executes the following steps:
 * Attach series assets like the series catalog and the series ACL to the media package

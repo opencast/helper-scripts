@@ -35,8 +35,8 @@ def find_media_packages(backup_path, tenant, use_last_version, media_package_ids
 
     if not media_package_ids:
 
-        dir_name, subdirs, files = next(os.walk(tenant_dir))
-        media_package_ids = [subdir for subdir in subdirs]
+        dir_name, sub_dirs, files = next(os.walk(tenant_dir))
+        media_package_ids = [subdir for subdir in sub_dirs]
 
     media_package_ids = sorted(media_package_ids)
 
@@ -50,14 +50,14 @@ def find_media_packages(backup_path, tenant, use_last_version, media_package_ids
             print("Directory for media package {} at path {} could not be found, skipped.".format(mp_id, mp_dir))
             continue
 
-        dir_name, subdirs, files = next(os.walk(mp_dir))
+        dir_name, sub_dirs, files = next(os.walk(mp_dir))
 
-        if not subdirs:
+        if not sub_dirs:
             print("Media package {} at path {} does not contain any snapshots, skipped.".format(mp_id, mp_dir))
             continue
 
         snapshots = []
-        for subdir in subdirs:
+        for subdir in sub_dirs:
             try:
                 snapshot = int(subdir)
                 snapshots.append(snapshot)

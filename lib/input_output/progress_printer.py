@@ -30,6 +30,16 @@ class ProgressPrinter:
         if not self.silent:
             print()
 
+    def print_if_silent(self, message):
+        """
+        Print short message if normal progress printing is disabled.
+
+        :param message: The message to be printed
+        :type message: str
+        """
+        if self.silent:
+            print(message)
+
     def print_message(self, message, level=0, newline_after=True, newline_before=True):
         """
         Print the given message indented with tabs depending on the level if the printer is not set on silent.
@@ -80,7 +90,7 @@ class ProgressPrinter:
                 print("{}".format(message), end='', flush=True)
                 self.previous_line_ended = False
 
-    def print_progress(self, count, total):
+    def print_progress(self, count, total,  finished_message=None):
         """
         Print a progress bar and the progress in percent if printer isn't silent.
 
@@ -88,6 +98,8 @@ class ProgressPrinter:
         :type count: int
         :param total: Total amount of elements to be processed.
         :type total: int
+        :param finished_message: Message that should be shown once 100% is reached.
+        :type finished_message: str
         """
 
         if self.silent:
@@ -95,8 +107,11 @@ class ProgressPrinter:
 
         if self.no_fancy_output:  # keep it simple, no progress bars
 
-            if count == (total - 1):
-                print("{}{}".format(self.indent, "...finished. \n"))
+            if count == total:
+                if finished_message:
+                    print("{}{}\n".format(self.indent, finished_message))
+                else:
+                    print("{}{}\n".format(self.indent, "...finished. "))
 
             elif count == 0:
                 print('{}Progress:  0%'.format(self.indent), end='\r', flush=True)
@@ -109,11 +124,14 @@ class ProgressPrinter:
 
             progress_bar = "|{}|".format(" "*100)
 
-            if count == (total - 1):
+            if count == total:
                 self.clear_line()
                 self.back_to_previous_line()
 
-                print("{}{}".format(self.indent, self.last_message+"finished.\n"))
+                if finished_message:
+                    print("{}{} {}\n".format(self.indent, self.last_message, finished_message))
+                else:
+                    print("{}{} {}\n".format(self.indent, self.last_message, "finished."))
 
             elif count == 0:
                 print('{}Progress: {}  0%'.format(self.indent, progress_bar), end='\r', flush=True)
@@ -124,7 +142,6 @@ class ProgressPrinter:
 
                 print("{}Progress: {} {:2}%".format(self.indent, progress_bar, percent), end='\r', flush=True)
 
-########################################################################################################################
     def print_progress_message(self, message, level=0):
 
         if self.silent:
@@ -151,8 +168,7 @@ class ProgressPrinter:
 
         self.indent = ProgressPrinter.get_indent(level)
 
-        print("{}{}{}".format(self.indent, self.last_message, message))
-########################################################################################################################
+        print("{}{} {}".format(self.indent, self.last_message, message))
 
     def print_time(self, waiting_period, message):
         """

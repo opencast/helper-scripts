@@ -1,3 +1,3 @@
 """
-This package contains modules used by both scripts.
+This package contains modules used by multiple scripts.
 """

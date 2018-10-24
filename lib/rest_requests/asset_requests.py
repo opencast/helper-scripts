@@ -1,5 +1,5 @@
 """
-This module contains methods to get ACLs or dublincore catalogs of a series or event from the rest api.
+This module contains methods to get ACLs or Dublin Core catalogs of a series or event from the rest api.
 """
 from data_handling.elements import get_id
 from data_handling.types import ElementDescription, AssetTypeDescription, AssetDescription
@@ -9,7 +9,7 @@ from rest_requests.request import get_request
 
 def __get_dc_of_series(series, base_url, digest_login):
     """
-    Get the series dublincore catalog for a given series.
+    Get the series Dublin Core catalog for a given series.
 
     :param series: The series
     :type series: dict
@@ -17,7 +17,7 @@ def __get_dc_of_series(series, base_url, digest_login):
     :type base_url: str
     :param digest_login: The login delete_artefacts for digest authentication
     :type digest_login: DigestLogin
-    :return: The series dublincore catalog
+    :return: The series Dublin Core catalog
     :rtype: ElementTree.Element
     :raise: RequestError
     """
@@ -97,7 +97,7 @@ def __get_acls_of_event(event, base_url, digest_login):
 
 def __get_dcs_of_event(event, base_url, digest_login):
     """
-    Get two lists for episode and series dublincore catalogs for a given event.
+    Get two lists for episode and series Dublin Core catalogs for a given event.
 
     :param event: The event
     :type event: dict
@@ -105,7 +105,7 @@ def __get_dcs_of_event(event, base_url, digest_login):
     :type base_url: str
     :param digest_login: The login delete_artefacts for digest authentication
     :type digest_login: DigestLogin
-    :return: The episode and series dublincore catalogs
+    :return: The episode and series Dublin Core catalogs
     :rtype: list, list
     :raise: RequestError
     """
@@ -135,7 +135,7 @@ def __get_asset_content(asset, digest_login, element_description, asset_type_des
     :type asset: dict
     :param digest_login: The login delete_artefacts for digest authentication
     :type digest_login: DigestLogin
-    :param asset_description: ACL or dublincore catalog
+    :param asset_description: ACL or Dublin Core catalog
     :type asset_description: str
     :return: The actual asset content in xml format
     :rtype: ElementTree.Element

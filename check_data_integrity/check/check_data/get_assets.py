@@ -1,5 +1,5 @@
 """
-This module delivers assets (dublincore catalogs or acls) of events and series, by getting them from a request module 
+This module delivers assets (Dublin Core catalogs or acls) of events and series, by getting them from a request module
 and performing checks to see if the data is consistent. If it is not, a Malformed object with the encountered
 errors is returned instead.
 """
@@ -31,7 +31,7 @@ def parse_for_comparison(asset, element_description, asset_type_description, ass
     :rtype: dict, ElementTree.Element, Malformed
     """
     if asset_description == AssetDescription.DC:
-        return asset  # no parsing necessary, all dublincore catalogs are already in the same format
+        return asset  # no parsing necessary, all Dublin Core catalogs are already in the same format
     else:
         try:
             asset = parse_acl(asset)  # parsing necessary since ACLs can be in a different format
@@ -43,7 +43,7 @@ def parse_for_comparison(asset, element_description, asset_type_description, ass
 
 def get_asset_of_series(series, opencast_url, digest_login, asset_description):
     """
-    Get series ACL and or dublincore catalog from series and check if valid. If there are any errors, a Malformed
+    Get series ACL and or Dublin Core catalog from series and check if valid. If there are any errors, a Malformed
     object containing the errors is returned instead.
 
     :param series:
@@ -70,7 +70,7 @@ def get_asset_of_series(series, opencast_url, digest_login, asset_description):
 
 def get_assets_of_event(event, opencast_url, digest_login, series_of_event, series_asset_of_series, asset_description):
     """
-    Get episode and series ACLs and or dublincore catalog from event and check if valid. If there are any errors, two 
+    Get episode and series ACLs and or Dublin Core catalog from event and check if valid. If there are any errors, two
     Malformed objects containing the errors are returned instead.
 
     :param event:
@@ -127,9 +127,9 @@ def get_assets_of_event(event, opencast_url, digest_login, series_of_event, seri
 def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_asset, series_of_event,
                          asset_description, repository):
     """
-    Get episode and series ACLs or dublincores from an oaipmh record and check for errors. Also check whether they match
-    the ACLs and dublincores from the event. If there are any errors, two Malformed objects containing the errors are
-    returned instead.
+    Get episode and series ACLs or Dublin Cores from an oaipmh record and check for errors. Also check whether they
+    match the ACLs and Dublin Cores from the event. If there are any errors, two Malformed objects containing the
+    errors are returned instead.
 
     :param oaipmh_record:
     :type oaipmh_record: ElementTree.Element
@@ -137,7 +137,7 @@ def get_assets_of_oaipmh(oaipmh_record, original_episode_asset, original_series_
     :param original_series_asset:
     :param series_of_event:
     :type series_of_event: dict or Malformed
-    :param asset_description: ACL or dublincore
+    :param asset_description: ACL or Dublin Core
     :type asset_description: AssetDescription
     :param repository: OAIPMH repository id
     :type repository: str

@@ -70,11 +70,11 @@ class ErrorCollector:
 
         else:
 
-            print("Malformed data found: ", file=sys.stderr)
+            print("Malformed data found:\n", file=sys.stderr)
 
             for message in self.errors[tenant].keys():
                 id_list = sorted(self.errors[tenant].get(message))
-                print("\t\t{} {}".format(len(set(id_list)), message), file=sys.stderr)
+                print("\t{} {}".format(len(set(id_list)), message), file=sys.stderr)
 
     def print_results_for_current_tenant(self):
         """

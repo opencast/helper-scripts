@@ -34,13 +34,13 @@ def series_exists(base_url, digest_login, series_id):
 
 def create_series(base_url, digest_login, series_dc, series_acl=None):
     """
-    Create a new series with a dublincore catalog (required) and an ACL (optional).
+    Create a new series with a Dublin Core catalog (required) and an ACL (optional).
 
     :param base_url: Base URL for request.
     :type base_url: str
     :param digest_login: User and password for digest authentication.
     :type digest_login: DigestLogin
-    :param series_dc: Series dublincore catalog
+    :param series_dc: Series Dublin Core catalog
     :type series_dc: ste
     :param series_acl: Series ACL (optional)
     :type series_acl: str

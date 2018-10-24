@@ -1,15 +1,15 @@
 """
-This module provides functionality to compare assets (ACLs and dublincore catalogs).
+This module provides functionality to compare assets (ACLs and Dublin Core catalogs).
 """
 
 
 def compare_dc(dc1, dc2):
     """
-    Compares two dublincore catalogs by comparing the tag and text of every child element.
+    Compares two Dublin Core catalogs by comparing the tag and text of every child element.
 
-    :param dc1: First dublincore catalog
+    :param dc1: First Dublin Core catalog
     :type dc1: ElementTree.Element
-    :param dc2: Second dublincore catalog
+    :param dc2: Second Dublin Core catalog
     :type dc2: ElementTree.Element
     :return: true if equal
     :rtype: bool

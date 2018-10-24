@@ -6,13 +6,13 @@ sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
 from fix.fixer.series_dc_of_event_fixer import SeriesDCOfEventFixer
 from fix.io.input import FixAnswer, fix_question
-
+from fix.io.print_events_to_be_fixed import print_events_to_be_fixed
 from fix.io.parse_args import parse_args
 from fix.io.results_parser import ResultsParser
 from args.url_builder import URLBuilder
 from input_output.log_writer import LogWriter
 from rest_requests.request_error import RequestError
-from utility.progress_printer import ProgressPrinter
+from input_output.progress_printer import ProgressPrinter
 
 
 def __filter_tenants(chosen_tenants, excluded_tenants, tenants_in_results, progress_printer):
@@ -33,7 +33,7 @@ def __filter_tenants(chosen_tenants, excluded_tenants, tenants_in_results, progr
     if not chosen_tenants and not excluded_tenants:
         # get tenants
         tenants = tenants_in_results
-        progress_printer.print_message("{} tenant(s) were found in results: {}\n"
+        progress_printer.print_message("{} tenant(s) was/were found in results: {}\n"
                                        .format(len(tenants), ", ".join(tenants)))
 
     elif chosen_tenants:
@@ -70,6 +70,7 @@ def main():
 
     url_builder = URLBuilder(opencast, https)
     progress_printer = ProgressPrinter(silent, no_fancy_output)
+    progress_printer.print_empty_line()
     log_writer = LogWriter("fix_log", 'media package', 'tenant', 'error', 'fix')
 
     try:
@@ -103,10 +104,13 @@ def main():
                     # get events
                     progress_printer.print_message("Looking for {}...".format(error), 1, False, True)
                     events_to_be_fixed = results_parser.get_events_with_error(tenant, error)
-                    progress_printer.print_message(" {} found.\n".format(len(events_to_be_fixed)), 1, True, False)
+                    end = ":" if len(events_to_be_fixed) else "."
+                    progress_printer.print_message(" {} found{}\n".format(len(events_to_be_fixed), end), 1, True, False)
 
                     if len(events_to_be_fixed) == 0:
                         continue
+
+                    print_events_to_be_fixed(events_to_be_fixed, progress_printer, 2)
 
                     fixed_events = 0
 
@@ -120,8 +124,7 @@ def main():
                         try:
                             # fix?
                             if state == FixAnswer.NEXT:
-                                state = fix_question(no_fancy_output, 2)
-                                progress_printer.print_empty_line()
+                                state = fix_question(2)
 
                                 if state == FixAnswer.SKIP:
                                     break

@@ -7,7 +7,7 @@ from rest_requests.workflow_requests import start_workflow
 
 class SeriesDCOfEventFixer(Fixer):
     """
-    This module can fix events that are missing their series dublincore catalog or that have a series dublincore
+    This module can fix events that are missing their series Dublin Core catalog or that have a series Dublin Core
     catalog that isn't up to date by starting a workflow.
     """
 
@@ -51,4 +51,4 @@ class SeriesDCOfEventFixer(Fixer):
         :return: Description of what this fixer does.
         :rtype: str
         """
-        return "(re)setting series dublincore catalog of event from series service"
+        return "(re)setting series Dublin Core catalog of event from series service"

@@ -36,13 +36,13 @@ ElementDescription = enum(
                        "OAIPMH record(s) of repository {}")
 )
 
-# Assets belong to elements and can be either dublincore catalogs or ACLs.
+# Assets belong to elements and can be either Dublin Core catalogs or ACLs.
 AssetDescription = enum(
-    DC=Description("dublincore catalog", "dublincore catalogs", "dublincore catalog(s)"),
+    DC=Description("Dublin Core catalog", "Dublin Core catalogs", "Dublin Core catalog(s)"),
     ACL=Description("ACL", "ACLs", "ACL(s)")
 )
 
-# Assets (ACL or dublincore catalogs) can either be of type episode, series or both/undefined.
+# Assets (ACL or Dublin Core catalogs) can either be of type episode, series or both/undefined.
 AssetTypeDescription = enum(
     SERIES=Description("series", "series", "series"),
     EPISODE=Description("episode", "episode", "episode"),

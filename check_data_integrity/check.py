@@ -18,15 +18,17 @@ from check.check_data.malformed import Malformed
 from args.url_builder import URLBuilder
 from data_handling.elements import get_id, get_oaipmh_publications, published_to_oaipmh
 from data_handling.types import AssetDescription
-from rest_requests.basic_requests import get_tenants, get_series, get_events
+from rest_requests.basic_requests import get_series, get_events
 from rest_requests.oaipmh_requests import get_oaipmh_record
 from rest_requests.request_error import RequestError
-from utility.progress_printer import ProgressPrinter
+from input_output.progress_printer import ProgressPrinter
+from rest_requests.tenant_requests import filter_tenants
 
+FINISHED_MESSAGE = "finished"
 
 def check_assets_of_series(series, opencast_url, digest_login, asset_description, error_collector, progress_printer):
     """
-    Get ACLs or dublincores of all series and put them in a dict. If some of them are malformed, collect their errors.
+    Get ACLs or Dublin Cores of all series and put them in a dict. If some of them are malformed, collect their errors.
 
     :param series: all series
     :type series: list
@@ -34,7 +36,7 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_description
     :type opencast_url: str
     :param digest_login: The login data for digest authentication
     :type digest_login: DigestLogin
-    :param asset_description: ACLs or dublincore catalogs
+    :param asset_description: ACLs or Dublin Core catalogs
     :type asset_description: AssetDescription
     :param error_collector: The error collector
     :type error_collector: ErrorCollector
@@ -48,14 +50,14 @@ def check_assets_of_series(series, opencast_url, digest_login, asset_description
 
     for count, a_series in enumerate(series):
 
-        progress_printer.print_progress(count, len(series))
-
         series_asset = get_asset_of_series(a_series, opencast_url, digest_login, asset_description)
 
         if isinstance(series_asset, Malformed):
             error_collector.collect_errors(series_asset, get_id(a_series))
 
         series_asset_map[get_id(a_series)] = series_asset
+
+        progress_printer.print_progress(count+1, len(series))
 
     if len(series) != len(series_asset_map.keys()):
         raise ValueError("Less series {} than series!".format(asset_description.BOTH))
@@ -85,8 +87,6 @@ def check_series_of_events(events, series, error_collector, progress_printer, no
 
     for count, event in enumerate(events):
 
-        progress_printer.print_progress(count, len(events))
-
         series_of_event = get_series_of_event(series, event, no_series_error)
 
         if isinstance(series_of_event, Malformed):
@@ -94,13 +94,15 @@ def check_series_of_events(events, series, error_collector, progress_printer, no
 
         event_series_map[get_id(event)] = series_of_event
 
+        progress_printer.print_progress(count+1, len(events))
+
     return event_series_map
 
 
 def check_assets_of_events(events, event_series_map, series_asset_map, opencast_url, digest_login, asset_description,
                            error_collector, progress_printer):
     """
-    Get ACLs or dublincores of all events and put them in a dict. If some of them are malformed, collect their errors.
+    Get ACLs or Dublin Cores of all events and put them in a dict. If some of them are malformed, collect their errors.
 
     :param events: The events of the current tenant
     :type events: list
@@ -112,7 +114,7 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
     :type opencast_url: str
     :param digest_login: The login data for digest authentication
     :type digest_login: DigestLogin
-    :param asset_description: ACLs or dublincore catalogs
+    :param asset_description: ACLs or Dublin Core catalogs
     :type asset_description: AssetDescription
     :param error_collector: The error collector
     :type error_collector: ErrorCollector
@@ -125,8 +127,6 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
     event_asset_map = {}
 
     for count, event in enumerate(events):
-
-        progress_printer.print_progress(count, len(events))
 
         series_of_event = event_series_map[get_id(event)]
 
@@ -145,13 +145,15 @@ def check_assets_of_events(events, event_series_map, series_asset_map, opencast_
 
         event_asset_map[get_id(event)] = (episode_asset, series_asset)
 
+        progress_printer.print_progress(count+1, len(events))
+
     return event_asset_map
 
 
 def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, digest_login, error_collector,
                  opencast_url, progress_printer):
     """
-    Check OAIPMH by getting all ACLs and dublincore catalogs from each record and comparing them with those from the
+    Check OAIPMH by getting all ACLs and Dublin Core catalogs from each record and comparing them with those from the
     corresponding event. Collect any errors.
 
     (Currently doesn't return anything since this is the last check.)
@@ -160,7 +162,7 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
     :type oaipmh_events: list
     :param event_series_map: Dictionary mapping events to their series
     :type event_series_map: dict
-    :param event_dc_map: Dictionary mapping events to their dublincore catalogs
+    :param event_dc_map: Dictionary mapping events to their Dublin Core catalogs
     :type event_dc_map: dict
     :param event_acl_map: Dictionary mapping events to their ACLs
     :type event_acl_map: dict
@@ -176,8 +178,6 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
 
     for count, event in enumerate(oaipmh_events):
 
-        progress_printer.print_progress(count, len(oaipmh_events))
-
         series_of_event = event_series_map[get_id(event)]
         episode_dc, series_dc = event_dc_map[get_id(event)]
         episode_acl, series_acl = event_acl_map[get_id(event)]
@@ -190,7 +190,7 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
             try:
                 oaipmh_record = get_oaipmh_record(event, oaipmh_url, oaipmh_repo, digest_login, opencast_url)
 
-                # check dublincore catalogs of oaipmh
+                # check Dublin Core catalogs of oaipmh
                 oaipmh_episode_dc, oaipmh_series_dc = get_assets_of_oaipmh(oaipmh_record, episode_dc, series_dc,
                                                                            series_of_event, AssetDescription.DC,
                                                                            oaipmh_repo)
@@ -214,45 +214,12 @@ def check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, d
                 oaipmh_record = Malformed(errors=[e.error])
                 error_collector.collect_errors(oaipmh_record, get_id(event))
 
-
-def filter_tenants(chosen_tenants, excluded_tenants, progress_printer, url_builder, digest_login):
-    """
-    Filter tenants by either choosing or excluding them (both at the same time isn't possible).
-
-    :param chosen_tenants: The chosen tenants
-    :type chosen_tenants: list or None
-    :param excluded_tenants: The excluded tenants
-    :type excluded_tenants: list or None
-    :param progress_printer: The progress printer
-    :type progress_printer: ProgressPrinter
-    :param url_builder: The URL builder
-    :type url_builder: URLBuilder
-    :param digest_login: The login data for digest authentication
-    :type digest_login: DigestLogin
-    :return: A sorted list with tenants to check
-    :rtype: list
-    """
-
-    if chosen_tenants:
-        tenants = chosen_tenants
-    else:
-        # request tenants
-        progress_printer.print_message("Requesting tenants... ", 0, False, True)
-        tenants = get_tenants(url_builder.get_base_url(None), digest_login)
-        progress_printer.print_message("{} tenant(s) received.\n".format(len(tenants)), 0, True, False)
-
-    if excluded_tenants:
-        progress_printer.print_message("Filtering tenants... ", 0, False, True)
-        tenants = [tenant for tenant in tenants if tenant not in excluded_tenants]
-        progress_printer.print_message("{} tenant(s) remain.\n".format(len(tenants)), 0, True, False)
-
-    tenants.sort()
-    return tenants
+        progress_printer.print_progress(count+1, len(oaipmh_events))
 
 
 def main():
     """
-    Iterate over all series, events and/or OAIPMH records and check ACLs and/or dublincore catalogs, collect the error
+    Iterate over all series, events and/or OAIPMH records and check ACLs and/or Dublin Core catalogs, collect the error
     messages of all malformed elements and print them out in the end as well as save them to files.
     """
 
@@ -265,11 +232,16 @@ def main():
     progress_printer = ProgressPrinter(silent, no_fancy_output)
     error_collector = ErrorCollector()
 
+    progress_printer.print_empty_line()
+
     try:
 
         tenants = filter_tenants(chosen_tenants, excluded_tenants, progress_printer, url_builder, digest_login)
 
-        progress_printer.print_message('Starting checks for the following tenants: {}\n'.format(", ".join(tenants)), 0)
+        if len(tenants) > 1:
+            progress_printer.print_message('Starting checks for the following tenants: {}\n'.format(", ".join(tenants)))
+        elif not len(tenants):
+            sys.exit(0)
 
         for tenant in tenants:
 
@@ -288,12 +260,12 @@ def main():
                 if series:
 
                     if check_settings.check_dc():
-                        progress_printer.print_message("Starting check of dublincore catalogs of series... ", 2)
+                        progress_printer.print_message("Starting check of Dublin Core catalogs of series...", 2)
                         series_dc_map = check_assets_of_series(series, opencast_url, digest_login, AssetDescription.DC,
                                                                error_collector, progress_printer)
 
                     if check_settings.check_acl():
-                        progress_printer.print_message("Starting check of ACLs of series... ", 2)
+                        progress_printer.print_message("Starting check of ACLs of series...", 2)
                         series_acl_map = check_assets_of_series(series, opencast_url, digest_login,
                                                                 AssetDescription.ACL, error_collector, progress_printer)
 
@@ -304,18 +276,18 @@ def main():
 
                 if events:
 
-                    progress_printer.print_message("Starting check of series of events... ", 2)
+                    progress_printer.print_message("Starting check of series of events...", 2)
                     event_series_map = check_series_of_events(events, series, error_collector, progress_printer,
                                                               no_series_error)
 
                     if check_settings.check_dc():
-                        progress_printer.print_message("Starting check of dublincore catalogs of events... ", 2)
+                        progress_printer.print_message("Starting check of Dublin Core catalogs of events...", 2)
                         event_dc_map = check_assets_of_events(events, event_series_map, series_dc_map, opencast_url,
                                                               digest_login, AssetDescription.DC, error_collector,
                                                               progress_printer)
 
                     if check_settings.check_acl():
-                        progress_printer.print_message("Starting check of ACLs of events... ", 2)
+                        progress_printer.print_message("Starting check of ACLs of events...", 2)
                         event_acl_map = check_assets_of_events(events, event_series_map, series_acl_map, opencast_url,
                                                                digest_login, AssetDescription.ACL, error_collector,
                                                                progress_printer)
@@ -327,7 +299,7 @@ def main():
                                                        .format(len(oaipmh_events), len(events)), 1, True, False)
 
                         if oaipmh_events:
-                            progress_printer.print_message("Starting check of OAIPMH... ", 2)
+                            progress_printer.print_message("Starting check of OAIPMH...", 2)
                             check_oaipmh(oaipmh_events, event_series_map, event_dc_map, event_acl_map, digest_login,
                                          error_collector, url_builder.get_base_url(None), progress_printer)
 

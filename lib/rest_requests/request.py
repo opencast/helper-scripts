@@ -21,7 +21,7 @@ def get_request(url, digest_login, element_description, asset_type_description=N
     :type element_description: str
     :param asset_type_description: Asset type description in case of errors, e.g. 'series', 'episode' (optional)
     :type asset_type_description: str
-    :param asset_description: Asset description in case of errors, e.g. 'dublincore catalogs', 'ACL' (optional)
+    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL' (optional)
     :type asset_description: str
     :return: response
     :raise: RequestError
@@ -53,7 +53,7 @@ def post_request(url, digest_login, element_description, asset_type_description=
     :type element_description: str
     :param asset_type_description: Asset type type description in case of errors, e.g. 'series', 'episode' (optional)
     :type asset_type_description: str
-    :param asset_description: Asset description in case of errors, e.g. 'dublincore catalogs', 'ACL' (optional)
+    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL' (optional)
     :type asset_description: str
     :param data: Any delete_artefacts to attach to the request (optional)
     :type data: dict

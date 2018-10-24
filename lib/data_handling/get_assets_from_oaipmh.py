@@ -7,11 +7,11 @@ from data_handling.types import AssetDescription
 
 def __get_dcs_from_oaipmh(record):
     """
-    Get all dublincore catalogs from an oaipmh record.
+    Get all Dublin Core catalogs from an oaipmh record.
 
     :param record: The OAIPMH record
     :type record: ElementTree.Element
-    :return: episode dublincore catalogs, series dublincore catalogs
+    :return: episode Dublin Core catalogs, series Dublin Core catalogs
     :rtype: list, list
     """
 
@@ -47,7 +47,7 @@ def get_assets_from_oaipmh(record, asset_description):
 
     :param record: The OAIPMH record
     :type record: ElementTree.Element
-    :param asset_description: ACLs or dublincore catalogs
+    :param asset_description: ACLs or Dublin Core catalogs
     :type asset_description: AssetDescription
     :return: Two lists with episode and series assets
     :rtype: list, list

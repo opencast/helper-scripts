@@ -9,29 +9,30 @@ Additionally to the modules in this folder this script uses modules contained in
 
 This script can be called with the following parameters (all parameters in brackets are optional, the others required):
 
-`main.py -o OPENCAST -d DISTRIBUTION_DIRS [DISTRIBUTION_DIRS ...] [-c CHOSEN_TENANTS [CHOSEN_TENANTS ...]] 
-[-e EXCLUDED_TENANTS [EXCLUDED_TENANTS ...]] -u USER [-p PASSWORD] [-s] [-l] [-n]`
+`main.py -o OPENCAST -d DISTRIBUTION_DIRS [DISTRIBUTION_DIRS ...] [-t CHOSEN_TENANTS [CHOSEN_TENANTS ...]]
+[-e EXCLUDED_TENANTS [EXCLUDED_TENANTS ...]] [-c CHANNELS [CHANNELS ...]] -u USER [-p PASSWORD] [-s] [-l] [-n]`
 
 | Short option | Long option           | Description                                                                                              | Default                            |
 | :----------: | :-------------------- | :------------------------------------------------------------------------------------------------------- | :--------------------------------- |
 | `-o`         | `--opencast`          | URL of the Opencast instance without protocol                                                            |                                    |
 | `-d`         | `--distribution-dirs` | List* of paths to the directories containing distribution artefacts                                      |                                    |
-| `-c`         | `--chosen-tenants`    | List* of tenants to be checked (can't be used with `--excluded-tenants`)                                 | All tenants are chosen             |
+| `-t`         | `--chosen-tenants`    | List* of tenants to be checked (can't be used with `--excluded-tenants`)                                 | All tenants are chosen             |
 | `-e`         | `--excluded-tenants`  | List* of tenants to be excluded (can't be used with `--tenants`)                                         | No tenants are excluded            |
+| `-c`         | `--channels`          | List* of channels to search for distribution artefacts                                                   | All channels are searched          |
 | `-u`         | `--user`              | User for digest authentication                                                                           |                                    |
 | `-p`         | `--password`          | Password for digest authentication                                                                       | Prompt for password after start-up |
 | `-s`         | `--silent`            | Flag for disabling progress output (can't be used with `--no-fancy-output`)                              | Progress output enabled            |
 | `-l`         | `--https`             | Flag for enabling HTTPS                                                                                  | HTTP                               |
 | `-n`         | `--no-fancy-output`   | Flag for disabling progress bars in case the terminal can't display them (can't be used with `--silent`) | Fancy output enabled               |
 
-(\* Options with multiple arguments can be used by specifying the option once, followed by at least one or more 
+(\* Options with multiple arguments can be used by specifying the option once, followed by at least one or more
 argument(s) separated by spaces (see example below.)
 
 ##### Usage example
 
-    main.py -o develop.opencast.org -u opencast_system_account -p CHANGE_ME -d /data/opencast/downloads 
-    /data/opencast/streams -m 8834ac27-f930-4042-b2e7-4f5c6c4db14a 446576e6-56d2-439e-9b9d-555cc8c910b3 
-    -t tenant1 tenant2 -s -l
+    main.py -o develop.opencast.org -u opencast_system_account -p CHANGE_ME -d /data/opencast/downloads
+    /data/opencast/streams -m 8834ac27-f930-4042-b2e7-4f5c6c4db14a 446576e6-56d2-439e-9b9d-555cc8c910b3
+    -t tenant1 tenant2 -c internal -s -l
 
 ### Requirements
 
@@ -48,7 +49,8 @@ The deletion of dead distribution artefacts is executed in the following way:
     If excluded-tenants: Filter tenants
     For each tenant:
           For each distribution path:
-              Find distribution artefacts
+              For each specified channel or all channels if unspecified:
+                  Find distribution artefacts
     If any distribution artefacts found:
         For all distribution artefacts sorted by media package:
             Check if associated media package still exists by requesting /assets/episode/<id>

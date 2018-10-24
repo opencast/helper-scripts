@@ -1,7 +1,7 @@
 """
 This module checks the data for errors and builds corresponding error messages.
 
-(ACLs and dublincore catalogs of series don't need to be checked because there can only ever be one, and if that's
+(ACLs and Dublin Core catalogs of series don't need to be checked because there can only ever be one, and if that's
 missing a 404 error will have been encountered.)
 """
 from check.check_data.create_errors import missing, more, asset_without_series, more_series, \
@@ -13,13 +13,13 @@ from data_handling.types import AssetDescription, AssetTypeDescription
 
 def check_episode_asset_of_event(assets, element_description, asset_description, series_of_event):
     """
-    Check episode ACL or dublincore of event for errors.
+    Check episode ACL or Dublin Core of event for errors.
 
-    :param assets: Episode ACLs or Dublincores of event
+    :param assets: Episode ACLs or Dublin Cores of event
     :type assets: list
     :param element_description: Event or OAIPMH
     :type element_description: ElementDescription
-    :param asset_description: ACL or dublincore
+    :param asset_description: ACL or Dublin Core
     :type asset_description: AssetDescription
     :param series_of_event: Series of event
     :type series_of_event: dict or Malformed
@@ -45,15 +45,15 @@ def check_episode_asset_of_event(assets, element_description, asset_description,
 
 def check_series_asset_of_event(assets, series_of_event, element_description, asset_description):
     """
-    Check series ACL or dublincore of event for errors.
+    Check series ACL or Dublin Core of event for errors.
 
-    :param assets: Series ACLs or Dublincores of event
+    :param assets: Series ACLs or Dublin Cores of event
     :type assets: list
     :param series_of_event: Series of event
     :type series_of_event: dict or Malformed
     :param element_description: Event or OAIPMH
     :type element_description: ElementDescription
-    :param asset_description: ACL or dublincore
+    :param asset_description: ACL or Dublin Core
     :type asset_description: AssetDescription
     :return: errors
     :rtype: list
@@ -101,17 +101,17 @@ def check_series_of_event(series_of_event, has_series, no_series_error):
 def check_asset_equality(asset1, asset2, first_element_description, second_element_description, asset_type_description,
                          asset_description):
     """
-    Check whether two ACLs or dublincores are equal and return an error if not.
+    Check whether two ACLs or Dublin Cores are equal and return an error if not.
 
-    :param asset1: ACL or dublincore
-    :param asset2: ACL or dublincore
+    :param asset1: ACL or Dublin Core
+    :param asset2: ACL or Dublin Core
     :param first_element_description: Series, Event or OAIPMH
     :type first_element_description: ElementDescription
     :param second_element_description: Series, Event or OAIPMH
     :type second_element_description: ElementDescription
     :param asset_type_description: Series or Episode
     :type asset_type_description: AssetTypeDescription
-    :param asset_description: ACL or dublincore
+    :param asset_description: ACL or Dublin Core
     :type asset_description: AssetDescription
     :return: errors
     :rtype: list

@@ -23,7 +23,7 @@ def parse_args():
     optional_args.add_argument("-e", "--excluded-tenants", type=str, nargs='+', help="list of tenants to be excluded")
     required_args.add_argument("-u", "--user", type=str, help="digest user", required=True)
     optional_args.add_argument("-p", "--password", type=str, help="digest password")
-    optional_args.add_argument('-s', "--silent", action='store_true', help="disables progress output")
+    #optional_args.add_argument('-s', "--silent", action='store_true', help="disables progress output")
     optional_args.add_argument('-l', "--https", action='store_true', help="enables https")
     optional_args.add_argument('-n', "--no-fancy-output", action='store_true',
                                help="disables fancy output including the progress bars")
@@ -42,8 +42,8 @@ def parse_args():
     if args.excluded_tenants and args.chosen_tenants:
         args_error(parser, "The options --chosen-tenants and --excluded-tenants can't both be defined.")
 
-    if args.silent and args.no_fancy_output:
-        args_error(parser, "The options --silent and --no-fancy-output can't both be defined.")
+    #if args.silent and args.no_fancy_output:
+    #    args_error(parser, "The options --silent and --no-fancy-output can't both be defined.")
 
     if args.batch_size <= 0:
         args_error(parser, "The batch size can't be <= 0.")
@@ -61,5 +61,5 @@ def parse_args():
         digest_pw = args.password
 
     return args.opencast, args.https, args.chosen_tenants, args.excluded_tenants, \
-        DigestLogin(user=args.user, password=digest_pw), args.waiting_period, args.batch_size, args.silent, \
+        DigestLogin(user=args.user, password=digest_pw), args.waiting_period, args.batch_size, False, \
         args.no_fancy_output, results_dir

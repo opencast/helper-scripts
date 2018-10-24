@@ -1,8 +1,11 @@
 import os
 from collections import defaultdict
 
+from util.count import count_distribution_artefacts
+from util.count import count_media_packages
 
-def find_distribution_artefacts(distribution_dirs, tenants, progress_printer):
+
+def find_distribution_artefacts(distribution_dirs, tenants, channels, progress_printer):
     """
     Find all distribution artefacts in the given directories belonging to the given tenants and return them by
     media package and tenant.
@@ -11,13 +14,15 @@ def find_distribution_artefacts(distribution_dirs, tenants, progress_printer):
     :type distribution_dirs: list
     :param tenants: The tenants for which distribution artefacts should be collected.
     :type tenants: list
+    :param channels: The channels for which distribution artefacts should be collected.
+    :type channels: list
     :param progress_printer: Object to print progress messages with.
     :type progress_printer: ProgressPrinter
     :return: The distribution artefacts by tenant and media package.
     :rtype: dict
     """
 
-    progress_printer.begin_progress_message("Searching for distribution artefacts... ")
+    progress_printer.begin_progress_message("Searching for distribution artefacts...")
     distribution_artefacts = defaultdict(lambda: defaultdict(list))
     count = 0
 
@@ -34,20 +39,27 @@ def find_distribution_artefacts(distribution_dirs, tenants, progress_printer):
 
                 for channel_count, channel in enumerate(channel_dirs):
 
-                    channel_dir = os.path.join(tenant_dir, channel)
-                    dir_name, media_packages, files = next(os.walk(channel_dir))
+                    if not channels or channel in channels:
 
-                    progress_printer.print_progress_message("Directory {}/{}, tenant {}/{}, channel {}/{}".
-                                                            format(distribution_dir_count + 1, len(distribution_dirs),
-                                                                   tenant_count + 1, len(tenant_dirs),
-                                                                   channel_count + 1, len(channel_dirs)))
+                        channel_dir = os.path.join(tenant_dir, channel)
+                        dir_name, media_packages, files = next(os.walk(channel_dir))
 
-                    for media_package in media_packages:
-                        media_package_dir = os.path.join(channel_dir, media_package)
+                        progress_printer.print_progress_message("Directory {}/{}, tenant {}/{}, channel {}/{}".
+                                                                format(distribution_dir_count + 1,
+                                                                       len(distribution_dirs),
+                                                                       tenant_count + 1, len(tenant_dirs),
+                                                                       channel_count + 1, len(channel_dirs)))
 
-                        distribution_artefacts[tenant][media_package].append(media_package_dir)
-                        count += 1
+                        for media_package in media_packages:
+                            media_package_dir = os.path.join(channel_dir, media_package)
 
-    progress_printer.end_progress_message("{} distribution artefact(s) found.\n".format(count))
+                            distribution_artefacts[tenant][media_package].append(media_package_dir)
+                            count += 1
+
+    dist_count = count_distribution_artefacts(distribution_artefacts)
+    mp_count = count_media_packages(distribution_artefacts)
+
+    progress_printer.end_progress_message("{} distribution artefact(s) for {} media package(s) found.\n"
+                                          .format(dist_count, mp_count))
 
     return distribution_artefacts

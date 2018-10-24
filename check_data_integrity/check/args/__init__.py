@@ -1,3 +1,3 @@
 """
-This package contains modules used for parsing and represeting the arguments of the check script.
+This package contains modules used for parsing and representing the arguments of the check script.
 """

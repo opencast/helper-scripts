@@ -10,9 +10,9 @@ def parse_args():
     Parse the arguments, check them for correctness, read in the digest password if necessary, and return everything.
 
     :return: Opencast URL, list of paths to directories with distribution artefacts, whether to use https,
-             chosen tenants, excluded tenants, digest user and password, whether to print progress statements,
+             chosen tenants, excluded tenants, channels, digest user and password, whether to print progress statements,
             whether to print progress bars
-    :rtype: str, list, bool, list, list, DigestLogin, bool, bool
+    :rtype: str, list, bool, list, list, list, DigestLogin, bool, bool
     """
 
     parser, optional_args, required_args = get_args_parser()
@@ -20,8 +20,9 @@ def parse_args():
     required_args.add_argument("-o", "--opencast", type=str, help="url of the opencast instance", required=True)
     required_args.add_argument("-d", "--distribution-dirs", type=str, nargs='+',
                                help="list of distribution directories to check", required=True)
-    optional_args.add_argument("-c", "--chosen-tenants", type=str, nargs='+', help="list of tenants to check")
+    optional_args.add_argument("-t", "--chosen-tenants", type=str, nargs='+', help="list of tenants to check")
     optional_args.add_argument("-e", "--excluded-tenants", type=str, nargs='+', help="list of tenants to be excluded")
+    optional_args.add_argument("-c", "--channels", type=str, nargs='+', help="list of channels to be considered")
     required_args.add_argument("-u", "--user", type=str, help="digest user", required=True)
     optional_args.add_argument("-p", "--password", type=str, help="digest password")
     optional_args.add_argument('-s', "--silent", action='store_true', help="disables progress output")
@@ -51,4 +52,4 @@ def parse_args():
         digest_pw = args.password
 
     return args.opencast, args.distribution_dirs, args.https, args.chosen_tenants, args.excluded_tenants, \
-        DigestLogin(user=args.user, password=digest_pw), args.silent, args.no_fancy_output
+           args.channels, DigestLogin(user=args.user, password=digest_pw), args.silent, args.no_fancy_output

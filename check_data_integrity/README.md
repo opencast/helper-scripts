@@ -171,7 +171,6 @@ options in braces represent alternatives):
 | `-e`         | `--excluded-tenants` | List* of tenants to be excluded (can't be used with `--tenants`)                                    | No tenants are excluded           |
 | `-u`         | `--user`             | User for digest authentication                                                                      |                                   |
 | `-p`         | `--password`         | Password for digest authentication                                                                  | Prompt for password after startup |
-| `-s`         | `--silent`           | Flag for disabling progress output (can't be used with `--no-fancy-output`)                         | Progress output enabled           |
 | `-n`         | `--no-fancy-output`  | Flag for disabling progress bars if the terminal can't display them (can't be used with `--silent`) | Fancy output enabled              |
 | `-l`         | `--https`            | Flag for enabling HTTPS                                                                             | HTTP                              |
 | `-d`         | `--results-dir`      | Path to results directory                                                                           | Current working directory         |

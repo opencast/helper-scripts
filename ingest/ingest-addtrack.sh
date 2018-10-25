@@ -3,9 +3,15 @@
 set -eux
 
 HOST="https://develop.opencast.org"
+if [ $# -ge 1 ]; then
+  HOST=$1
+fi
 USER="opencast_system_account"
 PASSWORD="CHANGE_ME"
-WORKFLOW='fast'
+WORKFLOW='schedule-and-upload'
+if [ $# -ge 2 ]; then
+  WORKFLOW=$2
+fi
 
 TMP_MP="$(mktemp)"
 TMP_DC="$(mktemp)"

@@ -6,4 +6,4 @@ top of the file.
 
 Usage:
 
-    sh create-series.sh
+    bash create-series.sh

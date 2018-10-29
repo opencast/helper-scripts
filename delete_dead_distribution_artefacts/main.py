@@ -41,7 +41,7 @@ def main():
         sys.exit()
 
     if not channels:
-        print("No channels defined, considering all channels.")
+        print("No channels defined, considering all channels.\n")
 
     # find distribution artefacts
     distribution_artefacts = find_distribution_artefacts(distribution_dirs, tenants, channels, progress_printer)

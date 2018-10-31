@@ -34,18 +34,18 @@ def main(branch, start_date, end_date):
         merged = parse(merged).replace(tzinfo=None)
         if begin <= merged <= end:
             link = pr.get('html_url')
-            title = pr.get('title')
+            title = pr.get('title').strip()
             nr = pr.get('number')
             pretty_print(title, nr, link)
 
 
 def pretty_print(title, pr_number, pr_link):
-    title_re = '^[tTfF]?/?(?:mh|MH)[- ]+(?P<ticketNr>\d{5})\W*(?P<prTitle>.*)$'
-    m = re.search(title_re, title)
-    if m:
-        ticket = m.group('ticketNr')
+    title_re = '^.?/?(?:mh|MH)[- ]+(?P<ticketNr>\\d{5})\\W*(?P<prTitle>.*)$'
+    match = re.search(title_re, title)
+    if match:
+        ticket = match.group('ticketNr')
         ticket_url = '%sMH-%s' % (JIRA_TICKET_URL, ticket)
-        pr_title = m.group('prTitle')
+        pr_title = match.group('prTitle')
         print('- [[MH-%s](%s)][[#%s](%s)] -\n  %s'
               % (ticket, ticket_url, pr_number, pr_link, pr_title))
     else:
@@ -54,9 +54,7 @@ def pretty_print(title, pr_number, pr_link):
 
 if __name__ == '__main__':
     argc = len(sys.argv)
-    if argc < 3 or argc > 4:
-        print('Usage: %s branch start-date [end-date]' % sys.argv[0])
-    else:
+    if 3 <= argc <= 4:
         branch = sys.argv[1]
         start_date = sys.argv[2]
         end_date = None
@@ -64,3 +62,5 @@ if __name__ == '__main__':
             end_date = sys.argv[3]
 
         main(branch, start_date, end_date)
+    else:
+        print('Usage: %s branch start-date [end-date]' % sys.argv[0])

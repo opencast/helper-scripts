@@ -2,6 +2,10 @@
 
 set -ue
 
+echo 'Opencast Translation Status'
+date --utc
+echo ''
+
 key="$(awk '{print $2};' < ~/.crowdin.yaml)"
 curl -s "https://api.crowdin.com/api/project/opencast-community/status?key=$key" \
 	| grep 'name\|translated_progress' \
@@ -11,4 +15,4 @@ curl -s "https://api.crowdin.com/api/project/opencast-community/status?key=$key"
 	| sort -hr \
 	| sed 's/^\(.[^ ]\) / \1 /' \
 	| sed 's/^\([^ ]\) /  \1 /' \
-	| sed '$d'
+	| sed '/^ *$/d'

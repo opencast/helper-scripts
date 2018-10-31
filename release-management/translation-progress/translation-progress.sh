@@ -10,4 +10,5 @@ curl -s "https://api.crowdin.com/api/project/opencast-community/status?key=$key"
 	| sed 's#^.*<name>\(.*\)</name.*progress>\(.*\)#\2 \1#' \
 	| sort -hr \
 	| sed 's/^\(.[^ ]\) / \1 /' \
-	| sed 's/^\([^ ]\) /  \1 /'
+	| sed 's/^\([^ ]\) /  \1 /' \
+	| sed '$d'

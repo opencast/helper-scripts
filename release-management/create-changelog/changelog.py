@@ -49,7 +49,7 @@ def pretty_print(title, pr_number, pr_link):
         print('- [[MH-%s](%s)][[#%s](%s)] -\n  %s'
               % (ticket, ticket_url, pr_number, pr_link, pr_title))
     else:
-        print('- [%s\n  ](%s)' % (title, pr_link))
+        print('- [[#%s](%s)] -\n  %s' % (pr_number, pr_link, title))
 
 
 if __name__ == '__main__':

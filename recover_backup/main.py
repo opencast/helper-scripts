@@ -22,11 +22,14 @@ def main():
     """
 
     # parse arguments
-    opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version = parse_args()
+    opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version, rsync_history_path\
+        = parse_args()
 
     if not tenant:
         print("No tenant provided, using default tenant.")
         tenant = DEFAULT_TENANT
+    if not rsync_history_path:
+        print("No path to rsync history provided.")
     if last_version:
         print("Always using last version of media packages.")
 
@@ -34,7 +37,7 @@ def main():
     base_url = url_builder.get_base_url(tenant)
 
     # get paths to media packages to be recovered
-    mps_to_recover = find_media_packages(backup, tenant, last_version, media_packages)
+    mps_to_recover = find_media_packages(backup, tenant, last_version, rsync_history_path, media_packages)
 
     if not mps_to_recover:
         # abort recovery

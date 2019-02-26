@@ -25,24 +25,30 @@ def parse_args():
     required_args.add_argument("-u", "--user", type=str, help="digest user", required=True)
     optional_args.add_argument("-p", "--password", type=str, help="digest password")
 
-    required_args.add_argument("-b", "--backup", type=str, help="path to backup", required=True)
+    optional_args.add_argument("-b", "--backup", type=str, help="path to backup")
     optional_args.add_argument("-m", "--media-packages", type=str, nargs='+', help="list of media package ids to be "
-                               "restored", required=False)
+                               "restored")
     optional_args.add_argument("-t", "--tenant", type=str, help="tenant id")
     optional_args.add_argument('-w', "--workflow-id", type=str, help="id for workflow on ingest")
     optional_args.add_argument('-l', "--last-version", action='store_true', help="always recover last version of "
                                "media package")
+    optional_args.add_argument('-r', "--rsync-history", type=str, help="path to rsync history to be checked as well")
 
     args = parser.parse_args()
 
-    if not (args.opencast and args.user and args.backup):
+    if not (args.opencast and args.user):
         args_error(parser)
 
-    if not os.path.isdir(args.backup):
+    if args.backup and not os.path.isdir(args.backup):
         args_error(parser, "Backup directory does not exist.")
 
-    if not args.password:
+    if args.rsync_history and not os.path.isdir(args.rsync_history):
+        args_error(parser, "Rsync history directory does not exist.")
 
+    if not (args.backup or args.rsync_history):
+        args_error(parser, "Either a path to the archive backup or to the rsync history has to be provided")
+
+    if not args.password:
         digest_pw = read_digest_password()
     else:
         digest_pw = args.password
@@ -50,4 +56,4 @@ def parse_args():
     digest_login = DigestLogin(user=args.user, password=digest_pw)
 
     return args.opencast, args.https, digest_login, args.backup, args.media_packages, args.tenant, args.workflow_id, \
-        args.last_version
+        args.last_version, args.rsync_history

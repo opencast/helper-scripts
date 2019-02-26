@@ -8,8 +8,10 @@ Additionally to the modules in this folder this script uses modules contained in
 
 This script can be called with the following parameters (all parameters in brackets are optional, the others required):
 
-`main.py -o OPENCAST [-s] -u USER [-p PASSWORD] -b BACKUP [-m MEDIA_PACKAGE [MEDIA_PACKAGE ...]] [-t TENANT]
-[-w WORKFLOW_ID] [-l]`
+`main.py -o OPENCAST [-s] -u USER [-p PASSWORD] [-b BACKUP] [-m MEDIA_PACKAGE [MEDIA_PACKAGE ...]] [-t TENANT]
+[-w WORKFLOW_ID] [-l] [-r RSYNC_HISTORY]`
+
+Either a path to the archive backup (`-b`) or a path to the rsync history (`-r`) has to be provided.
 
 | Short option | Long option       | Description                                                  | Default                                                             |
 | :----------: | :---------------- | :----------------------------------------------------------- | :------------------------------------------------------------------ |
@@ -22,6 +24,7 @@ This script can be called with the following parameters (all parameters in brack
 | `-m`         | `--media-packages`| One or more media package IDs to be recovered                | Recover all media packages contained in backup for specified tenant |
 | `-w`         | `--workflow-id`   | Workflow to run on the re-ingested media package             | Default workflow configured in opencast                             |
 | `-l`         | `--last-version`  | Flag for always choosing the last version of a media package | Ask user for version                                                |
+| `-r`         | `--rsync-history` | Path to rsync history                                        |                                                                     |
 
 ##### Usage example
 
@@ -32,6 +35,19 @@ This script can be called with the following parameters (all parameters in brack
 
 - Python 3
 - `requests`-Package
+
+### Recovery from a backup of the archive
+
+The script expects the backup to be a raw copy of the archive folder (not compressed). The following directory
+structure is expected: `<backup path>/<tenant id>/<media package id>/<version>`
+
+### Recovery from rsync history
+
+The script can also try to recover a media package from rsync history if a path to that history is provided.
+This is useful for media packages that are already deleted in the regular backup. Rsync history will be considered if a
+media package cannot be found in the regular backup or if all media packages from a tenant should be recovered. The
+following directory structure is expected: `<rsync history path>/<date>/<tenant id>/<media package id>/<version>`
+If a media package is contained in more than one date folder, the most recent is chosen.
 
 ### A few things to consider
 
@@ -50,10 +66,11 @@ The recovery of one or more media package(s) from a backup of the archive is exe
     Parse arguments, check for correctness
     If no digest password: Ask for digest password
     If no tenant: Use default tenant
-    If no media package IDs: Get IDs of all media packages for tenant contained in backup
+    If no media package IDs: Get IDs of all media packages for tenant contained in backup and rsync history
     For each media package ID:
         Find media package folder in backup
-        If not found: Skip recovery of this media package
+        If not found: Try rsync history if available
+        If still not found: Skip recovery of this media package
         If last-version-flag set: Pick last version
         Else: Ask user to choose version
     Present user with all media packages that can be recovered (id, version, path) and ask for confirmation

@@ -106,7 +106,7 @@ class RequestError(Exception):
         Get the status code that caused this RequestError if there is one.
         :return: The status code if it exists
         :rtype: str
-        :raise: ValueError if this RequestError doesn't have a status code
+        :raise ValueError: If this RequestError doesn't have a status code
         """
         if not self.has_status_code():
             raise ValueError("Attribute status_code not found.")
@@ -117,7 +117,7 @@ class RequestError(Exception):
         Get the error that caused this request error if there is one.
         :return: The error if it exists
         :rtype: str
-        :raise: ValueError if this RequestError doesn't have an error
+        :raise ValueError: If this RequestError doesn't have an error
         """
         if not self.has_error():
             raise ValueError("Attribute error not found.")

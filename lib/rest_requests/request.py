@@ -24,7 +24,7 @@ def get_request(url, digest_login, element_description, asset_type_description=N
     :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL' (optional)
     :type asset_description: str
     :return: response
-    :raise: RequestError
+    :raise RequestError:
     """
 
     try:
@@ -60,7 +60,7 @@ def post_request(url, digest_login, element_description, asset_type_description=
     :param files: Any files to attach to the request (optional)
     :type files: dict
     :return: response
-    :raise: RequestError
+    :raise RequestError:
     """
 
     auth = HTTPDigestAuth(digest_login.user, digest_login.password)

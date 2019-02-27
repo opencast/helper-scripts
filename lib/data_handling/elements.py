@@ -11,6 +11,7 @@ def get_id(element) -> str:
     :type element: dict
     :return: ID of element
     :rtype: str
+    :raise ValueError:
     """
 
     if "id" in element:

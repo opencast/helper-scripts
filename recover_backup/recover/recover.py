@@ -93,7 +93,7 @@ def recover_series(base_url, digest_login, series_catalogs, series_attachments=N
     :type series_catalogs: list
     :param series_attachments: The series attachments (optional)
     :type series_attachments: list or None
-    :raise: SeriesError
+    :raise SeriesError:
     """
 
     series_dc = [catalog for catalog in series_catalogs if catalog.flavor == "dublincore/series"]

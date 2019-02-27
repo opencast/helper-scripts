@@ -19,7 +19,7 @@ def __get_dc_of_series(series, base_url, digest_login):
     :type digest_login: DigestLogin
     :return: The series Dublin Core catalog
     :rtype: ElementTree.Element
-    :raise: RequestError
+    :raise RequestError:
     """
 
     url = '{}/series/{}.xml'.format(base_url, get_id(series))
@@ -47,7 +47,7 @@ def __get_acl_of_series(series, base_url, digest_login):
     :type digest_login: DigestLogin
     :return: The series ACL
     :rtype: dict
-    :raise: RequestError
+    :raise RequestError:
     """
 
     url = "{}/series/{}/acl.json".format(base_url, get_id(series))
@@ -75,7 +75,7 @@ def __get_acls_of_event(event, base_url, digest_login):
     :type digest_login: DigestLogin
     :return: The episode and series acls
     :rtype: list, list
-    :raise: RequestError
+    :raise RequestError:
     """
 
     url = '{}/admin-ng/event/{}/asset/attachment/attachments.json'.format(base_url, get_id(event))
@@ -107,7 +107,7 @@ def __get_dcs_of_event(event, base_url, digest_login):
     :type digest_login: DigestLogin
     :return: The episode and series Dublin Core catalogs
     :rtype: list, list
-    :raise: RequestError
+    :raise RequestError:
     """
 
     url = '{}/admin-ng/event/{}/asset/catalog/catalogs.json'.format(base_url, get_id(event))
@@ -139,7 +139,7 @@ def __get_asset_content(asset, digest_login, element_description, asset_type_des
     :type asset_description: str
     :return: The actual asset content in xml format
     :rtype: ElementTree.Element
-    :raise: RequestError
+    :raise RequestError:
     """
 
     url = asset["url"]
@@ -165,7 +165,7 @@ def get_asset_of_series_from_rest(series, base_url, digest_login, asset_descript
     :type asset_description: AssetDescription
     :return: The series asset
     :rtype: ElementTree.Element
-    :raise: RequestError
+    :raise RequestError:
     """
 
     if asset_description == AssetDescription.DC:
@@ -188,7 +188,7 @@ def get_assets_of_event_from_rest(event, base_url, digest_login, asset_descripti
     :type asset_description: AssetDescription
     :return: The episode and series assets
     :rtype: list, list
-    :raise: RequestError
+    :raise RequestError:
     """
 
     if asset_description == AssetDescription.DC:

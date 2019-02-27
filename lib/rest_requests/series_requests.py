@@ -16,6 +16,7 @@ def series_exists(base_url, digest_login, series_id):
     :type series_id: str
     :return: True if the series still exists, False otherwise
     :rtype: bool
+    :raise RequestError: If an error other than 404 occurs
     """
 
     url = '{}/series/{}.json'.format(base_url, series_id)

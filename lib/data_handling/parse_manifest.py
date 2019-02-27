@@ -17,6 +17,7 @@ def parse_manifest(mp):
     :type mp: MediaPackage
     :return: series id, tracks, catalogs, attachments
     :rtype: str, list, list, list
+    :raise MediaPackageError:
     """
 
     manifest_file = os.path.join(mp.path, "manifest.xml")

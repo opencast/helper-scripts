@@ -93,6 +93,7 @@ def get_configurable_answer(options, short_descriptions, long_descriptions, ques
     :type level: int
     :return: The option chosen by the user.
     :rtype: str
+    :raise ValueError:
     """
 
     help_option = 'h'

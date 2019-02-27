@@ -25,6 +25,7 @@ def main():
     opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version, rsync_history_path\
         = parse_args()
 
+    # print info
     if not tenant:
         print("No tenant provided, using default tenant.")
         tenant = DEFAULT_TENANT
@@ -33,6 +34,7 @@ def main():
     if last_version:
         print("Always using last version of media packages.")
 
+    # init
     url_builder = URLBuilder(opencast, https)
     base_url = url_builder.get_base_url(tenant)
 
@@ -40,36 +42,36 @@ def main():
     mps_to_recover = find_media_packages(backup, tenant, last_version, rsync_history_path, media_packages)
 
     if not mps_to_recover:
-        # abort recovery
-        print("There are no media packages that can be recovered.")
-        sys.exit()
+        __abort_script("There are no media packages that can be recovered.")
 
     # check if these should be recovered
     start_recovery = check_recovery_start(mps_to_recover)
 
     if not start_recovery:
-        # abort recovery
-        print("Okay, not recovering anything.")
-        sys.exit()
+        __abort_script("Okay, not recovering anything.")
 
-    else:
-        # start recovery
-        print("Starting recovery process.")
+    # start recovery
+    print("Starting recovery process.")
 
-        for mp in mps_to_recover:
+    for mp in mps_to_recover:
 
-            try:
-                workflow = recover_mp(mp, base_url, digest_login, workflow_id)
-                print("Recovered media package {} (new id: {}) and started workflow {} with id {}.".
-                      format(mp.id, workflow.mp_id, workflow.template, workflow.id))
-            except MediaPackageError as e:
-                print("Media package {} could not be recovered: {}".format(mp.id, str(e)))
-            except RequestError as e:
-                print("Media package {} could not be recovered: {}".format(mp.id, e.error))
-            except Exception as e:
-                print("Media package {} could not be recovered: {}".format(mp.id, str(e)))
+        try:
+            workflow = recover_mp(mp, base_url, digest_login, workflow_id)
+            print("Recovered media package {} (new id: {}) and started workflow {} with id {}.".
+                  format(mp.id, workflow.mp_id, workflow.template, workflow.id))
+        except MediaPackageError as e:
+            print("Media package {} could not be recovered: {}".format(mp.id, str(e)))
+        except RequestError as e:
+            print("Media package {} could not be recovered: {}".format(mp.id, e.error))
+        except Exception as e:
+            print("Media package {} could not be recovered: {}".format(mp.id, str(e)))
 
-        print("Finished.")
+    print("Finished.")
+
+
+def __abort_script(message):
+    print(message)
+    sys.exit()
 
 
 if __name__ == '__main__':

@@ -44,7 +44,10 @@ def parse_manifest(mp):
 
             subelement_id = subelement.get("id")
             flavor = subelement.get("type")
-            mimetype = subelement.find("manifest:mimetype", namespaces).text
+
+            mimetype_element = subelement.find("manifest:mimetype", namespaces)
+            mimetype = mimetype_element.text if mimetype_element else None
+
             file_extension = subelement.find("manifest:url", namespaces).text.split(".")[-1]
             filename = subelement_id + "." + file_extension
             path = os.path.join(mp.path, filename)

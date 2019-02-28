@@ -34,7 +34,7 @@ def find_media_packages(backup_path, tenant, use_last_version, rsync_history_pat
 
     if not tenant_dir and not rsync_tenant_dirs:
         print("No directories for tenant {} could be found.".format(tenant))
-        return
+        return []
 
     if backup_path and not tenant_dir:
         print("Warning: No directory for tenant {} in archive backup found, checking rsync history only."

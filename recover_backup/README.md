@@ -9,7 +9,7 @@ Additionally to the modules in this folder this script uses modules contained in
 This script can be called with the following parameters (all parameters in brackets are optional, the others required):
 
 `main.py -o OPENCAST [-s] -u USER [-p PASSWORD] [-b BACKUP] [-m MEDIA_PACKAGE [MEDIA_PACKAGE ...]] [-t TENANT]
-[-w WORKFLOW_ID] [-l] [-r RSYNC_HISTORY]`
+[-w WORKFLOW_ID] [-l] [-r RSYNC_HISTORY] [-i]`
 
 Either a path to the archive backup (`-b`) or a path to the rsync history (`-r`) has to be provided.
 
@@ -25,6 +25,7 @@ Either a path to the archive backup (`-b`) or a path to the rsync history (`-r`)
 | `-w`         | `--workflow-id`   | Workflow to run on the re-ingested media package             | Default workflow configured in opencast                             |
 | `-l`         | `--last-version`  | Flag for always choosing the last version of a media package | Ask user for version                                                |
 | `-r`         | `--rsync-history` | Path to rsync history                                        |                                                                     |
+| `-i`         | `--ignore-errors` | Flag for recovering media packages despite of errors         | Don't recover media packages with errors                            |
 
 ##### Usage example
 

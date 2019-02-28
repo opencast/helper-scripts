@@ -1,6 +1,7 @@
-from data_handling.errors import SeriesError
+from data_handling.errors import SeriesError, optional_series_error, optional_mp_error
 from data_handling.parse_manifest import parse_manifest
 from data_handling.transform_acl import transform_acl
+from input.get_dummy_series_dc import get_dummy_series_dc
 from input_output.read_file import read_file
 from rest_requests.series_requests import series_exists, create_series
 from rest_requests.ingest_media_package import create_media_package, add_track, add_attachment, add_catalog, ingest
@@ -27,7 +28,7 @@ def __filter_assets(catalogs, attachments):
     return episode_catalogs, episode_attachments, series_catalogs, series_attachments
 
 
-def recover_mp(mp, base_url, digest_login, workflow_id):
+def recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors):
     """
     Recover a media package by first creating a new media package, then adding tracks, catalogs and attachments to it
     and finally ingesting it. Recover the series as well if necessary.
@@ -40,12 +41,16 @@ def recover_mp(mp, base_url, digest_login, workflow_id):
     :type digest_login: DigestLogin
     :param workflow_id: The workflow to be run on ingest.
     :type workflow_id: str
+    :param ignore_errors: Whether to ignore errors and recover the media package anyway
+    :type ignore_errors: bool
     :raise MediaPackageError:
     """
 
+    # create empty media package
     new_mp = create_media_package(base_url, digest_login)
 
-    series_id, tracks, catalogs, attachments = parse_manifest(mp)
+    # parse manifest
+    series_id, tracks, catalogs, attachments = parse_manifest(mp, ignore_errors)
 
     if series_id:
 
@@ -55,7 +60,7 @@ def recover_mp(mp, base_url, digest_login, workflow_id):
         if not series_exists(base_url, digest_login, series_id):
 
             try:
-                recover_series(base_url, digest_login, series_catalogs, series_attachments)
+                recover_series(series_id, base_url, digest_login, ignore_errors, series_catalogs, series_attachments)
                 print("Recovered series {}.".format(series_id))
 
             except SeriesError as e:
@@ -65,30 +70,40 @@ def recover_mp(mp, base_url, digest_login, workflow_id):
             except Exception as e:
                 print("Series {} could not be recovered: {}".format(series_id, str(e)))
 
-    for track in tracks:
-
-        new_mp = add_track(base_url, digest_login, new_mp, track)
-
     for attachment in attachments:
-
-        new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
+        try:
+            new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
+        except RequestError as e:
+            optional_mp_error("Attachment {} could not be added.".format(attachment.id), ignore_errors, e)
 
     for catalog in catalogs:
+        try:
+            new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
+        except RequestError as e:
+            optional_mp_error("Catalog {} could not be added.".format(catalog.id), ignore_errors, e)
 
-        new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
+    for track in tracks:
+        try:
+            new_mp = add_track(base_url, digest_login, new_mp, track)
+        except RequestError as e:
+            optional_mp_error("Track {} could not be added.".format(track.id), ignore_errors, e)
 
     workflow = ingest(base_url, digest_login, new_mp, workflow_id)
     return workflow
 
 
-def recover_series(base_url, digest_login, series_catalogs, series_attachments=None):
+def recover_series(series_id, base_url, digest_login, ignore_errors, series_catalogs, series_attachments=None):
     """
     Recover a series by recreating it with the series Dublin Core catalog and optionally a series ACL.
 
+    :param series_id: The ID of the series
+    :type series_id: str
     :param base_url: The base url for the rest requests.
     :type base_url: str
     :param digest_login: User and password for digest authentication.
     :type digest_login: DigestLogin
+    :param ignore_errors: Whether to ignore errors and recover the media package anyway
+    :type ignore_errors: bool
     :param series_catalogs: The series catalogs
     :type series_catalogs: list
     :param series_attachments: The series attachments (optional)
@@ -96,21 +111,39 @@ def recover_series(base_url, digest_login, series_catalogs, series_attachments=N
     :raise SeriesError:
     """
 
-    series_dc = [catalog for catalog in series_catalogs if catalog.flavor == "dublincore/series"]
-    series_acl = [attachment for attachment in series_attachments if attachment.flavor == "security/xacml+series"]
+    series_dcs = [catalog for catalog in series_catalogs if catalog.flavor == "dublincore/series"]
+    series_acls = [attachment for attachment in series_attachments if attachment.flavor == "security/xacml+series"]
 
-    if len(series_dc) > 1 or len(series_acl) > 1:
-        raise SeriesError("More than one series Dublin Core catalog or ACL, recovery of series not possible.")
+    if len(series_dcs) > 1 or len(series_acls) > 1:
+        optional_series_error("More than one series Dublin Core catalog or ACL.", ignore_errors)
 
-    if not series_dc:
-        raise SeriesError("Series Dublin Core catalog missing, recovery of series not possible.")
+    if not series_dcs:
+        optional_series_error("Series Dublin Core catalog missing.", ignore_errors)
 
-    series_dc = series_dc[0]
-    series_acl = series_acl[0] if series_acl else None
+    series_dc_contents = []
+    series_acl_contents = []
 
-    series_dc_content = read_file(series_dc.path)
-    series_acl_content = read_file(series_acl.path) if series_acl else None
+    for series_dc in series_dcs:
+        try:
+            series_dc_content = read_file(series_dc.path)
+            series_dc_contents.append(series_dc_content)
+        except Exception as e:
+            optional_series_error("Series Dublin Core catalog could not be read.", ignore_errors, e)
 
-    series_acl_content = transform_acl(series_acl_content)
+    for series_acl in series_acls:
+        try:
+            series_acl_content = read_file(series_acl.path)
+        except Exception as e:
+            optional_series_error("Series ACL could not be read.", ignore_errors, e)
+            continue
+
+        try:
+            series_acl_content = transform_acl(series_acl_content)
+            series_acl_contents.append(series_acl_content)
+        except Exception as e:
+            optional_series_error("Series ACL could not be transformed.", ignore_errors, e)
+
+    series_dc_content = series_dc_contents[0] if series_dc_contents else get_dummy_series_dc(series_id)
+    series_acl_content = series_acl_contents[0] if series_acl_contents else None
 
     create_series(base_url, digest_login, series_dc_content, series_acl_content)

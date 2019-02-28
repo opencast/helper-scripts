@@ -22,8 +22,8 @@ def main():
     """
 
     # parse arguments
-    opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version, rsync_history_path\
-        = parse_args()
+    opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version, rsync_history_path, \
+        ignore_errors = parse_args()
 
     # print info
     if not tenant:
@@ -33,6 +33,8 @@ def main():
         print("No path to rsync history provided.")
     if last_version:
         print("Always using last version of media packages.")
+    if ignore_errors:
+        print("Ignoring media package errors")
 
     # init
     url_builder = URLBuilder(opencast, https)
@@ -56,7 +58,7 @@ def main():
     for mp in mps_to_recover:
 
         try:
-            workflow = recover_mp(mp, base_url, digest_login, workflow_id)
+            workflow = recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors)
             print("Recovered media package {} (new id: {}) and started workflow {} with id {}.".
                   format(mp.id, workflow.mp_id, workflow.template, workflow.id))
         except MediaPackageError as e:

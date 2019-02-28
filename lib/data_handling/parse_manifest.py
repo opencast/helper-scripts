@@ -3,18 +3,20 @@ import xml.etree.ElementTree as ElementTree
 
 import os
 
-from data_handling.errors import MediaPackageError
+from data_handling.errors import MediaPackageError, optional_mp_error
 
 namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
 Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags'])
 
 
-def parse_manifest(mp):
+def parse_manifest(mp, ignore_errors = False):
     """
     Parse the manifest file and collect the media package elements with all relevant information.
 
     :param mp: The given media package.
     :type mp: MediaPackage
+    :param ignore_errors: Whether to ignore errors and recover the media package anyway
+    :type ignore_errors: bool
     :return: series id, tracks, catalogs, attachments
     :rtype: str, list, list, list
     :raise MediaPackageError:
@@ -42,8 +44,8 @@ def parse_manifest(mp):
         for subelement in manifest.findall("./manifest:" + element+"/", namespaces):
 
             subtype = subelement.tag.split("}")[-1]
-
             subelement_id = subelement.get("id")
+
             flavor = subelement.get("type")
 
             mimetype_element = subelement.find("manifest:mimetype", namespaces)
@@ -55,13 +57,13 @@ def parse_manifest(mp):
 
             tag_elements = subelement.findall("manifest:tags/manifest:tag", namespaces)
             tags = None
-
             if tag_elements:
                 tags = [element.text for element in tag_elements]
 
             if not os.path.isfile(path):
-                raise MediaPackageError("Media package {} is missing a {} with id {}.".format(mp.id, subtype,
-                                                                                              subelement_id))
+                optional_mp_error("Media package {} is missing a(n) {} with id {}."
+                                  .format(mp.id, subtype, subelement_id), ignore_errors)
+                continue
 
             elements[element][subtype].append(Element(id=subelement_id, flavor=flavor, mimetype=mimetype,
                                                       filename=filename, path=path, tags=tags))

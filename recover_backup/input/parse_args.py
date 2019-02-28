@@ -33,6 +33,8 @@ def parse_args():
     optional_args.add_argument('-l', "--last-version", action='store_true', help="always recover last version of "
                                "media package")
     optional_args.add_argument('-r', "--rsync-history", type=str, help="path to rsync history to be checked as well")
+    optional_args.add_argument('-i', "--ignore-errors", action='store_true',
+                               help="whether to recover a media package despite errors")
 
     args = parser.parse_args()
 
@@ -56,4 +58,4 @@ def parse_args():
     digest_login = DigestLogin(user=args.user, password=digest_pw)
 
     return args.opencast, args.https, digest_login, args.backup, args.media_packages, args.tenant, args.workflow_id, \
-        args.last_version, args.rsync_history
+        args.last_version, args.rsync_history, args.ignore_errors

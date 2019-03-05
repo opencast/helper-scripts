@@ -52,6 +52,11 @@ def parse_manifest(mp, ignore_errors = False):
             mimetype = mimetype_element.text if mimetype_element else None
 
             file_extension = subelement.find("manifest:url", namespaces).text.split(".")[-1]
+            if file_extension == "unknown":
+                print("File extension for {} {} of media package {} is unknown, falling back to xml.".
+                      format(subtype, subelement_id, mp.id))
+                file_extension = "xml"
+
             filename = subelement_id + "." + file_extension
             path = os.path.join(mp.path, filename)
 
@@ -61,8 +66,8 @@ def parse_manifest(mp, ignore_errors = False):
                 tags = [element.text for element in tag_elements]
 
             if not os.path.isfile(path):
-                optional_mp_error("Media package {} is missing a(n) {} with id {}."
-                                  .format(mp.id, subtype, subelement_id), ignore_errors)
+                optional_mp_error("{} {} of media package {} cannot be found at {} ."
+                                  .format(subtype, subelement_id, mp.id, path), ignore_errors)
                 continue
 
             elements[element][subtype].append(Element(id=subelement_id, flavor=flavor, mimetype=mimetype,

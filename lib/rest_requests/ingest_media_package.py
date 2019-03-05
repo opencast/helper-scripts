@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from rest_requests.get_response_content import get_xml_content
-from rest_requests.request import get_request, post_request
+from rest_requests.request import get_request, post_request, big_post_request
 
 Workflow = namedtuple("Workflow", ["id", "template", "mp_id"])
 
@@ -96,9 +96,8 @@ def add_track(base_url, digest_login, mp, track):
     url = '{}/ingest/addTrack'.format(base_url)
 
     data = {'flavor': track.flavor, 'mediaPackage': mp}
-    files = {'BODY': open(track.path, 'rb')}
 
-    response = post_request(url, digest_login, "/ingest/addTrack", data=data, files=files)
+    response = big_post_request(url, digest_login, "/ingest/addTrack", data=data, files=[track.path])
 
     return response.content
 

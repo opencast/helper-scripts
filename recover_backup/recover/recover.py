@@ -70,6 +70,12 @@ def recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors):
             except Exception as e:
                 print("Series {} could not be recovered: {}".format(series_id, str(e)))
 
+    for track in tracks:
+        try:
+            new_mp = add_track(base_url, digest_login, new_mp, track)
+        except RequestError as e:
+            optional_mp_error("Track {} could not be added.".format(track.id), ignore_errors, e)
+
     for attachment in attachments:
         try:
             new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
@@ -81,12 +87,6 @@ def recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors):
             new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
         except RequestError as e:
             optional_mp_error("Catalog {} could not be added.".format(catalog.id), ignore_errors, e)
-
-    for track in tracks:
-        try:
-            new_mp = add_track(base_url, digest_login, new_mp, track)
-        except RequestError as e:
-            optional_mp_error("Track {} could not be added.".format(track.id), ignore_errors, e)
 
     workflow = ingest(base_url, digest_login, new_mp, workflow_id)
     return workflow

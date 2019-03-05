@@ -14,7 +14,7 @@ class MediaPackageError(Exception):
     pass
 
 
-def optional_series_error(error, ignore_errors, exception = None):
+def optional_series_error(error, ignore_errors, exception=None):
     """
     Print a warning if errors should be ignored, otherwise raise a SeriesError
 
@@ -32,7 +32,7 @@ def optional_series_error(error, ignore_errors, exception = None):
         raise SeriesError(error) from exception
 
 
-def optional_mp_error(error, ignore_errors, exception = None):
+def optional_mp_error(error, ignore_errors, exception=None):
     """
     Print a warning if errors should be ignored, otherwise raise a MediaPackageError
 

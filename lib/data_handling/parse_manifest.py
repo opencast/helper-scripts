@@ -9,7 +9,7 @@ namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
 Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags'])
 
 
-def parse_manifest(mp, ignore_errors = False):
+def parse_manifest(mp, ignore_errors=False):
     """
     Parse the manifest file and collect the media package elements with all relevant information.
 

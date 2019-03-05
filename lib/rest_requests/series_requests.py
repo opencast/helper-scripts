@@ -43,7 +43,7 @@ def create_series(base_url, digest_login, series_dc, series_acl=None):
     :type digest_login: DigestLogin
     :param series_dc: Series Dublin Core catalog
     :type series_dc: ste
-    :param series_acl: Series ACL (optional)
+    :param series_acl: Series ACL
     :type series_acl: str
     :raise RequestError: If series could not be created
     """

@@ -14,7 +14,7 @@ def get_tenants(base_url, digest_login):
 
     :param base_url: The URL to an opencast instance
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: tenant ids
     """
@@ -39,7 +39,7 @@ def get_series(base_url, digest_login):
 
     :param base_url: The URL to an opencast instance including the tenant
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: series
     """
@@ -59,7 +59,7 @@ def get_events(base_url, digest_login):
 
     :param base_url: The URL to an opencast instance including the tenant
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: events
     """

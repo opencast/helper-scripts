@@ -14,7 +14,7 @@ def get_oaipmh_record(event, repository_url, repository, digest_login, base_url)
     :type repository_url: str
     :param repository: The OAIPMH repository ID
     :type repository: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param base_url: The URL of the opencast instance
     :type base_url: str

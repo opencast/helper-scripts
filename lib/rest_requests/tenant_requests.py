@@ -13,7 +13,7 @@ def filter_tenants(chosen_tenants, excluded_tenants, progress_printer, url_build
     :type progress_printer: ProgressPrinter
     :param url_builder: The URL builder
     :type url_builder: URLBuilder
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: A sorted list with tenants to check
     :rtype: list

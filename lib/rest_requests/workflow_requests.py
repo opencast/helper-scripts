@@ -7,7 +7,7 @@ def start_workflow(base_url, digest_login, workflow_definition, media_package):
 
     :param base_url: The URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param workflow_definition: The workflow definition
     :type workflow_definition: str

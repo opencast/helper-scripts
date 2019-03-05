@@ -11,7 +11,7 @@ def get_media_package(base_url, digest_login, mp_id):
 
     :param base_url: The URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param mp_id: The ID of the media package
     :type mp_id: str
@@ -34,7 +34,7 @@ def media_package_exists(base_url, digest_login, mp_id):
 
     :param base_url: The URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param mp_id: The ID of the media package
     :type mp_id: str

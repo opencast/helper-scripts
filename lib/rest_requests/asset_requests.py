@@ -15,7 +15,7 @@ def __get_dc_of_series(series, base_url, digest_login):
     :type series: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: The series Dublin Core catalog
     :rtype: ElementTree.Element
@@ -43,7 +43,7 @@ def __get_acl_of_series(series, base_url, digest_login):
     :type series: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: The series ACL
     :rtype: dict
@@ -71,7 +71,7 @@ def __get_acls_of_event(event, base_url, digest_login):
     :type event: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: The episode and series acls
     :rtype: list, list
@@ -103,7 +103,7 @@ def __get_dcs_of_event(event, base_url, digest_login):
     :type event: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: The episode and series Dublin Core catalogs
     :rtype: list, list
@@ -133,7 +133,7 @@ def __get_asset_content(asset, digest_login, element_description, asset_type_des
 
     :param asset: The asset information
     :type asset: dict
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param asset_description: ACL or Dublin Core catalog
     :type asset_description: str
@@ -159,7 +159,7 @@ def get_asset_of_series_from_rest(series, base_url, digest_login, asset_descript
     :type series: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param asset_description: DC or ACL
     :type asset_description: AssetDescription
@@ -182,7 +182,7 @@ def get_assets_of_event_from_rest(event, base_url, digest_login, asset_descripti
     :type event: dict
     :param base_url: The base URL for the request
     :type base_url: str
-    :param digest_login: The login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :param asset_description: DC or ACL
     :type asset_description: AssetDescription

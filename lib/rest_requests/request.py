@@ -15,13 +15,13 @@ def get_request(url, digest_login, element_description, asset_type_description=N
 
     :param url: URL to make get request to
     :type url: str
-    :param digest_login: Login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
-    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants' (required)
+    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants'
     :type element_description: str
-    :param asset_type_description: Asset type description in case of errors, e.g. 'series', 'episode' (optional)
+    :param asset_type_description: Asset type description in case of errors, e.g. 'series', 'episode'
     :type asset_type_description: str
-    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL' (optional)
+    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL'
     :type asset_description: str
     :return: response
     :raise RequestError:
@@ -47,17 +47,17 @@ def post_request(url, digest_login, element_description, asset_type_description=
 
     :param url: URL to make post request to
     :type url: str
-    :param digest_login: Login delete_artefacts for digest authentication
+    :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
-    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants' (required)
+    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants'
     :type element_description: str
-    :param asset_type_description: Asset type type description in case of errors, e.g. 'series', 'episode' (optional)
+    :param asset_type_description: Asset type type description in case of errors, e.g. 'series', 'episode'
     :type asset_type_description: str
-    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL' (optional)
+    :param asset_description: Asset description in case of errors, e.g. 'Dublin Core catalogs', 'ACL'
     :type asset_description: str
-    :param data: Any delete_artefacts to attach to the request (optional)
+    :param data: Any data to attach to the request
     :type data: dict
-    :param files: Any files to attach to the request (optional)
+    :param files: Any files to attach to the request
     :type files: dict
     :return: response
     :raise RequestError:

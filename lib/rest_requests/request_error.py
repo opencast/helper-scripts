@@ -30,11 +30,11 @@ class RequestError(Exception):
         :param status_code: The status code of the response
         :type status_code: str
         :param element_description: The description of the requested element(s) or the element belonging to the
-                                    requested asset (required)
+                                    requested asset
         :type element_description: str
-        :param asset_type_description: The description of the asset type if an asset was requested (optional)
+        :param asset_type_description: The description of the asset type if an asset was requested
         :type asset_type_description: str
-        :param asset_description: The description of the requested asset if an asset was requested (optional)
+        :param asset_description: The description of the requested asset if an asset was requested
         :type asset_description: str
         """
 
@@ -63,11 +63,11 @@ class RequestError(Exception):
         :param error: The encountered error
         :type error: str
         :param element_description: The description of the requested element(s) or the element belonging to the
-                                    requested asset (required)
+                                    requested asset
         :type element_description: str
-        :param asset_type_description: The description of the asset type if an asset was requested (optional)
+        :param asset_type_description: The description of the asset type if an asset was requested
         :type asset_type_description: str
-        :param asset_description: The description of the requested asset if an asset was requested (optional)
+        :param asset_description: The description of the requested asset if an asset was requested
         :type asset_description: str
         """
 

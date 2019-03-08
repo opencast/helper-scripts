@@ -36,6 +36,7 @@ Either a path to the archive backup (`-b`) or a path to the rsync history (`-r`)
 
 - Python 3
 - `requests`-Package
+- `requests-toolbelt`-Package
 
 ### Recovery from a backup of the archive
 

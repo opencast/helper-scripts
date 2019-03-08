@@ -47,7 +47,7 @@ def main():
         __abort_script("There are no media packages that can be recovered.")
 
     # check if these should be recovered
-    start_recovery = check_recovery_start(mps_to_recover)
+    start_recovery = check_recovery_start(mps_to_recover, media_packages)
 
     if not start_recovery:
         __abort_script("Okay, not recovering anything.")

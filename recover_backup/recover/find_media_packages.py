@@ -1,8 +1,7 @@
 """ This module finds the media packages in the backup that are to be recovered."""
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 import os
-from operator import attrgetter
 
 from input_output.input import get_number
 
@@ -62,7 +61,7 @@ def find_media_packages(backup_path, tenant, use_last_version, rsync_history_pat
 
         mps_to_recover.append(MediaPackage(id=mp_id, version=version, path=version_dir))
 
-    return sorted(mps_to_recover, key=attrgetter('id'))
+    return mps_to_recover
 
 
 def __get_tenant_dir(backup_path, tenant):
@@ -107,19 +106,19 @@ def __get_all_media_packages(tenant_dir, rsync_tenant_dirs):
                 if mp_id not in media_packages:
                     media_packages[mp_id] = mp_dir
 
-    return media_packages
+    return OrderedDict(sorted(media_packages.items()))
 
 
 def __get_all_from_backup(tenant_dir):
 
     dir_name, sub_dirs, files = next(os.walk(tenant_dir))
-    media_packages = {subdir: os.path.join(tenant_dir, subdir) for subdir in sub_dirs}
+    media_packages = OrderedDict((subdir, os.path.join(tenant_dir, subdir)) for subdir in sub_dirs)
     return media_packages
 
 
 def __get_all_from_rsync(rsync_tenant_dirs):
 
-    media_packages = {}
+    media_packages = OrderedDict()
 
     for tenant_dir in rsync_tenant_dirs:
         dir_name, sub_dirs, files = next(os.walk(tenant_dir))
@@ -133,7 +132,7 @@ def __get_all_from_rsync(rsync_tenant_dirs):
 
 def __get_media_packages(media_package_ids, tenant_dir, rsync_tenant_dirs):
 
-    media_packages = {}
+    media_packages = OrderedDict()
     for mp_id in media_package_ids:
 
         mp_dir = __find_mp_dir(mp_id, tenant_dir, rsync_tenant_dirs)

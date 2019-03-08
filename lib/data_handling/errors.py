@@ -1,3 +1,6 @@
+import logging
+
+
 class SeriesError(Exception):
     """
     Represents all errors that can hinder the recovery of a series.
@@ -28,6 +31,7 @@ def optional_series_error(error, ignore_errors, exception=None):
     """
     if ignore_errors:
         print("Warning: {}".format(error))
+        logging.error(error, exc_info=True)
     else:
         raise SeriesError(error) from exception
 
@@ -46,5 +50,6 @@ def optional_mp_error(error, ignore_errors, exception=None):
     """
     if ignore_errors:
         print("Warning: {}".format(error))
+        logging.error(error, exc_info=True)
     else:
         raise MediaPackageError(error) from exception

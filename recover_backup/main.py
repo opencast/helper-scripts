@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 """ This module contains the main method. """
+import logging
 import sys
 import os
 
@@ -24,6 +25,8 @@ def main():
     # parse arguments
     opencast, https, digest_login, backup, media_packages, tenant, workflow_id, last_version, rsync_history_path, \
         ignore_errors = parse_args()
+
+    logging.basicConfig(filename='errors.log', level=logging.ERROR, filemode="w")
 
     # print info
     if not tenant:

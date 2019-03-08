@@ -115,10 +115,11 @@ def recover_series(series_id, base_url, digest_login, ignore_errors, series_cata
     series_acls = [attachment for attachment in series_attachments if attachment.flavor == "security/xacml+series"]
 
     if len(series_dcs) > 1 or len(series_acls) > 1:
-        optional_series_error("More than one series Dublin Core catalog or ACL.", ignore_errors)
+        optional_series_error("More than one series Dublin Core catalog or ACL in series {}.".format(series_id),
+                              ignore_errors)
 
     if not series_dcs:
-        optional_series_error("Series Dublin Core catalog missing.", ignore_errors)
+        optional_series_error("Series Dublin Core catalog of series {} missing.".format(series_id), ignore_errors)
 
     series_dc_contents = []
     series_acl_contents = []
@@ -128,20 +129,22 @@ def recover_series(series_id, base_url, digest_login, ignore_errors, series_cata
             series_dc_content = read_file(series_dc.path)
             series_dc_contents.append(series_dc_content)
         except Exception as e:
-            optional_series_error("Series Dublin Core catalog could not be read.", ignore_errors, e)
+            optional_series_error("Series Dublin Core catalog of series {} could not be read.".format(series_id),
+                                  ignore_errors, e)
 
     for series_acl in series_acls:
         try:
             series_acl_content = read_file(series_acl.path)
         except Exception as e:
-            optional_series_error("Series ACL could not be read.", ignore_errors, e)
+            optional_series_error("Series ACL of series {} could not be read.".format(series_id), ignore_errors, e)
             continue
 
         try:
             series_acl_content = transform_acl(series_acl_content)
             series_acl_contents.append(series_acl_content)
         except Exception as e:
-            optional_series_error("Series ACL could not be transformed.", ignore_errors, e)
+            optional_series_error("Series ACL of series {} could not be transformed.".format(series_id), ignore_errors,
+                                  e)
 
     series_dc_content = series_dc_contents[0] if series_dc_contents else get_dummy_series_dc(series_id)
     series_acl_content = series_acl_contents[0] if series_acl_contents else None

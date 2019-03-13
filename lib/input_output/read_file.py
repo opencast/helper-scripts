@@ -1,3 +1,6 @@
+import io
+
+
 def read_file(file_path):
     """
     Return the content of a file as a string without newlines.
@@ -10,7 +13,7 @@ def read_file(file_path):
 
     file_string = ''
 
-    with open(file_path, 'r', newline='') as file:
+    with io.open(file_path, 'r', newline='', encoding='utf8') as file:
         for line in file:
             file_string = file_string + line.rstrip('\n')
 

@@ -1,5 +1,12 @@
 from flask import Flask, render_template_string
 from lti.tool_consumer import ToolConsumer
+
+
+CONSUMER_KEY = 'CONSUMERKEY'
+CONSUMER_SECRET = 'CONSUMERSECRET'
+LAUNCH_URL = 'http://localhost:8080/lti'
+
+
 app = Flask(__name__)
 
 TPL = '''<!doctype html>
@@ -23,9 +30,9 @@ TPL = '''<!doctype html>
 @app.route('/')
 def consumer(name=None):
     consumer = ToolConsumer(
-        consumer_key='CONSUMERKEY',
-        consumer_secret='CONSUMERSECRET',
-        launch_url='http://localhost:8080/lti',
+        consumer_key=CONSUMER_KEY,
+        consumer_secret=CONSUMER_SECRET,
+        launch_url=LAUNCH_URL,
         params={
             'lti_message_type': 'basic-lti-launch-request',
             'lti_version': 'LTI-1p0',

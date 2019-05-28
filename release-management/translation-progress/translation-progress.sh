@@ -2,6 +2,10 @@
 
 set -ue
 
+if [ ! -f ~/.crowdin.yaml ]; then
+	echo ~/.crowdin.yaml is missing
+fi
+
 echo 'Opencast Translation Status'
 date --utc
 echo ''

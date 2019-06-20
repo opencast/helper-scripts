@@ -17,7 +17,7 @@ jobs:
     - stage: test
       env: name=schedule
       script:
-        - shellcheck schedule-now-*/*.sh
+        - shellcheck schedule-now/*.sh
 
     - stage: test
       env: name=changelog

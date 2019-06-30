@@ -11,12 +11,12 @@ minute. Capture agent and server can be specified at the top of the script:
 - `USER="opencast_system_account"`
 - `PASSWORD="CHANGE_ME"`
 
-The default times can be passed to the script as command line argument. For
-example, to schedule a 15min recording in 5 min run:
+You can overwrite the default times be passed new ones to the script as command
+line argument. For example, to schedule a 15min recording in 5 min run:
 
-    sh schedule-now.sh 5 15
+    ./schedule-now.sh 5 15
 
 A more complex example: To schedule 100 recordings of 5 minutes each, starting
-in 1 minute, and at 15 minute intervals after that:
+in 1 minute, and at 15 minute intervals after that (using bash):
 
-for i in {0..100}; do sh schedule-now.sh $((15 * i + 1)) 5; done
+    for i in {0..100}; do ./schedule-now.sh $((15 * i + 1)) 5; done

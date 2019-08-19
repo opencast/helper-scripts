@@ -119,7 +119,7 @@ fi
 function get_active_workflows {
   active_workflows=$(curl --digest -u "$OC_USER:$OC_PASSWORD" -H "X-Requested-Auth: Digest" -s \
       "$OC_SERVER_URL/workflow/count?state=RUNNING")
-  [ ! -z "${active_workflows##*[!0-9]*}" ] && echo "$active_workflows" || echo "999999"
+  [ -n "${active_workflows##*[!0-9]*}" ] && echo "$active_workflows" || echo "999999"
 }
 
 function wait_active_workflows {

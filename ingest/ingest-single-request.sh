@@ -9,10 +9,10 @@ WORKFLOW='fast'
 set -eux
 
 if [ ! -f "${VIDEO_FILE}" ]; then
-	echo 'Video file to inbgest: '
+	echo 'Video file to ingest: '
 	read -r VIDEO_FILE
 	if [ ! -f "${VIDEO_FILE}" ]; then
-		echo 'File des not exist. Exiting...'
+		echo 'File does not exist. Exiting...'
 		exit 1
 	fi
 fi

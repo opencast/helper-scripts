@@ -26,8 +26,17 @@ def main():
     with open('workflow.dat', 'w') as f:
         for op in operations:
             percent = op[2] * 100.0 / runtime
-            f.write('%-20s %-12s %8.03f %8.03f\n' %
-                    (op[0], op[1], op[2], percent))
+            seconds = op[2]
+            hours = int(seconds / 3600)
+            seconds = seconds - hours * 3600
+            minutes = int(seconds / 60)
+            seconds = seconds - minutes * 60
+            if hours:
+                time = '%02d:%02d:%02d' % (hours, minutes, seconds)
+            else:
+                time = '%02d:%02d' % (minutes, seconds)
+            f.write('%-20s %-12s %8.03f %8.03f  %-10s\n' %
+                    (op[0], op[1], op[2], percent, time))
 
 
 if __name__ == '__main__':

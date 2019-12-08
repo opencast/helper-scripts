@@ -40,16 +40,8 @@ def main(branch, start_date, end_date):
 
 
 def pretty_print(title, pr_number, pr_link):
-    title_re = '^.?/?(?:mh|MH)[- ]+(?P<ticketNr>\\d{5})\\W*(?P<prTitle>.*)$'
-    match = re.search(title_re, title)
-    if match:
-        ticket = match.group('ticketNr')
-        ticket_url = '%sMH-%s' % (JIRA_TICKET_URL, ticket)
-        pr_title = match.group('prTitle')
-        print('- [[MH-%s](%s)][[#%s](%s)] -\n  %s'
-              % (ticket, ticket_url, pr_number, pr_link, pr_title))
-    else:
-        print('- [[#%s](%s)] -\n  %s' % (pr_number, pr_link, title))
+    title = re.sub(r'^\S*[mM][hH]-\d{3,5}[,: ]*', '', title)
+    print('- [[#%s](%s)] -\n  %s' % (pr_number, pr_link, title))
 
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@
   "description": "Samples of ECMA-Scripts using the External API",
   "main": "null",
   "scripts": {
-    "test": "eslint *.js"
+    "lint": "eslint . --ext .js"
   },
   "author": "Felix Pahlow et. al",
   "repository": {

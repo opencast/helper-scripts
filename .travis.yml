@@ -73,5 +73,5 @@ jobs:
       env: name=external-api-ecma-script
       language: node_js
       script:
-        - cd external-api-ecma-script && npm run lint
+        - cd external-api-ecma-script && npm install && npm run lint
 

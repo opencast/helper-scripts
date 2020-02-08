@@ -68,3 +68,10 @@ jobs:
       env: name=translation-progress
       script:
         - shellcheck release-management/translation-progress/translation-progress.sh
+
+    - stage: test
+      env: name=external-api-ecma-script
+      language: node_js
+      script:
+        - cd external-api-ecma-script && npm test
+

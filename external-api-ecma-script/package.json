@@ -1,0 +1,21 @@
+{
+  "name": "external-api-ecma-script",
+  "version": "0.1.0",
+  "description": "Samples of ECMA-Scripts using the External API",
+  "main": "null",
+  "scripts": {
+    "test": "eslint *.js"
+  },
+  "author": "Felix Pahlow et. al",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/opencast/helper-scripts.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.8.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
+

@@ -72,6 +72,8 @@ jobs:
     - stage: test
       env: name=external-api-ecma-script
       language: node_js
+      node_js:
+        - 8
       script:
         - cd external-api-ecma-script && npm install && npm run lint
 

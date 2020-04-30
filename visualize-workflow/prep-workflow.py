@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 
 import json
+import glob
 
 
 def main():
-    with open('workflow.json', 'r') as f:
+    fileNum = 0
+    for file in glob.glob("*.json"):
+        fileNum += 1
+        prep(file, fileNum)
+
+
+def prep(wFfile, fileNum):
+    with open(wFfile, 'r') as f:
         instance = json.load(f)
 
     operations = []
@@ -23,7 +31,7 @@ def main():
 
         operations.append((id, state, duration))
 
-    with open('workflow.dat', 'w') as f:
+    with open('workflow' + str(fileNum) + '.dat', 'w') as f:
         for op in operations:
             percent = op[2] * 100.0 / runtime
             seconds = op[2]

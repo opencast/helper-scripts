@@ -1,0 +1,7 @@
+<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:oc="http://www.opencastproject.org/matterhorn/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<dcterms:title>{{ title }}</dcterms:title>
+<dcterms:created xsi:type="dcterms:W3CDTF">{{ created }}</dcterms:created>
+<dcterms:source>{{ source }}</dcterms:source>
+<oc:annotation>false</oc:annotation>
+<dcterms:identifier>{{ identifier }}</dcterms:identifier>
+</dublincore>

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mediapackage xmlns="http://mediapackage.opencastproject.org" duration="{{ duration }}" id="{{ identifier }}" start="{{ created }}">
+    <media>
+        {%- if has_presentation_video %}
+        <track id="track-0" type="presentation/source">
+            <mimetype>video/{{ video_mime }}</mimetype>
+            <url>presentation.{{ video_ext }}</url>
+            <duration>{{ duration }}</duration>
+        </track>
+        {% endif -%}
+        {%- if has_presenter_video %}
+        <track id="track-1" type="presenter/source">
+            <mimetype>video/{{ video_mime }}</mimetype>
+            <url>presenter.{{ video_ext }}</url>
+            <duration>{{ duration }}</duration>
+        </track>
+        {% endif -%}
+        {%- if has_presentation_audio %}
+        <track id="track-2" type="presentation/source">
+            <mimetype>audio/{{ audio_mime }}</mimetype>
+            <url>presentation.{{ audio_ext }}</url>
+            <duration>{{ duration }}</duration>
+        </track>
+        {% endif -%}
+        {%- if has_presenter_audio %}
+        <track id="track-3" type="presenter/source">
+            <mimetype>audio/{{ audio_mime }}</mimetype>
+            <url>presenter.{{ audio_ext }}</url>
+            <duration>{{ duration }}</duration>
+        </track>
+        {% endif %}
+    </media>
+    <metadata>
+        <catalog id="catalog-0" type="dublincore/episode">
+            <mimetype>text/xml</mimetype>
+            <url>episode.xml</url>
+        </catalog>
+        <catalog id="catalog-1" type="dublincore/series">
+            <mimetype>text/xml</mimetype>
+            <url>series.xml</url>
+        </catalog>
+    </metadata>
+    <attachments>
+        <attachment id="org.opencastproject.capture.agent.properties">
+            <url>org.opencastproject.capture.agent.properties</url>
+        </attachment>
+    </attachments>
+</mediapackage>

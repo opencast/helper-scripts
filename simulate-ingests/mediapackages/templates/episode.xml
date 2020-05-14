@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dublincore xmlns="http://www.opencastproject.org/xsd/1.0/dublincore/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance/">
+    <dcterms:created>{{ created }}</dcterms:created>
+    <dcterms:identifier>{{ identifier }}</dcterms:identifier>
+    <dcterms:title>{{ title }}</dcterms:title>
+    <dcterms:isPartOf>{{ is_part_of }}</dcterms:isPartOf>
+    <dcterms:source>{{ source }}</dcterms:source>
+    <dcterms:spatial>{{ location }}</dcterms:spatial>
+</dublincore>

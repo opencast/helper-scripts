@@ -198,7 +198,7 @@
      * Put ACLs to server and resolve promise when done.
      *
      * @param {Acl} acl
-     * @return {$.jqXHR}
+     * @return {$.Promise}
      */
     setAcl(acl) {
       const $deferred = new $.Deferred();
@@ -389,7 +389,7 @@
      * Put ACLs to server and resolve promise when done.
      *
      * @param {Acl} acl
-     * @return {$.jqXHR}
+     * @return {$.Promise}
      */
     setAcl(acl) {
       const $deferred = new $.Deferred();

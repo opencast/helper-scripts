@@ -1,15 +1,15 @@
 {
-  "name": "external-api-ecma-script",
-  "version": "0.1.0",
-  "description": "Samples of ECMA-Scripts using the External API",
+  "name": "acl-on-series-and-events",
+  "version": "0.2.0",
+  "description": "Deal with ACLs on Series and Events",
   "main": "null",
   "scripts": {
     "lint": "eslint src --ext .js"
   },
   "author": "Felix Pahlow et. al",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/opencast/helper-scripts.git"
+    "type": "git",
+    "url": "https://github.com/opencast/helper-scripts.git"
   },
   "license": "MIT",
   "devDependencies": {
@@ -18,4 +18,3 @@
     "eslint-config-google": "^0.14.0"
   }
 }
-

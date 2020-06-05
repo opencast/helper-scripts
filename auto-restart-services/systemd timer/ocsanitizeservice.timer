@@ -1,0 +1,11 @@
+[Unit]
+Description=Opencast Service Sanitizer Timer
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=1h
+Persistent=true
+Unit=ocsanitizeservice.service
+
+[Install]
+WantedBy=timers.target

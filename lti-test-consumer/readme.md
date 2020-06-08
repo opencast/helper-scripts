@@ -11,7 +11,7 @@ virtualenv venv
 . ./venv/bin/activate
 
 # install requirements
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # run test consumer
 python3 lticonsumer.py

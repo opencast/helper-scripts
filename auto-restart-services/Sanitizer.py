@@ -1,5 +1,5 @@
 # MODIFIED 4. Jun 2020: some more information output added 
-# MODIFIED 5. Jun 2020: url added to output, as all hosts (admin, worker nodes) has to be considered  
+# MODIFIED 5. Jun 2020: url added to output, as all hosts (admin, worker nodes) have to be considered  
 
 import requests
 from requests.auth import HTTPDigestAuth

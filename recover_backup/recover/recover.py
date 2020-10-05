@@ -1,5 +1,5 @@
 from data_handling.errors import SeriesError, optional_series_error, optional_mp_error
-from data_handling.parse_manifest import parse_manifest
+from data_handling.parse_manifest import parse_manifest_from_filesystem
 from data_handling.transform_acl import transform_acl
 from input.get_dummy_series_dc import get_dummy_series_dc
 from input_output.read_file import read_file
@@ -50,7 +50,7 @@ def recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors):
     new_mp = create_media_package(base_url, digest_login)
 
     # parse manifest
-    series_id, tracks, catalogs, attachments = parse_manifest(mp, ignore_errors)
+    series_id, tracks, catalogs, attachments = parse_manifest_from_filesystem(mp, ignore_errors)
 
     if series_id:
 

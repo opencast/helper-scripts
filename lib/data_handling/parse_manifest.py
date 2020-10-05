@@ -6,14 +6,36 @@ import os
 from data_handling.errors import MediaPackageError, optional_mp_error
 
 namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
-Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags'])
+Element = namedtuple('Element', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags', 'url'])
 
 
-def parse_manifest(mp, ignore_errors=False):
+def parse_manifest_from_endpoint(manifest, mp_id, ignore_errors=False):
+    """
+    Parse the media package and collect the media package elements with all relevant information.
+
+    :param manifest: The media package as an xml string
+    :type manifest: str
+    :param mp_id: The media package id
+    :type mp_id: str
+    :param ignore_errors: Whether to ignore errors and recover the media package anyway
+    :type ignore_errors: bool
+    :return: series id, tracks, catalogs, attachments
+    :rtype: str, list, list, list
+    :raise MediaPackageError:
+    """
+    try:
+        manifest = ElementTree.fromstring(manifest)
+    except Exception:
+        raise MediaPackageError("Media package {} could not be parsed.".format(mp_id))
+
+    return __parse_manifest(manifest, mp_id, None, ignore_errors)
+
+
+def parse_manifest_from_filesystem(mp, ignore_errors=False):
     """
     Parse the manifest file and collect the media package elements with all relevant information.
 
-    :param mp: The given media package.
+    :param mp: The media package
     :type mp: MediaPackage
     :param ignore_errors: Whether to ignore errors and recover the media package anyway
     :type ignore_errors: bool
@@ -31,6 +53,26 @@ def parse_manifest(mp, ignore_errors=False):
         manifest = ElementTree.parse(manifest_file)
     except Exception:
         raise MediaPackageError("Manifest of media package {} could not be parsed.".format(mp.id))
+
+    return __parse_manifest(manifest, mp.id, mp.path, ignore_errors)
+
+
+def __parse_manifest(manifest, mp_id, mp_path, ignore_errors=False):
+    """
+    Parse the manifest and collect the media package elements with all relevant information.
+
+    :param manifest: The media package as an xml Element
+    :type manifest: Element
+    :param mp_id: The media package id
+    :type mp_id: str
+    :param mp_path: The path to the media package if it's on a filesystem
+    :type mp_path: str or None
+    :param ignore_errors: Whether to ignore errors and recover the media package anyway
+    :type ignore_errors: bool
+    :return: series id, tracks, catalogs, attachments
+    :rtype: str, list, list, list
+    :raise MediaPackageError:
+    """
 
     series_id = None
     series = manifest.find("./manifest:series", namespaces)
@@ -51,31 +93,32 @@ def parse_manifest(mp, ignore_errors=False):
             mimetype_element = subelement.find("manifest:mimetype", namespaces)
             mimetype = mimetype_element.text if mimetype_element else None
 
-            file_extension = subelement.find("manifest:url", namespaces).text.split(".")[-1]
+            url = subelement.find("manifest:url", namespaces).text
+            file_extension = url.split(".")[-1]
             if file_extension == "unknown":
                 print("File extension for {} {} of media package {} is unknown, falling back to xml.".
-                      format(subtype, subelement_id, mp.id))
+                      format(subtype, subelement_id, mp_id))
                 file_extension = "xml"
 
             filename = subelement_id + "." + file_extension
-            path = os.path.join(mp.path, filename)
+            path = os.path.join(mp_path, filename) if mp_path else None
+
+            if path and not os.path.isfile(path):
+                optional_mp_error("{} {} of media package {} cannot be found at {} ."
+                                  .format(subtype, subelement_id, mp_id, path), ignore_errors)
+                continue
 
             tag_elements = subelement.findall("manifest:tags/manifest:tag", namespaces)
             tags = None
             if tag_elements:
                 tags = [element.text for element in tag_elements]
 
-            if not os.path.isfile(path):
-                optional_mp_error("{} {} of media package {} cannot be found at {} ."
-                                  .format(subtype, subelement_id, mp.id, path), ignore_errors)
-                continue
-
             elements[element][subtype].append(Element(id=subelement_id, flavor=flavor, mimetype=mimetype,
-                                                      filename=filename, path=path, tags=tags))
+                                                      filename=filename, path=path, tags=tags, url=url))
 
-    tracks = __get_subtype_elements(elements, "media", "track", mp.id)
-    catalogs = __get_subtype_elements(elements, "metadata", "catalog", mp.id)
-    attachments = __get_subtype_elements(elements, "attachments", "attachment", mp.id)
+    tracks = __get_subtype_elements(elements, "media", "track", mp_id)
+    catalogs = __get_subtype_elements(elements, "metadata", "catalog", mp_id)
+    attachments = __get_subtype_elements(elements, "attachments", "attachment", mp_id)
 
     return series_id, tracks, catalogs, attachments
 

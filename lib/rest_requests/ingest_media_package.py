@@ -21,7 +21,6 @@ def create_media_package(base_url, digest_login):
     url = '{}/ingest/createMediaPackage'.format(base_url)
 
     response = get_request(url, digest_login, "/ingest/createMediaPackage")
-
     return response.content.decode('utf8')
 
 
@@ -42,12 +41,33 @@ def add_attachment(base_url, digest_login, mp, attachment):
     """
 
     url = '{}/ingest/addAttachment'.format(base_url)
-
     data = {'flavor': attachment.flavor, 'mediaPackage': mp}
     files = {'BODY': open(attachment.path, 'rb')}
 
     response = post_request(url, digest_login, "/ingest/addAttachment", data=data, files=files)
+    return response.content
 
+
+def add_attachment_with_url(base_url, digest_login, mp, attachment):
+    """
+    Add an attachment to a new media package via URL.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param mp: New media package.
+    :type mp: str
+    :param attachment: The attachment to be added.
+    :type attachment: Element
+    :return: Augmented media package.
+    :rtype: str
+    """
+
+    url = '{}/ingest/addAttachment'.format(base_url)
+    data = {'flavor': attachment.flavor, 'mediaPackage': mp, 'url': attachment.url}
+
+    response = post_request(url, digest_login, "/ingest/addAttachment", data=data)
     return response.content
 
 
@@ -68,12 +88,33 @@ def add_catalog(base_url, digest_login, mp, catalog):
     """
 
     url = '{}/ingest/addCatalog'.format(base_url)
-
     data = {'flavor': catalog.flavor, 'mediaPackage': mp}
     files = {'BODY': open(catalog.path, 'rb')}
 
     response = post_request(url, digest_login, "/ingest/addCatalog", data=data, files=files)
+    return response.content
 
+
+def add_catalog_with_url(base_url, digest_login, mp, catalog):
+    """
+    Add a catalog to a new media package via URL.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param mp: New media package.
+    :type mp: str
+    :param catalog: The catalog to be added.
+    :type catalog: Element
+    :return: Augmented media package.
+    :rtype: str
+    """
+
+    url = '{}/ingest/addCatalog'.format(base_url)
+    data = {'flavor': catalog.flavor, 'mediaPackage': mp, 'url': catalog.url}
+
+    response = post_request(url, digest_login, "/ingest/addCatalog", data=data)
     return response.content
 
 
@@ -94,11 +135,32 @@ def add_track(base_url, digest_login, mp, track):
     """
 
     url = '{}/ingest/addTrack'.format(base_url)
-
     data = {'flavor': track.flavor, 'mediaPackage': mp}
 
     response = big_post_request(url, digest_login, "/ingest/addTrack", data=data, files=[track.path])
+    return response.content
 
+
+def add_track_with_url(base_url, digest_login, mp, track):
+    """
+    Add a track to a new media package via URL.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param mp: New media package.
+    :type mp: str
+    :param track: The track to be added.
+    :type track: Element
+    :return: Augmented media package.
+    :rtype: str
+    """
+
+    url = '{}/ingest/addTrack'.format(base_url)
+    data = {'flavor': track.flavor, 'mediaPackage': mp, 'url': track.url}
+
+    response = post_request(url, digest_login, "/ingest/addTrack", data=data)
     return response.content
 
 

@@ -21,3 +21,9 @@ A small extension to the ingest-addtrack script. SMIL cutting information is
 ingested along with the video track, allowing workflows to immediately trim
 videos if the editor step is included. The end result is similar to a
 publication subject to the user's editing preference.
+
+ingest-with-acl.sh
+------------------
+
+Another modification of the ingest-addtrack script.
+This script uploads an access control list in addition to the tracks and metadata.

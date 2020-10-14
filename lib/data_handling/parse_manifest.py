@@ -83,37 +83,37 @@ def __parse_manifest(manifest, mp_id, mp_path, ignore_errors=False):
 
     for element in ["media", "metadata", "attachments"]:
 
-        for subelement in manifest.findall("./manifest:" + element+"/", namespaces):
+        for sub_element in manifest.findall("./manifest:" + element+"/", namespaces):
 
-            subtype = subelement.tag.split("}")[-1]
-            subelement_id = subelement.get("id")
+            subtype = sub_element.tag.split("}")[-1]
+            sub_element_id = sub_element.get("id")
 
-            flavor = subelement.get("type")
+            flavor = sub_element.get("type")
 
-            mimetype_element = subelement.find("manifest:mimetype", namespaces)
+            mimetype_element = sub_element.find("manifest:mimetype", namespaces)
             mimetype = mimetype_element.text if mimetype_element else None
 
-            url = subelement.find("manifest:url", namespaces).text
+            url = sub_element.find("manifest:url", namespaces).text
             file_extension = url.split(".")[-1]
             if file_extension == "unknown":
                 print("File extension for {} {} of media package {} is unknown, falling back to xml.".
-                      format(subtype, subelement_id, mp_id))
+                      format(subtype, sub_element_id, mp_id))
                 file_extension = "xml"
 
-            filename = subelement_id + "." + file_extension
+            filename = sub_element_id + "." + file_extension
             path = os.path.join(mp_path, filename) if mp_path else None
 
             if path and not os.path.isfile(path):
                 optional_mp_error("{} {} of media package {} cannot be found at {} ."
-                                  .format(subtype, subelement_id, mp_id, path), ignore_errors)
+                                  .format(subtype, sub_element_id, mp_id, path), ignore_errors)
                 continue
 
-            tag_elements = subelement.findall("manifest:tags/manifest:tag", namespaces)
+            tag_elements = sub_element.findall("manifest:tags/manifest:tag", namespaces)
             tags = None
             if tag_elements:
                 tags = [element.text for element in tag_elements]
 
-            elements[element][subtype].append(Element(id=subelement_id, flavor=flavor, mimetype=mimetype,
+            elements[element][subtype].append(Element(id=sub_element_id, flavor=flavor, mimetype=mimetype,
                                                       filename=filename, path=path, tags=tags, url=url))
 
     tracks = __get_subtype_elements(elements, "media", "track", mp_id)

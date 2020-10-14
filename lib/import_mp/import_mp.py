@@ -26,8 +26,8 @@ def __filter_assets(catalogs, attachments):
     return episode_catalogs, episode_attachments, series_catalogs, series_attachments
 
 
-def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id, ignore_errors,
-              with_url = False):
+def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id, workflow_config,
+              ignore_errors=False, with_url=False):
     """
     Import a media package by first creating a new media package, then adding tracks, catalogs and attachments to it
     and finally ingesting it. Import the series as well if necessary.
@@ -46,6 +46,8 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
     :type digest_login: DigestLogin
     :param workflow_id: The workflow to be run on ingest.
     :type workflow_id: str
+    :param workflow_config: The workflow configuration.
+    :type workflow_config: dict
     :param ignore_errors: Whether to ignore errors and import the media package anyway
     :type ignore_errors: bool
     :param with_url: Whether to add the elements via URL
@@ -101,5 +103,5 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
         except RequestError as e:
             optional_mp_error("Catalog {} could not be added.".format(catalog.id), ignore_errors, e)
 
-    workflow = ingest(base_url, digest_login, new_mp, workflow_id)
+    workflow = ingest(base_url, digest_login, new_mp, workflow_id, workflow_config)
     return workflow

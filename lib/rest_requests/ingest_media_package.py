@@ -164,7 +164,7 @@ def add_track_with_url(base_url, digest_login, mp, track):
     return response.content
 
 
-def ingest(base_url, digest_login, mp, workflow_id):
+def ingest(base_url, digest_login, mp, workflow_id, workflow_config):
     """
     Ingest media package and start a workflow.
 
@@ -176,6 +176,8 @@ def ingest(base_url, digest_login, mp, workflow_id):
     :type mp: str
     :param workflow_id: The workflow to be run on ingest.
     :type workflow_id: str
+    :param workflow_config: The workflow configuration.
+    :type workflow_config: dict
     :return: Information about the started workflow.
     :rtype: Workflow
     """
@@ -187,6 +189,7 @@ def ingest(base_url, digest_login, mp, workflow_id):
         url = '{}/ingest/ingest/'.format(base_url)
 
     data = {'mediaPackage': mp}
+    data.update(workflow_config)  # add workflow parameters
 
     response = post_request(url, digest_login, "/ingest/ingest", data=data)
     return __parse_ingest_response(response)

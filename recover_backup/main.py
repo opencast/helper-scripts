@@ -66,7 +66,7 @@ def main():
             # parse manifest
             series_id, tracks, catalogs, attachments = parse_manifest_from_filesystem(mp, ignore_errors)
 
-            workflow = import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id,
+            workflow = import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id, {},
                                  ignore_errors)
 
             print("Recovered media package {} (new id: {}) and started workflow {} with id {}.".

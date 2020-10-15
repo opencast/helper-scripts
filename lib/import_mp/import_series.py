@@ -2,8 +2,7 @@ from data_handling.errors import optional_series_error
 from data_handling.transform_acl import transform_acl
 from input_output.get_dummy_series_dc import get_dummy_series_dc
 from input_output.read_file import read_file
-from rest_requests.get_response_content import get_xml_content, get_string_content
-from rest_requests.request import get_request
+from rest_requests.file_requests import get_file_as_string
 from rest_requests.series_requests import create_series
 
 
@@ -44,7 +43,7 @@ def import_series(series_id, base_url, digest_login, ignore_errors, series_catal
             if series_dc.path:
                 series_dc_content = read_file(series_dc.path)
             else:
-                series_dc_content = get_string_content(get_request(series_dc.url, digest_login, "")) # TODO error handling
+                series_dc_content = get_file_as_string(series_dc.url, digest_login)
 
             series_dc_contents.append(series_dc_content)
         except Exception as e:
@@ -56,7 +55,7 @@ def import_series(series_id, base_url, digest_login, ignore_errors, series_catal
             if series_acl.path:
                 series_acl_content = read_file(series_acl.path)
             else:
-                series_acl_content = get_string_content(get_request(series_acl.url, digest_login, "")) # TODO error handling
+                series_acl_content = get_file_as_string(series_acl.url, digest_login)
         except Exception as e:
             optional_series_error("Series ACL of series {} could not be read.".format(series_id), ignore_errors, e)
             continue

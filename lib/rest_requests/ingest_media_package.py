@@ -16,6 +16,7 @@ def create_media_package(base_url, digest_login):
     :type digest_login: DigestLogin
     :return: New media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/createMediaPackage'.format(base_url)
@@ -38,6 +39,7 @@ def add_attachment(base_url, digest_login, mp, attachment):
     :type attachment: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addAttachment'.format(base_url)
@@ -62,6 +64,7 @@ def add_attachment_with_url(base_url, digest_login, mp, attachment):
     :type attachment: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addAttachment'.format(base_url)
@@ -85,6 +88,7 @@ def add_catalog(base_url, digest_login, mp, catalog):
     :type catalog: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addCatalog'.format(base_url)
@@ -109,6 +113,7 @@ def add_catalog_with_url(base_url, digest_login, mp, catalog):
     :type catalog: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addCatalog'.format(base_url)
@@ -132,6 +137,7 @@ def add_track(base_url, digest_login, mp, track):
     :type track: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addTrack'.format(base_url)
@@ -155,6 +161,7 @@ def add_track_with_url(base_url, digest_login, mp, track):
     :type track: Element
     :return: Augmented media package.
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/ingest/addTrack'.format(base_url)
@@ -180,6 +187,7 @@ def ingest(base_url, digest_login, mp, workflow_id, workflow_config):
     :type workflow_config: dict
     :return: Information about the started workflow.
     :rtype: Workflow
+    :raise RequestError:
     """
 
     if workflow_id:

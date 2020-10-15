@@ -20,6 +20,7 @@ def get_oaipmh_record(event, repository_url, repository, digest_login, base_url)
     :type base_url: str
     :return: The OAIPMH record in XML format
     :rtype: ElementTree.Element
+    :raise RequestError:
     """
 
     # absolute url

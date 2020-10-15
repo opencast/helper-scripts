@@ -15,6 +15,7 @@ def start_workflow(base_url, digest_login, workflow_definition, media_package):
     :type media_package: str
     :return: The workflow instance
     :rtype: str
+    :raise RequestError:
     """
 
     url = '{}/workflow/start'.format(base_url)

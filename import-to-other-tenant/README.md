@@ -1,9 +1,9 @@
 # Script for the re-import of recordings to another tenant
 
 This script exports recordings from one tenant and re-imports them into another, starting a workflow on ingest. This is
-useful when sharing capture agents between tenants. 
+useful when sharing capture agents between tenants.
 
-Currently this script does not perform deletion, so the recordings will have to be manually removed from 
+Currently this script does not perform deletion, so the recordings will have to be manually removed from
 the source tenant. Furthermore, only archived assets are imported, so the events will have to be published (again).
 
 If the series defined for the imported events does not exist on the target tenant, it will be created. However, existing
@@ -25,20 +25,20 @@ The script is configured by editing the values in `config.py`:
 | `workflow_config` | The configuration for that workflow       | {"autopublish": "false"}     |
 
 
-The configured digest user needs to exist on both tenants and have the same password for both of them. This is because 
-the script ingests the assets via URL, which is faster, but the user needs to be able to access the source tenant from 
-the target tenant for this to work. Additionally the user currently needs to have ROLE_ADMIN to be able to use 
+The configured digest user needs to exist on both tenants and have the same password for both of them. This is because
+the script ingests the assets via URL, which is faster, but the user needs to be able to access the source tenant from
+the target tenant for this to work. Additionally the user currently needs to have ROLE_ADMIN to be able to use
 `/assets/{episodeid}`.
 
-For the future, Basic Authentication and the use of an endpoint that doesn't require the Admin role (e.g. 
-`api/events/{id}`) would be preferable, so you can simply add a frontend user with the necessary rights (ingest, 
+For the future, Basic Authentication and the use of an endpoint that doesn't require the Admin role (e.g.
+`api/events/{id}`) would be preferable, so you can simply add a frontend user with the necessary rights (ingest,
 access to the events/series) and the same password to both tenants.
 
 ### Usage
 
 The script can be called with the following parameters (all parameters in brackets are optional):
 
-`main.py [-e EVENT_ID [EVENT_ID ...]] [-e SERIES_ID [SERIES_ID ...]]`
+`main.py [-e EVENT_ID [EVENT_ID ...]] [-s SERIES_ID [SERIES_ID ...]]`
 
 Either event ids (`-e`) or series ids (`-s`) have to be provided, but not both.
 
@@ -53,10 +53,8 @@ Either event ids (`-e`) or series ids (`-s`) have to be provided, but not both.
 
 ## Requirements
 
-- Python 3
-- `requests`-Package
-- `requests-toolbelt`-Package
+This scrypt was written for Python 3.8. You can install the necessary packages with
 
-Additionally to the modules in this folder this script uses modules contained in the _lib_ directory.
+`pip install -r requirements.txt`
 
-
+Additionally, this script uses modules contained in the _lib_ directory.

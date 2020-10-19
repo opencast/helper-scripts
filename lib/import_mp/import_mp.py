@@ -53,6 +53,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
     :param with_url: Whether to add the elements via URL
     :type with_url: bool
     :raise MediaPackageError:
+    :raise RequestError:
     """
 
     # create empty media package

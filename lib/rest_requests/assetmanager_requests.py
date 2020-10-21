@@ -17,6 +17,7 @@ def get_media_package(base_url, digest_login, mp_id):
     :type mp_id: str
     :return: A media package definition in XML format
     :rtype str:
+    :raise RequestError:
     """
 
     url = '{}/assets/episode/{}'.format(base_url, mp_id)

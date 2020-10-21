@@ -10,9 +10,10 @@ sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 from input.check_recovery_start import check_recovery_start
 from input.parse_args import parse_args
 from recover.find_media_packages import find_media_packages
-from recover.recover import recover_mp
 from args.url_builder import DEFAULT_TENANT, URLBuilder
 from data_handling.errors import MediaPackageError
+from data_handling.parse_manifest import parse_manifest_from_filesystem
+from import_mp.import_mp import import_mp
 from rest_requests.request_error import RequestError
 
 
@@ -61,7 +62,13 @@ def main():
     for mp in mps_to_recover:
 
         try:
-            workflow = recover_mp(mp, base_url, digest_login, workflow_id, ignore_errors)
+
+            # parse manifest
+            series_id, tracks, catalogs, attachments = parse_manifest_from_filesystem(mp, ignore_errors)
+
+            workflow = import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id, {},
+                                 ignore_errors)
+
             print("Recovered media package {} (new id: {}) and started workflow {} with id {}.".
                   format(mp.id, workflow.mp_id, workflow.template, workflow.id))
         except MediaPackageError as e:

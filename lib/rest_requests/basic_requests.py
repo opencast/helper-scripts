@@ -17,6 +17,7 @@ def get_tenants(base_url, digest_login):
     :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: tenant ids
+    :raise RequestError:
     """
 
     url = '{}/org/all.json'.format(base_url)
@@ -42,6 +43,7 @@ def get_series(base_url, digest_login):
     :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: series
+    :raise RequestError:
     """
 
     url = '{}/admin-ng/series/series.json?limit={}'.format(base_url, JAVA_MAX_INT)
@@ -62,6 +64,7 @@ def get_events(base_url, digest_login):
     :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: events
+    :raise RequestError:
     """
 
     url = '{}/admin-ng/event/events.json?limit={}'.format(base_url, JAVA_MAX_INT)

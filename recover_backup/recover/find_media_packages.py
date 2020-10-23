@@ -5,7 +5,7 @@ import os
 
 from input_output.input import get_number
 
-MediaPackage = namedtuple('MediaPackage', ["id", "version", "path"])
+Snapshot = namedtuple('Snapshot', ["id", "version", "path"])
 
 
 def find_media_packages(backup_path, tenant, use_last_version, rsync_history_path, media_package_ids=None):
@@ -59,7 +59,7 @@ def find_media_packages(backup_path, tenant, use_last_version, rsync_history_pat
         version = __get_version(snapshots, mp_id, use_last_version)
         version_dir = os.path.join(mp_dir, str(version))
 
-        mps_to_recover.append(MediaPackage(id=mp_id, version=version, path=version_dir))
+        mps_to_recover.append(Snapshot(id=mp_id, version=version, path=version_dir))
 
     return mps_to_recover
 

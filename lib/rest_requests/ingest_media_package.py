@@ -36,7 +36,7 @@ def add_attachment(base_url, digest_login, mp, attachment):
     :param mp: New media package.
     :type mp: str
     :param attachment: The attachment to be added.
-    :type attachment: Element
+    :type attachment: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:
@@ -61,7 +61,7 @@ def add_attachment_with_url(base_url, digest_login, mp, attachment):
     :param mp: New media package.
     :type mp: str
     :param attachment: The attachment to be added.
-    :type attachment: Element
+    :type attachment: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:
@@ -85,7 +85,7 @@ def add_catalog(base_url, digest_login, mp, catalog):
     :param mp: New media package.
     :type mp: str
     :param catalog: The catalog to be added.
-    :type catalog: Element
+    :type catalog: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:
@@ -110,7 +110,7 @@ def add_catalog_with_url(base_url, digest_login, mp, catalog):
     :param mp: New media package.
     :type mp: str
     :param catalog: The catalog to be added.
-    :type catalog: Element
+    :type catalog: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:
@@ -134,7 +134,7 @@ def add_track(base_url, digest_login, mp, track):
     :param mp: New media package.
     :type mp: str
     :param track: The catalog to be added.
-    :type track: Element
+    :type track: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:
@@ -158,7 +158,7 @@ def add_track_with_url(base_url, digest_login, mp, track):
     :param mp: New media package.
     :type mp: str
     :param track: The track to be added.
-    :type track: Element
+    :type track: Asset
     :return: Augmented media package.
     :rtype: str
     :raise RequestError:

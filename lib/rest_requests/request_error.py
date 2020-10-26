@@ -16,11 +16,12 @@ class RequestError(Exception):
         :param error: error message
         :type error: str
         """
+        super(RequestError, self).__init__(error)
         self.error = error
 
     @classmethod
-    def with_statuscode(cls, url, status_code, element_description, asset_type_description=None,
-                        asset_description=None):
+    def with_status_code(cls, url, status_code, element_description, asset_type_description=None,
+                         asset_description=None):
         """
         Create a Request Error for a failed request to the given url with the given status code and an error message
         containing the given descriptions for the resource we were trying to get.

@@ -36,8 +36,8 @@ def get_request(url, digest_login, element_description, asset_type_description=N
         raise RequestError.with_error(url, str(e), element_description, asset_type_description, asset_description)
 
     if response.status_code < 200 or response.status_code > 299:
-        raise RequestError.with_statuscode(url, response.status_code, element_description, asset_type_description,
-                                           asset_description)
+        raise RequestError.with_status_code(url, str(response.status_code), element_description, asset_type_description,
+                                            asset_description)
     return response
 
 
@@ -74,8 +74,8 @@ def post_request(url, digest_login, element_description, asset_type_description=
         raise RequestError.with_error(url, str(e), element_description, asset_type_description, asset_description)
 
     if response.status_code < 200 or response.status_code > 299:
-        raise RequestError.with_statuscode(url, response.status_code, element_description, asset_type_description,
-                                           asset_description)
+        raise RequestError.with_status_code(url, str(response.status_code), element_description, asset_type_description,
+                                            asset_description)
     return response
 
 
@@ -123,6 +123,6 @@ def big_post_request(url, digest_login, element_description, asset_type_descript
 
     if response.status_code < 200 or response.status_code > 299:
         print(response.status_code)
-        raise RequestError.with_statuscode(url, response.status_code, element_description, asset_type_description,
-                                           asset_description)
+        raise RequestError.with_status_code(url, str(response.status_code), element_description, asset_type_description,
+                                            asset_description)
     return response

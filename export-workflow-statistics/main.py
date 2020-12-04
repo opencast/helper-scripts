@@ -1,15 +1,13 @@
 import os
 import sys
 
-from rest_requests.request_error import RequestError
-
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
-
-from collections import defaultdict
 
 import datetime
 import config
 import io
+from collections import defaultdict
+from rest_requests.request_error import RequestError
 from args.digest_login import DigestLogin
 from rest_requests.basic_requests import get_tenants
 from rest_requests.workflow_requests import get_workflow_instances

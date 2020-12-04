@@ -33,7 +33,7 @@ def main():
         if tenant not in config.exclude_tenants:
 
             tenant_count = defaultdict(int)
-            tenant_url = config.url_pattern.format(tenant)
+            tenant_url = config.url_pattern.format(tenant) if config.url_pattern else config.url
 
             for workflow_definition in config.workflow_definitions:
 

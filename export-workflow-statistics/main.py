@@ -13,6 +13,7 @@ import io
 from args.digest_login import DigestLogin
 from rest_requests.basic_requests import get_tenants
 from rest_requests.workflow_requests import get_workflow_instances
+from pathlib import Path
 
 
 def main():
@@ -25,6 +26,10 @@ def main():
 
     weeks = __get_weeks(datetime.date.fromisoformat(config.start_date), datetime.date.fromisoformat(config.end_date))
     count = defaultdict(int)
+    tenant_total_counts = dict()
+
+    tenant_dir = "tenant-statistics"
+    Path(os.path.join(config.export_dir, tenant_dir)).mkdir(parents=True, exist_ok=True)
 
     for tenant in tenants:
         if tenant not in config.exclude_tenants:
@@ -53,9 +58,24 @@ def main():
                         print("Workflows for tenant {}, workflow definition {} and dates {} to {} could not be "
                               "requested: {}".format(tenant, workflow_definition, from_date, to_date, str(e)))
 
-            with io.open(os.path.join(config.export_dir, "{}-workflow-statistics.dat".format(tenant)), 'w') as file:
+            tenant_total_count = 0
+            with io.open(os.path.join(config.export_dir, tenant_dir, "{}-workflow-statistics.dat".format(tenant)),
+                         'w') as file:
                 for i, week in enumerate(weeks):
                     file.write("{}   {}\n".format(i + config.week_offset + 1, tenant_count[i]))
+                    tenant_total_count += tenant_count[i]
+
+            tenant_total_counts[tenant] = tenant_total_count
+
+    sorted_tenant_total_counts = {k: v for k, v in sorted(tenant_total_counts.items(), key=lambda item: item[1],
+                                                          reverse=True)}
+
+    with io.open(os.path.join(config.export_dir, "filenames.txt"), 'w') as file:
+
+        for tenant in sorted_tenant_total_counts.keys():
+            if sorted_tenant_total_counts[tenant] != 0:
+                print("{} {}".format(tenant, sorted_tenant_total_counts[tenant]))
+                file.write("{}/{}-workflow-statistics.dat\n".format(tenant_dir, tenant))
 
     print("Done!\n")
 

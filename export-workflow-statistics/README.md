@@ -30,6 +30,15 @@ This script works with multi-tenant systems.
    
     `gnuplot plot.gp`
 
+### Optional: Plot tenant statistics
+
+If you have a multi-tenant system, you can also plot their statistics into a single graph. For this, adjust 
+`tenant_plot.gp` and then plot with `gnuplot tenant.gp`. Only tenants with at least one processed
+recording in the specified time frame will be plotted. The order of tenants is determined by `filenames.txt` 
+(default: tenants with most processed recordings first).
+
+For gradual colors, uncomment the last line of `tenant_plot.gp`.
+
 ![image](demo_plot.png)
 
 ## Requirements

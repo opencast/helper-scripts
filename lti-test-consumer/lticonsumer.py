@@ -36,6 +36,8 @@ def consumer(name=None):
         params={
             'lti_message_type': 'basic-lti-launch-request',
             'lti_version': 'LTI-1p0',
+            'lis_person_name_given': 'Lars',
+            'lis_person_name_family': 'Kiesow',
             'resource_link_id': 37865823,
             'user_id': 'lkiesow',
             'roles': 'Instructor'

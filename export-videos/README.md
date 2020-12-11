@@ -13,6 +13,7 @@ First you need to configure the script in `config.py`:
 | `url`                 | The (tenant-specific) server URL                                         | https://tenant.opencast.com |
 | `digest_user`         | The user name of the digest user                                         | opencast_system_account     |
 | `digest_pw`           | The password of the digest user                                          | CHANGE_ME                   |
+| `stream_security`     | Whether to sign the URLs before downloading                              | False                       |
 | `target_directory`    | The path to the directory for the exported videos                        | /home/user/Desktop/videos   |
 | `export_archived`     | Whether to export archived tracks                                        | True                        |
 | `export_publications` | The publication channel(s) for which published tracks should be exported | \["engage-player"\]         |

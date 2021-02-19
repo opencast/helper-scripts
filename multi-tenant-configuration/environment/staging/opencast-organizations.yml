@@ -1,0 +1,74 @@
+---
+
+opencast_organizations:
+  - id: dummy
+    name: Dummy Tenant
+    aai_org: switch.ch
+    stream_sec_key: 5387689
+    acl_default_template: organization
+    acl_default_download: False
+    acl_default_annotate: False
+
+  # Global External API user passwords
+    opencast_system_account:
+      username: opencast_system_account
+      password: CHANGE_ME
+    switchcast_system_accounts:
+      - username: player
+        name: Player System User
+        email: test@test.de
+        password: 34dchG6nbhmhnG
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+      - username: annotate
+        name: Annotate System User
+        email: test@test.de
+        password: jhvhuJH7utghfgfgJH
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+      - username: cast
+        name: Cast System User
+        email: test@test.de
+        password: jhvhuJH7utghfgfgJH
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+    capture_agent_accounts: []
+
+  - id: tenant1
+    name: Tenant1
+    aai_org: tenant1.ch
+    stream_sec_key: tu7uzgjjhghjf
+    capture_agent_accounts:
+      - username: ca-tenant1-ch
+        password: jvblkajklvjhaklehr
+    external_api_accounts:
+      - username: moodle-tenant1-ch
+        password: hghghjghdghdjd76
+        name: Moodle System User
+        email: test@test.de
+        roles: [ROLE_EXTERNAL_APPLICATION]
+      - username: guy1
+        password: abc
+        name: Guy 1
+        email: test@test.de
+        roles: [ROLE_ADMIN]
+      - username: guy2
+        password: abc
+        name: Guy 2
+        email: test@test.de
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+  - id: tenant2
+    name: Tenant2
+    aai_org: tenant2.ch
+    stream_sec_key: tu7uzgjjhghjf
+    capture_agent_accounts:
+      - username: ca-tenant2-ch
+        password: hjfkhfzuruzf76
+    external_api_accounts:
+      - username: moodle-tenant2-ch
+        password: 67rdghn
+        name: Moodle System User
+        email: test@test.de
+        roles: [ROLE_EXTERNAL_APPLICATION]
+      - username: guy-1
+        password: abc
+        name: Guy 1
+        email: test@test.de
+        roles: [ROLE_ADMIN, ROLE_SUDO]

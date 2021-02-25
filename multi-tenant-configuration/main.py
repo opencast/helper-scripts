@@ -31,15 +31,16 @@ def main():
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
     # read config file
     opencast_organizations = read_configuration_file(config.env_path)['opencast_organizations']
-    # tenants = [tenant['id'] for tenant in opencast_organizations]
-    # external_api_accounts = opencast_organizations[1]['external_api_accounts']
-    #
-    # # create users for tenant 1
-    # for account in external_api_accounts:
-    #     tenant = tenants[1]
-    #     response = create_user(tenant, account, digest_login)
-    #     # json_content = get_json_content(response)
-    #     # print(response)
+
+    tenants = [tenant['id'] for tenant in opencast_organizations]
+    external_api_accounts = opencast_organizations[1]['external_api_accounts']
+
+    # create users for tenant 1
+    for account in external_api_accounts:
+        tenant = tenants[1]
+        response = create_user(tenant, account, digest_login)
+        # json_content = get_json_content(response)
+        # print(response)
 
 
 def get_roles_as_Json_array(account):
@@ -55,7 +56,7 @@ def create_user(tenantid, account, digest_login):
     :param digest_login: digest login
     :return:
     """
-    url = '{}/admin-ng/users/'.format(config.url_pattern.format(tenantid))
+    url = '{}/admin-ng/users/'.format(config.tenant_url_pattern.format(tenantid))
     data = {
         'username': account['username'],
         'password': account['password'],

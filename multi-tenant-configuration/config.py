@@ -6,6 +6,11 @@ url = "http://tenant1:8080"
 #url_pattern = "https://{}.example.org"
 #otherwise, url_pattern should be the same as the url variable above
 url_pattern = "http://{}:8080"
+# list of tenant URLs
+tenant_urls = [
+    'http://tenant1:8080',
+    'http://tenant2:8080'
+]
 
 # digest user
 digest_user = "opencast_system_account"
@@ -13,7 +18,3 @@ digest_pw = "CHANGE_ME"
 
 # path to environment configuration file
 env_path = "environment/staging/opencast-organizations.yml"
-
-# workflow_definitions = ["import", "fast"]
-# exclude_tenants = []
-# export_dir = "."

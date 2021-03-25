@@ -17,8 +17,8 @@ The script is configured by editing the values in `config.py`:
 | `url`             | The URL of the global admin node ?        | https://tenant1.opencast.com |
 | `tenant_url_pattern` | The URL pattern of the target tenants  | https://tenant2.opencast.com |
 | `tenant_urls`     | A dictioanry of server URLs of the target tenants       | https://tenant2.opencast.com |
-| `digest_user`     | The user name of the digest user          | opencast_system_account      |
-| `digest_pw`       | The password of the digest user           | CHANGE_ME                    |
+| `digest_user`     | The user name of the digest user          | `opencast_system_account`      |
+| `digest_pw`       | The password of the digest user           | `CHANGE_ME`                    |
 | `env_path`        | The id of the workflow to start on ingest | reimport-workflow            |
 
 **TODo**: check the below ...
@@ -39,11 +39,11 @@ The script can be called with the following parameters (all parameters in bracke
 
 `main.py ... `
 
-| Short Option | Long Option | Description                                                     |
-| :----------: | :---------- | :-------------------------------------------------------------- |
-| `-t`         | `--tenant`  | The id(s) of the tenant to be configured                        |
-| `-e`         | `--environment` | The environment where to find the configuration file (either `staging` or `production`) |
-| ... | ... | ... | 
+| Param | Description |
+| :---: | :---------- |
+| `-t` / `--tenant` | The id(s) of the tenant to be configured |
+| `-e` / `--environment` | The environment where to find the configuration file (either `staging` or `production`) |
+| ... / ... | ... | 
 
 #### Usage example
 **ToDo**

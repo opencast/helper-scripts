@@ -35,24 +35,26 @@ def main():
     if not start_process:
         __abort_script("Okay, not doing anything.")
 
-    external_api_accounts = env_conf['opencast_organizations'][1]['external_api_accounts']
+    # external_api_accounts = env_conf['opencast_organizations'][1]['external_api_accounts']
+    external_api_accounts = {}
+    for tenant in env_conf['opencast_organizations']:
+        id = tenant['id']
+        if id != "dummy":
+            external_api_accounts[id] = tenant['external_api_accounts']
 
     if not tenant_id:
         for_all_tenants = get_yes_no_answer("Create User for all tenants?")
-        if for_all_tenants:
-            # create user account on all tenants
-            for tenant_url in config.tenant_urls:
-                for account in external_api_accounts:
-                    response = create_user(account, digest_login, tenant_url)
-                    # json_content = get_json_content(response)
-                    print(response)
+        if not for_all_tenants:
+            __abort_script("Okay, not doing anything.")
+        else:
+            # create user account for all tenants
+            for tenant_id in config.tenant_ids:
+                for account in external_api_accounts[tenant_id]:
+                    response = create_user(account, digest_login, config.tenant_urls[tenant_id])
     else:
         # create user accounts on the specified tenant
-        for account in external_api_accounts:
-            tenant_url = config.tenant_urls[tenant_id]
-            response = create_user(account, digest_login, tenant_url)
-            if response:
-                print("created user {}".format(account['username']))
+        for account in external_api_accounts[tenant_id]:
+            response = create_user(account, digest_login, config.tenant_urls[tenant_id])
 
 def __abort_script(message):
     print(message)

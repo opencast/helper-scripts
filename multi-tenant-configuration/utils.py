@@ -49,10 +49,11 @@ def read_yaml_file(path):
 
 def parse_config(config, env_config):
 
-    tenant_ids = [tenant['id'] for tenant in env_config['opencast_organizations']]
+    # ToDo check if "dummy" is realy how it should be in the organizations file
+    config.tenant_ids = [tenant['id'] for tenant in env_config['opencast_organizations'] if tenant['id'] != "dummy"]
     if not (hasattr(config,'tenant_urls') and config.tenant_urls):
         config.tenant_urls = {}
-        for tenant_id in tenant_ids:
+        for tenant_id in config.tenant_ids:
             config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
 
     return True
@@ -82,6 +83,7 @@ def create_user(account, digest_login, base_url):
     }
     try:
         response = post_request(url, digest_login, '/admin-ng/users/', data=data)
+        print("created user {}".format(account['username']))
     except RequestError as err:
         if err.get_status_code() == "409":
             print("Conflict, a user with username {} already exist.".format(account['username']))

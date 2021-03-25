@@ -36,14 +36,23 @@ def main():
         __abort_script("Okay, not doing anything.")
 
     external_api_accounts = env_conf['opencast_organizations'][1]['external_api_accounts']
-    # create user accounts on the specified tenant
-    for account in external_api_accounts:
-        url = config.tenant_urls[tenant_id]
-        print(url)
-        response = create_user(account, digest_login, url)
-        json_content = get_json_content(response)
-        print(response)
 
+    if not tenant_id:
+        for_all_tenants = get_yes_no_answer("Create User for all tenants?")
+        if for_all_tenants:
+            # create user account on all tenants
+            for tenant_url in config.tenant_urls:
+                for account in external_api_accounts:
+                    response = create_user(account, digest_login, tenant_url)
+                    # json_content = get_json_content(response)
+                    print(response)
+    else:
+        # create user accounts on the specified tenant
+        for account in external_api_accounts:
+            tenant_url = config.tenant_urls[tenant_id]
+            response = create_user(account, digest_login, tenant_url)
+            if response:
+                print("created user {}".format(account['username']))
 
 def __abort_script(message):
     print(message)

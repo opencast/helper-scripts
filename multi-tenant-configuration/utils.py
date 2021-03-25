@@ -2,6 +2,7 @@ import yaml
 from args.args_parser import get_args_parser
 from args.args_error import args_error
 from rest_requests.request import get_request, post_request
+from rest_requests.request_error import RequestError
 
 
 def parse_args():
@@ -79,7 +80,16 @@ def create_user(account, digest_login, base_url):
         'email': account['email'],
         'roles': str(get_roles_as_Json_array(account))
     }
-    # ToDo error handling
-    response = post_request(url, digest_login, '/admin-ng/users/', data=data)
+    try:
+        response = post_request(url, digest_login, '/admin-ng/users/', data=data)
+    except RequestError as err:
+        if err.get_status_code() == "409":
+            print("Conflict, a user with username {} already exist.".format(account['username']))
+        if err.get_status_code() == "403":
+            print("Forbidden, not enough permissions to create a user with a admin role.")
+        return False
+    except Exception as e:
+        print("User could not be created: {}".format(str(e)))
+        return False
 
     return response

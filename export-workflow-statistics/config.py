@@ -1,11 +1,12 @@
 # Configuration
 
-#Set this to your global admin node
-url = "https://stable.opencast.org"
-#If you have multiple tenants use something like
-#url_pattern = "https://{}.example.org"
-#otherwise, url_pattern should be the same as the url variable above
-url_pattern = "https://stable.opencast.org"
+# Set this to your global admin node
+url = "https://develop.opencast.org"
+
+# If you have multiple tenants use something like
+# url_pattern = "https://{}.example.org"
+# otherwise, url_pattern should be the same as the url variable above
+url_pattern = "https://develop.opencast.org"
 
 digest_user = "opencast_system_account"
 digest_pw = "CHANGE_ME"

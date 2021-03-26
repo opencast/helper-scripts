@@ -33,6 +33,7 @@ def main():
     tenant_counts = dict()
     for tenant in tenants:
         if tenant not in config.exclude_tenants:
+            print("{}".format(tenant))
             tenant_url = config.url_pattern.format(tenant) if config.url_pattern else config.url
 
             try:
@@ -42,13 +43,12 @@ def main():
                                            config.week_offset)
 
                 tenant_counts[tenant] = tenant_count
-                print("{} done.".format(tenant))
             except RequestError as e:
                 print("Workflows for tenant {} could not be counted: {}".format(tenant, str(e)))
 
     __export_tenant_filenames(config.export_dir, tenant_dir, tenant_counts)
     __export_aggregate_statistics(config.export_dir, max_week, config.week_offset, tenant_counts)
-    print("Done!\n")
+    print("Done\n")
 
 
 def __export_tenant_filenames(export_dir, tenant_dir, tenant_counts):
@@ -59,7 +59,6 @@ def __export_tenant_filenames(export_dir, tenant_dir, tenant_counts):
     with io.open(os.path.join(export_dir, "filenames.txt"), 'w') as file:
         for tenant in sorted_tenant_total_counts.keys():
             if sorted_tenant_total_counts[tenant] != 0:
-                print("{} {}".format(tenant, sorted_tenant_total_counts[tenant]))
                 file.write("{}/{}-workflow-statistics.dat\n".format(tenant_dir, tenant))
 
 
@@ -85,6 +84,7 @@ def __count_workflows_for_tenant(tenant_url, digest_login, workflow_definitions,
     tenant_count = defaultdict(int)
 
     for workflow_definition in workflow_definitions:
+        print("    {}".format(workflow_definition))
         page_offset = 0
         limit = 100
         get_workflows = True
@@ -106,10 +106,9 @@ def __count_workflows_for_tenant(tenant_url, digest_login, workflow_definitions,
                         delta = workflow_start_date - start_date
                         week = int(delta.days / 7)
                         tenant_count[week] += 1
+            print("        {:3} workflow instances".format(page_offset * limit + len(workflow_instances)))
             get_workflows = len(workflow_instances) == limit
             page_offset += 1
-            print("        {} workflow instances counted.".format(page_offset * limit + len(workflow_instances)))
-        print("    {} done.".format(workflow_definition))
     return tenant_count
 
 

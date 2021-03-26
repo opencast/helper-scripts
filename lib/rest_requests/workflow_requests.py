@@ -50,3 +50,28 @@ def get_workflow_instances(base_url, digest_login, params):
 
     response = get_request(url, digest_login, "workflow instances")
     return get_json_content(response)["workflows"]
+
+
+def get_list_of_workflow_instances(base_url, digest_login, params):
+    """
+    Wrapper for get_workflow_instances() to get only a list of workflow instances, not the additional information.
+
+    :param base_url: The URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param params: Additional parameters
+    :type params: dict
+    :return: list of workflow instances
+    :rtype: list
+    """
+
+    workflows = get_workflow_instances(base_url, digest_login, params)
+
+    if "workflow" not in workflows:
+        return []
+
+    workflows = workflows["workflow"]
+    if not isinstance(workflows, list):  # happens if there's only one
+        workflows = [workflows]
+    return workflows

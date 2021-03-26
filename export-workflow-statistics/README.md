@@ -8,7 +8,7 @@ This script works with multi-tenant systems.
 | Configuration Key      | Description                                                                       | Example                    |
 | :--------------------- | :-------------------------------------------------------------------------------- | :------------------------- |
 | `url`                  | The non-tenant-specific server URL                                                | https://opencast.com       |
-| `url_pattern`          | Pattern for the tenant-specific server URL, leave empty for single-tenant-systems | https://{}.opencast.com    |
+| `url_pattern`          | Pattern for the tenant-specific server URL, leave empty for single-tenant systems | https://{}.opencast.com    |
 | `digest_user`          | The user name of the digest user                                                  | opencast_system_account    |
 | `digest_pw`            | The password of the digest user                                                   | CHANGE_ME                  |
 | `workflow_definitions` | The ids of the workflow definitions to count                                      | ["ui-import", "api-import" |
@@ -18,7 +18,7 @@ This script works with multi-tenant systems.
 | `week_offset`          | The offset if the start date is not in the first calendar week                    | 1                          |
 | `export_dir`           | The path to the directory for the exported data                                   | "data"                     |
 
-* Both of these dates should be the first day of the week for the statistics to be accurate.
+&ast; Both of these dates should be the first day of the week for the statistics to be accurate.
 
 ### 2. Execute script
 
@@ -30,6 +30,8 @@ This script works with multi-tenant systems.
    
     `gnuplot plot.gp`
 
+![image](demo_plot.png)
+
 ### Optional: Plot tenant statistics
 
 If you have a multi-tenant system, you can also plot their statistics into a single graph. For this, adjust 
@@ -38,8 +40,6 @@ recording in the specified time frame will be plotted. The order of tenants is d
 (default: tenants with most processed recordings first).
 
 For gradual colors, uncomment the last line of `tenant_plot.gp`.
-
-![image](demo_plot.png)
 
 ## Requirements
 

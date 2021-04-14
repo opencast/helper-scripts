@@ -29,7 +29,7 @@ for node in admin presentation worker; do
     "opencast-dist-${node}/etc/custom.properties"
   sed -i 's_^.*db.jdbc.user=.*$_org.opencastproject.db.jdbc.user=opencast_' \
     "opencast-dist-${node}/etc/custom.properties"
-  sed -i 's_^.*db.jdbc.pass=.*$_org.opencastproject.db.jdbc.pass=opencast_' \
+  sed -i 's_^.*db.jdbc.pass=.*$_org.opencastproject.db.jdbc.pass=dbpassword_' \
     "opencast-dist-${node}/etc/custom.properties"
 
   # configure organization

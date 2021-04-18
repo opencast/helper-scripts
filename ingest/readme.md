@@ -5,8 +5,7 @@ ingest-single-request.sh
 ------------------------
 
 Repeatedly ingest files using a single request ingest. Parameters can be
-adjusted at the top of the file. If the video file does not exist, the user is
-asked to enter a file name.
+adjusted at the top of the file.
 
 ingest-addtrack.sh
 ------------------

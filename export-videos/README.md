@@ -8,18 +8,23 @@ With this script, you can export archived or published video tracks from Opencas
 
 First you need to configure the script in `config.py`:
 
-| Configuration Key     | Description                                                              | Example                     |
-| :-------------------- | :----------------------------------------------------------------------- | :-------------------------- |
-| `url`                 | The (tenant-specific) server URL                                         | https://tenant.opencast.com |
-| `digest_user`         | The user name of the digest user                                         | opencast_system_account     |
-| `digest_pw`           | The password of the digest user                                          | CHANGE_ME                   |
-| `stream_security`     | Whether to sign the URLs before downloading                              | False                       |
-| `target_directory`    | The path to the directory for the exported videos                        | /home/user/Desktop/videos   |
-| `export_archived`     | Whether to export archived tracks                                        | True                        |
-| `export_publications` | The publication channel(s) for which published tracks should be exported | \["engage-player"\]         |
-| `export_mimetypes`    | The type(s) of video to export (empty: all types)                        | \["video/mp4"]\             |
-| `export_flavors`      | The flavor(s) to export (empty: all flavors)                             | \["delivery/*"\]            |
-| `create_series_dirs`  | Whether to create a directory for each series when using the `-s`option  | False                       |
+| Configuration Key     | Description                                                                 | Example                                  |
+| :-------------------- | :-------------------------------------------------------------------------- | :--------------------------------------- |
+| `admin_url`           | The (tenant-specific) admin URL                                             | https://tenant.admin.opencast.com        |
+| `presentation_url`    | The (tenant-specific) presentation URL if it's different from the admin URL | https://tenant.presentation.opencast.com |
+| `digest_user`         | The user name of the digest user                                            | opencast_system_account                  |
+| `digest_pw`           | The password of the digest user                                             | CHANGE_ME                                |
+| `stream_security`     | Whether to sign the URLs before downloading                                 | False                                    |
+| `target_directory`    | The path to the directory for the exported videos                           | /home/user/Desktop/videos                |
+| `export_archived`     | Whether to export archived tracks                                           | True                                     |
+| `export_search`       | Whether to export tracks from the search service\*                          | True                                     |
+| `export_publications` | The publication channel(s) for which published tracks should be exported\*  | \["engage-player"\]                      |
+| `export_mimetypes`    | The type(s) of video to export (empty: all types)                           | \["video/mp4"]\                          |
+| `export_flavors`      | The flavor(s) to export (empty: all flavors)                                | \["delivery/*"\]                         |
+| `create_series_dirs`  | Whether to create a directory for each series when using the `-s`option     | False                                    |
+
+&ast; Use the search option to export tracks used by the Engage Player, since the engage-player publication doesn't actually
+contain the tracks.
 
 ### Usage
 

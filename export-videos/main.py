@@ -11,6 +11,7 @@ from export_videos import export_videos
 from parse_args import parse_args
 from rest_requests.api_requests import get_events_of_series
 from rest_requests.assetmanager_requests import get_media_package
+from rest_requests.search_requests import get_episode_from_search
 
 
 def main():
@@ -21,13 +22,16 @@ def main():
     event_ids, series_ids = parse_args()
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
 
+    if not hasattr('config', 'presentation_url') or not config.presentation_url:
+        config.presentation_url = config.admin_url
+
     # get events from all series
     if series_ids:
         print("Getting events for series.")
         events = []
         for series_id in series_ids:
             try:
-                events_of_series = get_events_of_series(config.url, digest_login, series_id)
+                events_of_series = get_events_of_series(config.admin_url, digest_login, series_id)
                 events += events_of_series
             except Exception as e:
                 print("Events of series {} could not be requested: {}".format(series_id, str(e)))
@@ -42,16 +46,28 @@ def main():
         try:
             print("Exporting videos of media package {}".format(event_id))
 
-            mp_xml = get_media_package(config.url, digest_login, event_id)
+            # get mp from search
+            search_mp = None
+            if config.export_search:
+                search_mp_json = get_episode_from_search(config.presentation_url, digest_login, event_id)
+                if search_mp_json:
+                    search_mp_xml = search_mp_json["ocMediapackage"]
+                    search_mp = parse_manifest_from_endpoint(search_mp_xml, event_id, False, False)
 
-            mp = parse_manifest_from_endpoint(mp_xml, event_id, False, True)
+            # get mp from archive
+            archive_mp_xml = get_media_package(config.admin_url, digest_login, event_id)
+            archive_mp = parse_manifest_from_endpoint(archive_mp_xml, event_id, False, True)
 
-            if config.create_series_dirs and mp.series_id:
-                mp_dir = os.path.join(config.target_directory, mp.series_id, mp.id)
+            # set target directory
+            if config.create_series_dirs and archive_mp.series_id:
+                mp_dir = os.path.join(config.target_directory, archive_mp.series_id, archive_mp.id)
             else:
-                mp_dir = os.path.join(config.target_directory, mp.id)
-            export_videos(mp, mp_dir, config.url, digest_login, config.export_archived, config.export_publications,
-                          config.export_mimetypes, config.export_flavors, config.stream_security)
+                mp_dir = os.path.join(config.target_directory, archive_mp.id)
+
+            # export
+            export_videos(archive_mp, search_mp, mp_dir, config.admin_url, digest_login, config.export_archived,
+                          config.export_publications, config.export_mimetypes, config.export_flavors,
+                          config.stream_security)
 
         except Exception as e:
             print("Tracks of media package {} could not be exported: {}".format(event_id, str(e)))

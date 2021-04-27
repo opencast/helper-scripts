@@ -67,7 +67,7 @@ def main():
             # export
             export_videos(archive_mp, search_mp, mp_dir, config.admin_url, digest_login, config.export_archived,
                           config.export_publications, config.export_mimetypes, config.export_flavors,
-                          config.stream_security)
+                          config.stream_security, config.original_filenames)
 
         except Exception as e:
             print("Tracks of media package {} could not be exported: {}".format(event_id, str(e)))

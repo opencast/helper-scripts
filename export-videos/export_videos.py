@@ -6,7 +6,7 @@ from rest_requests.stream_security_requests import sign_url
 
 
 def export_videos(archive_mp, search_mp, mp_dir, server_url, digest_login, export_archived, export_publications,
-                  export_mimetypes, export_flavors, sign=False):
+                  export_mimetypes, export_flavors, sign, original_filenames):
     """
     Request the tracks of the media package that meet the criteria and export them to video files.
 
@@ -30,13 +30,15 @@ def export_videos(archive_mp, search_mp, mp_dir, server_url, digest_login, expor
     :type digest_login: DigestLogin
     :param sign: Whether to sign the URL first
     :type sign: bool
+    :param original_filenames: Whether to keep the original filenames on export (otherwise track id is used)
+    :type original_filenames: bool
     """
 
     # check archived tracks
     if export_archived:
         target_dir = os.path.join(mp_dir, 'archived')
         __export_tracks(archive_mp.id, archive_mp.tracks, target_dir, server_url, digest_login, sign, export_mimetypes,
-                        export_flavors)
+                        export_flavors, original_filenames)
 
     # check published tracks
     if export_publications:
@@ -44,16 +46,16 @@ def export_videos(archive_mp, search_mp, mp_dir, server_url, digest_login, expor
             if publication.channel in export_publications:
                 target_dir = os.path.join(mp_dir, publication.channel)
                 __export_tracks(archive_mp.id, publication.tracks, target_dir, server_url, digest_login, sign,
-                                export_mimetypes, export_flavors, publication.channel)
+                                export_mimetypes, export_flavors, original_filenames, publication.channel)
 
     if search_mp:
         target_dir = os.path.join(mp_dir, 'search')
         __export_tracks(search_mp.id, search_mp.tracks, target_dir, server_url, digest_login, sign, export_mimetypes,
-                        export_flavors, 'search')
+                        export_flavors, original_filenames, 'search')
 
 
 def __export_tracks(mp_id, tracks, target_dir, server_url, digest_login, sign, export_mimetypes, export_flavors,
-                    publication_channel=None):
+                    original_filenames, publication_channel=None):
     """
     Export tracks.
     :param mp_id: Media package id
@@ -72,6 +74,8 @@ def __export_tracks(mp_id, tracks, target_dir, server_url, digest_login, sign, e
     :type export_mimetypes: list
     :param export_flavors: The flavors to be exported
     :type export_flavors: list
+    :param original_filenames: Whether to keep the original filenames on export (otherwise track id is used)
+    :type original_filenames: bool
     :param publication_channel: The publication channel (for logging only)
     :type publication_channel: str
     """
@@ -79,7 +83,7 @@ def __export_tracks(mp_id, tracks, target_dir, server_url, digest_login, sign, e
     for track in tracks:
         if __check_track(track, export_mimetypes, export_flavors):
             try:
-                __export_track(target_dir, track, server_url, digest_login, sign)
+                __export_track(target_dir, track, server_url, digest_login, sign, original_filenames)
             except Exception as e:
                 if publication_channel:
                     print("Track {} of publication '{}' of media package {} could not be exported: {}"
@@ -105,7 +109,7 @@ def __check_track(track, export_mimetypes, export_flavors):
            (not export_flavors or matches_flavor(track.flavor, export_flavors))
 
 
-def __export_track(target_dir, track, server_url, digest_login, sign=False):
+def __export_track(target_dir, track, server_url, digest_login, sign, original_filenames):
     """
     Request a video and write it to a file. Sign the URL first if necessary.
 
@@ -119,13 +123,18 @@ def __export_track(target_dir, track, server_url, digest_login, sign=False):
     :type digest_login: DigestLogin
     :param sign: Whether to sign the URL first
     :type sign: bool
+    :param original_filenames: Whether to keep the original filename (otherwise track id is used)
+    :type original_filenames: bool
     :raise: RequestError
     """
 
     url = track.url
 
     file_extension = url.split(".")[-1]
-    filename = '{}.{}'.format(track.id, file_extension)
+    if original_filenames:
+        filename = os.path.basename(url)
+    else:
+        filename = '{}.{}'.format(track.id, file_extension)
     path = os.path.join(target_dir, filename)
 
     if sign:

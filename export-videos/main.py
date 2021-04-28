@@ -22,7 +22,7 @@ def main():
     event_ids, series_ids = parse_args()
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
 
-    if not hasattr('config', 'presentation_url') or not config.presentation_url:
+    if not hasattr(config, 'presentation_url') or not config.presentation_url:
         config.presentation_url = config.admin_url
 
     # get events from all series

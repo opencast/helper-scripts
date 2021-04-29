@@ -8,7 +8,7 @@ url = "http://tenant1:8080"
 # ToDo otherwise, this can be empty or commented out
 tenant_url_pattern = "http://{}:8080"
 # ToDo You can also define a dictionary of tenant URLs, which will be prioritized over the URL pattern:
-# example:
+# # example:
 # tenant_urls = { '<tenant1.id>': 'http://tenant1:8080', '<tenant1.id>': 'http://tenant2:8080' }
 # tenant_urls = {
 #     'tenant1': 'http://tenant1:8080',
@@ -21,3 +21,5 @@ digest_pw = "CHANGE_ME"
 
 # path to environment configuration file
 env_path = "environment/{}/opencast-organizations.yml"
+# path to group configuration file
+group_path = "configurations/group_configuration.yaml"

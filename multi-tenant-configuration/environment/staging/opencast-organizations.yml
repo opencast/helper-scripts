@@ -67,8 +67,8 @@ opencast_organizations:
         name: Moodle System User
         email: test@test.de
         roles: [ROLE_EXTERNAL_APPLICATION]
-      - username: guy-1
+      - username: guyx
         password: abc
-        name: Guy 1
+        name: Guy X
         email: test@test.de
         roles: [ROLE_ADMIN, ROLE_SUDO]

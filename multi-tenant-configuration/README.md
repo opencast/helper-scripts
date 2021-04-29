@@ -8,7 +8,6 @@ Currently this script does not ...
 ## How to Use
 
 ### Configuration
-**ToDo**
 
 The script is configured by editing the values in `config.py`:
 
@@ -31,6 +30,9 @@ the target tenant for this to work. Additionally the user currently needs to hav
 _For the future, Basic Authentication and the use of an endpoint that doesn't require the Admin role (e.g.
 `api/events/{id}`) would be preferable, so you can simply add a frontend user with the necessary rights (ingest,
 access to the events/series) and the same password to both tenants._
+
+#### group config:
+The names in the group config file must be unique per Tenant!
 
 ### Usage
 **ToDo**

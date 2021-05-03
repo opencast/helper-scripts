@@ -9,7 +9,7 @@ With this script, you can export archived or published video tracks from Opencas
 First you need to configure the script in `config.py`:
 
 | Configuration Key     | Description                                                                 | Example                                  |
-| :-------------------- | :---------------------------------------------------------------------------| :--------------------------------------- |
+| :-------------------- | :-------------------------------------------------------------------------- | :--------------------------------------- |
 | `admin_url`           | The (tenant-specific) admin URL                                             | https://tenant.admin.opencast.com        |
 | `presentation_url`    | The (tenant-specific) presentation URL\*                                    | https://tenant.presentation.opencast.com |
 | `digest_user`         | The user name of the digest user                                            | opencast_system_account                  |
@@ -18,8 +18,9 @@ First you need to configure the script in `config.py`:
 | `export_archived`     | Whether to export archived tracks                                           | True                                     |
 | `export_search`       | Whether to export tracks from the search service\*                          | True                                     |
 | `export_publications` | The publication channel(s) for which published tracks should be exported\*  | \["engage-player"\]                      |
-| `export_mimetypes`    | The type(s) of video to export (empty: all types)                           | \["video/mp4"]\                          |
-| `export_flavors`      | The flavor(s) to export (empty: all flavors)                                | \["delivery/*"\]                         |
+| `export_mimetypes`    | The type(s) of video to export (empty: videos of all types)                 | \["video/mp4"]\                          |
+| `export_flavors`      | The flavor(s) of videos to export (empty: videos of all flavors)            | \["delivery/*"\]                         |
+| `export_catalogs`     | The flavor(s) of catalogs to export (empty: no catalogs)                    | \["smil/cutting", "dublincore/*"\]       |
 | `target_directory`    | The path to the directory for the exported videos                           | /home/user/Desktop/videos                |
 | `create_series_dirs`  | Whether to create a directory for each series when using the `-s`option     | False                                    |
 | `original_filenames`  | Whether to keep the original filenames (otherwise track id is used)         | False                                    |

@@ -7,7 +7,7 @@ import config
 from args.digest_login import DigestLogin
 from data_handling.elements import get_id
 from data_handling.parse_manifest import parse_manifest_from_endpoint
-from export_videos import export_videos
+from export import export_videos, export_catalogs
 from parse_args import parse_args
 from rest_requests.api_requests import get_events_of_series
 from rest_requests.assetmanager_requests import get_media_package
@@ -44,7 +44,7 @@ def main():
     print("Starting export process.")
     for event_id in event_ids:
         try:
-            print("Exporting videos of media package {}".format(event_id))
+            print("Exporting media package {}".format(event_id))
 
             # get mp from search
             search_mp = None
@@ -68,6 +68,10 @@ def main():
             export_videos(archive_mp, search_mp, mp_dir, config.admin_url, digest_login, config.export_archived,
                           config.export_publications, config.export_mimetypes, config.export_flavors,
                           config.stream_security, config.original_filenames)
+
+            if config.export_catalogs:
+                export_catalogs(archive_mp, mp_dir, config.admin_url, digest_login, config.export_catalogs,
+                                config.stream_security, config.original_filenames)
 
         except Exception as e:
             print("Tracks of media package {} could not be exported: {}".format(event_id, str(e)))

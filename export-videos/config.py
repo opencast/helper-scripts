@@ -13,6 +13,7 @@ export_search = True
 export_publications = ["internal"]
 export_mimetypes = ["video/mp4"]
 export_flavors = []
+export_catalogs = ["smil/cutting", "dublincore/*"]
 
 # target directory settings
 target_directory = "/home/user/Desktop/videos"  # CHANGE ME

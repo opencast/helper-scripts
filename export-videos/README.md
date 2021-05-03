@@ -9,9 +9,9 @@ With this script, you can export archived or published video tracks from Opencas
 First you need to configure the script in `config.py`:
 
 | Configuration Key     | Description                                                                 | Example                                  |
-| :-------------------- | :-------------------------------------------------------------------------- | :--------------------------------------- |
+| :-------------------- | :---------------------------------------------------------------------------| :--------------------------------------- |
 | `admin_url`           | The (tenant-specific) admin URL                                             | https://tenant.admin.opencast.com        |
-| `presentation_url`    | The (tenant-specific) presentation URL if it's different from the admin URL | https://tenant.presentation.opencast.com |
+| `presentation_url`    | The (tenant-specific) presentation URL\*                                    | https://tenant.presentation.opencast.com |
 | `digest_user`         | The user name of the digest user                                            | opencast_system_account                  |
 | `digest_pw`           | The password of the digest user                                             | CHANGE_ME                                |
 | `stream_security`     | Whether to sign the URLs before downloading                                 | False                                    |
@@ -24,8 +24,9 @@ First you need to configure the script in `config.py`:
 | `create_series_dirs`  | Whether to create a directory for each series when using the `-s`option     | False                                    |
 | `original_filenames`  | Whether to keep the original filenames (otherwise track id is used)         | False                                    |
 
-&ast; Use the search option to export tracks used by the Engage Player, since the engage-player publication doesn't actually
-contain the tracks.
+&ast; Use the search option to export tracks used by the Engage Player, since the engage-player publication doesn't
+actually contain the tracks. For this to work you need to configure the presentation url if you have a separate
+presentation node.
 
 ### Usage
 

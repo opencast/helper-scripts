@@ -20,12 +20,12 @@ import config
 def main():
 
     ###   Parse args and config   ###
-    environment, tenant_id, check = parse_args()                                    # parse args
-    env_conf = read_yaml_file(config.env_path.format(environment))                  # read environment config file
-    script_config = parse_config(config, env_conf)                                  # parse config.py
-    group_config = read_yaml_file(config.group_path)                                # read group config file
     # ToDo Think about whether we should exclude Digest Login credentials from config.py file
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)  # create Digest Login
+    environment, tenant_id, check = parse_args()                                    # parse args
+    env_conf = read_yaml_file(config.env_path.format(environment))                  # read environment config file
+    script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
+    group_config = read_yaml_file(script_config.group_path)                         # read group config file
 
     ###   Start checks   ###
     if check == 'all':

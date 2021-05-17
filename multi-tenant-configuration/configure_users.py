@@ -9,11 +9,12 @@ from parsing_configurations import __abort_script, log
 
 
 def check_users(tenant_id, digest_login, env_conf, config):
-    log('start checking users for tenant', tenant_id)
+    log('\nstart checking users for tenant: ', tenant_id)
 
     external_api_accounts = {}
     for tenant in env_conf['opencast_organizations']:
         id = tenant['id']
+        # ToDo check if this is necessary
         if id != "dummy":
             external_api_accounts[id] = tenant['external_api_accounts']
 
@@ -29,7 +30,7 @@ def check_users(tenant_id, digest_login, env_conf, config):
     else:
         # create user accounts on the specified tenant
         for account in external_api_accounts[tenant_id]:
-            response = create_user(account, digest_login, config.tenant_urls[tenant_id])
+            create_user(account, digest_login, config.tenant_urls[tenant_id])
 
 
 def get_roles_as_Json_array(account):
@@ -43,16 +44,16 @@ def create_user(account, digest_login, tenant_url):
 
     :param account:         dict    user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
     :param digest_login:    digest login
-    :param tenant_url:        tenant url
+    :param tenant_url:      tenant url
     :return:
     """
     url = '{}/admin-ng/users/'.format(tenant_url)
     data = {
         'username': account['username'],
         'password': account['password'],
-        'name': account['name'],
-        'email': account['email'],
-        'roles': str(get_roles_as_Json_array(account))
+        'name':     account['name'],
+        'email':    account['email'],
+        'roles':    str(get_roles_as_Json_array(account))
     }
     try:
         response = post_request(url, digest_login, '/admin-ng/users/', data=data)
@@ -65,6 +66,30 @@ def create_user(account, digest_login, tenant_url):
         return False
     except Exception as e:
         print("User could not be created: {}".format(str(e)))
+        return False
+
+    return response
+
+
+def get_user(username, digest_login, tenant_url):
+    """ sends a GET request to the admin UI to get a User
+
+    :param username:        String
+    :param digest_login:    digest login
+    :param tenant_url:      tenant url
+    :return:
+    """
+    url = f'{tenant_url}/admin-ng/users/{username}.json'
+    try:
+        response = get_request(url, digest_login, '/admin-ng/users/{username}.json')
+    except RequestError as err:
+        if err.get_status_code() == "404":
+            return False
+        else:
+            print(err)
+            return False
+    except Exception as e:
+        print(e)
         return False
 
     return response

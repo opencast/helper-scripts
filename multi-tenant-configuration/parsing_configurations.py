@@ -4,6 +4,7 @@ from args.args_parser import get_args_parser
 from args.args_error import args_error
 from rest_requests.request import get_request, post_request
 from rest_requests.request_error import RequestError
+from rest_requests.basic_requests import get_tenants
 
 
 VERBOSE_FLAG = True
@@ -37,7 +38,7 @@ def parse_args():
     if not args.tenantid: args.tenantid = ['']
     if not args.check: args.check = ['all']
     global VERBOSE_FLAG
-    if args.verbose[0] == "True":
+    if args.verbose and args.verbose[0] == "True":
         VERBOSE_FLAG = True
     else:
         VERBOSE_FLAG = False
@@ -59,12 +60,13 @@ def read_yaml_file(path):
     return content
 
 
-def parse_config(config, env_config):
+def parse_config(config, env_config, digest_login):
+    # ToDo Check if all mandatory configurations are given
 
-    # ToDo check if "dummy" is really how it should be in the organizations file
-    config.tenant_ids = [tenant['id'] for tenant in env_config['opencast_organizations'] if tenant['id'] != "dummy"]
-    # ToDo suche get all tenant funktion
-    if not (hasattr(config,'tenant_urls') and config.tenant_urls):
+    # ToDo should mh_default_org be removed from tenant_ids?
+    config.tenant_ids = get_tenants(config.base_url, digest_login)
+
+    if not (hasattr(config, 'tenant_urls') and config.tenant_urls):
         config.tenant_urls = {}
         for tenant_id in config.tenant_ids:
             config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
@@ -90,7 +92,7 @@ def create_group_config_file_from_json_file(json_file_path, yaml_file_path='test
 
 
 def log(*args):
-    if(VERBOSE_FLAG):
+    if VERBOSE_FLAG:
         print(*args)
 
 

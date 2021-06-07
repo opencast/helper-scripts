@@ -6,10 +6,12 @@ from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
 from configure_users import get_user
 from input_output.input import get_yes_no_answer, get_configurable_answer
+from user_interaction import check_or_ask_for_permission
 from parsing_configurations import log
 
 def check_groups(tenant_id, digest_login, group_config, config):
     log('\nstart checking groups for tenant: ', tenant_id)
+    # ToDo handle case if no tenant_id is given
 
     tenant_url = config.tenant_urls[tenant_id]
     # For all Groups:
@@ -47,8 +49,13 @@ def check_group(tenant_url, digest_login, group, tenant_id):
     existing_group = check_if_group_exists(tenant_url, digest_login, group, tenant_id)
     if not existing_group:
         # Create group if it does not exist. Ask for permission
-        answer = get_yes_no_answer(f"Group {group['name']} does not exist. Create group?")
-        if answer:
+        action_allowed = check_or_ask_for_permission(
+            target_type='group',
+            action='create',
+            target_name=group['name'],
+            tenant_id=tenant_id
+        )
+        if action_allowed:
             create_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id, group=group)
     else:
         # Check if group name and description match the name and description provided in the configuration.
@@ -57,13 +64,14 @@ def check_group(tenant_url, digest_login, group, tenant_id):
                                 group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group members exist.
         # Create missing group members. (Asks for permission)
+        # Check if group members match the group members provided in the configuration. Add or remove members accordingly.
         check_group_members(tenant_url=tenant_url, digest_login=digest_login,
                             group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group roles match the group roles provided in the configuration.
         # Update group roles if they do not match.(Asks for permission)
         check_group_roles(tenant_url=tenant_url, digest_login=digest_login,
                           group=group, existing_group=existing_group, tenant_id=tenant_id)
-        # Check if group members match the group members provided in the configuration. Add or remove members accordingly.
+
         # Check external API accounts of members. Add missing API accounts.
         # Check group type. If group is closed, remove unexpected members.
         # Update group members. (Asks for permission)
@@ -79,77 +87,88 @@ def check_group_description(tenant_url, digest_login, group, existing_group, ten
     if group_description_template(group['description'], tenant_id) == existing_group['description']:
         log('Group descriptions match.')
     else:
-        answer = get_yes_no_answer(f"Update group description for group {group['name']}?")
-        if answer:
-            update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
-                         description=group['description'], name=group['name'])
+        action_allowed = check_or_ask_for_permission(
+            target_type='group',
+            action='update the description',
+            target_name=group['name'],
+            tenant_id=tenant_id
+        )
+        if action_allowed:
+            update_group(
+                digest_login=digest_login,
+                tenant_url=tenant_url,
+                tenant_id=tenant_id,
+                description=group['description'],
+                name=group['name']
+            )
+
     return
 
 
 def check_group_members(tenant_url, digest_login, group, existing_group, tenant_id):
     log(f"Check members for group {group['name']}.")
 
-    group_members = extract_members_from_group(group=group, tenant_id=tenant_id).split(",")
-    existing_group_members = sorted(existing_group['members'].split(","))
+    group_members = extract_members_from_group(group=group, tenant_id=tenant_id)
+    existing_group_members = sorted(filter(None, existing_group['members'].split(",")))
+
     log("Config group members: ", group_members)
     log("Existing group members: ", existing_group_members)
 
-    if group_members == existing_group_members:
+    members = existing_group_members.copy()
+    missing_members = [member for member in group_members if member not in existing_group_members]
+    for member in missing_members:
+        if not get_user(username=member, digest_login=digest_login, tenant_url=tenant_url):
+            log(f"Member {member} of group {group['name']} not found on tenant {tenant_id}.")
+            missing_members.remove(member)
+    additional_members = [member for member in existing_group_members if member not in group_members]
+
+    if not missing_members and not additional_members:
         log('Group members match.')
     else:
-        members = existing_group_members
-        missing_members = [member for member in group_members if member not in existing_group_members]
-        # check if missing members exist on the tenant
-        for member in missing_members:
-            if not get_user(username=member, digest_login=digest_login, tenant_url=tenant_url):
-                print(f"Member {member} of group {group['name']} not found on tenant {tenant_id}.")
-                missing_members.remove(member)
-        additional_members = [member for member in existing_group_members if member not in group_members]
-        print("Missing members: ", missing_members)
-        print("Additional members: ", additional_members)
-
-        if missing_members or additional_members:
-            update_answer = get_configurable_answer(
-                options=['y', 'n', 'a', 'r'],
-                short_descriptions=["Yes", "No", "Add missing members", "Remove additional members"],
-                long_descriptions=["updating group members", "skipping group",
-                                   "only adding missing members", "only removing additional members"],
-                question=f"Group members for group {group['name']} do not match. Update group?\n"
+        if missing_members:
+            print("Missing members: ", missing_members)
+            action_allowed = check_or_ask_for_permission(
+                target_type='group',
+                action='add missing members',
+                target_name=group['name'],
+                tenant_id=tenant_id,
+                option_i=True
             )
-        if missing_members and update_answer in ['y', 'a']:
-            answer = get_configurable_answer(
-                options=['y', 'n', 'i'],
-                short_descriptions=["Yes, all", "No, none", "individual"],
-                long_descriptions=["adding missing members", "skipping missing members", "selecting individually"],
-                question=f"Add missing group members from the config file to group {group['name']}?"
-            )
-            if answer == 'y':
-                members += missing_members
-            elif answer == 'i':
+            if action_allowed == 'i':
                 for member in missing_members:
-                    answer = get_yes_no_answer(f"Add member {member} to group {group['name']}?")
-                    if answer:
+                    action_allowed = get_yes_no_answer(f"Add member {member} to group {group['name']}?")
+                    if action_allowed:
                         members.append(member)
+            elif action_allowed:
+                for member in missing_members:
+                    members.append(member)
 
-        if additional_members and additional_members[0] and update_answer in ['y', 'r']:
-            answer = get_configurable_answer(
-                options=['y', 'n', 'i'],
-                short_descriptions=["Yes, all", "No, none", "individual"],
-                long_descriptions=["removing all additional members",
-                                   "keeping additional members", "selecting individually"],
-                question=f"Remove group members which are not in the config file from group {group['name']}?"
+        if additional_members:
+            print("Additional members: ", additional_members)
+            action_allowed = check_or_ask_for_permission(
+                target_type='group',
+                action='remove additional members',
+                target_name=group['name'],
+                tenant_id=tenant_id,
+                option_i=True
             )
-            if answer == 'y':
-                members -= additional_members
-            elif answer == 'i':
+            if action_allowed == 'i':
                 for member in additional_members:
-                    answer = get_yes_no_answer(f"remove member {member} from group {group['name']}?")
-                    if answer:
+                    action_allowed = get_yes_no_answer(f"remove member {member} from group {group['name']}?")
+                    if action_allowed:
                         members.remove(member)
+            elif action_allowed:
+                for member in additional_members:
+                    members.remove(member)
 
-        members = ",".join(list(dict.fromkeys(members)))
-        update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
-                     members=members, name=group['name'])
+        # Update Group if there are any changes
+        if members != existing_group_members:
+            # members = ",".join(list(dict.fromkeys(members)))
+            members = ",".join(members)
+            update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
+                         group=group, members=members)
+
+    return
 
 
 def check_group_roles(tenant_url, digest_login, group, existing_group, tenant_id):
@@ -157,60 +176,60 @@ def check_group_roles(tenant_url, digest_login, group, existing_group, tenant_id
 
     group_roles = extract_roles_from_group(group=group, tenant_id=tenant_id).split(",")
     existing_group_roles = sorted(existing_group['roles'].split(","))
+
     log("Config group roles: ", group_roles)
     log("Existing group roles: ", existing_group_roles)
+
+    roles = existing_group_roles.copy()
+    missing_roles = [role for role in group_roles if role not in existing_group_roles]
+    additional_roles = [role for role in existing_group_roles if role not in group_roles]
 
     if group_roles == existing_group_roles:
         log('Group roles match.')
     else:
-        roles = existing_group_roles
-        missing_roles = [role for role in group_roles if role not in existing_group_roles]
-        additional_roles = [role for role in existing_group_roles if role not in group_roles]
-        print("Missing roles: ", missing_roles)
-        print("Additional roles: ", additional_roles)
-
-        update_answer = get_configurable_answer(
-            options=['y', 'n', 'a', 'r'],
-            short_descriptions=["Yes", "No", "Add missing roles", "Remove additional roles"],
-            long_descriptions=["updating group roles", "skipping group",
-                               "only adding missing roles", "only removing additional roles"],
-            question=f"Group roles for group {group['name']} do not match. Update group?\n"
-        )
-        if missing_roles and update_answer in ['y', 'a']:
-            answer = get_configurable_answer(
-                options=['y', 'n', 'i'],
-                short_descriptions=["Yes, all", "No, none", "individual"],
-                long_descriptions=["adding missing roles", "skipping missing roles", "selecting individually"],
-                question=f"Add missing group roles from the config file to group {group['name']}?\n"
+        if missing_roles:
+            print("Missing roles: ", missing_roles)
+            action_allowed = check_or_ask_for_permission(
+                target_type='group',
+                action='add missing group roles',
+                target_name=group['name'],
+                tenant_id=tenant_id,
+                option_i=True
             )
-            if answer == 'y':
-                roles += missing_roles
-            elif answer == 'i':
+            if action_allowed == 'i':
                 for role in missing_roles:
-                    answer = get_yes_no_answer(f"Add role {role} to group {group['name']}?")
-                    if answer:
+                    action_allowed = get_yes_no_answer(f"Add role {role} to group {group['name']}?")
+                    if action_allowed:
                         roles.append(role)
+            elif action_allowed:
+                for role in missing_roles:
+                    roles.append(role)
 
-        if additional_roles and update_answer in ['y', 'r']:
-            answer = get_configurable_answer(
-                options=['y', 'n', 'i'],
-                short_descriptions=["Yes, all", "No, none", "individual"],
-                long_descriptions=["removing all additional roles",
-                                   "keeping additional roles", "selecting individually"],
-                question=f"Remove group roles which are not in the config file from group {group['name']}?"
+        if additional_roles:
+            print("Additional roles: ", additional_roles)
+            action_allowed = check_or_ask_for_permission(
+                target_type='group',
+                action='remove additional group roles',
+                target_name=group['name'],
+                tenant_id=tenant_id,
+                option_i=True
             )
-            if answer == 'y':
-                roles -= additional_roles
-            elif answer == 'i':
+            if action_allowed == 'i':
                 for role in additional_roles:
-                    answer = get_yes_no_answer(f"remove role {role} from group {group['name']}?")
-                    if answer:
+                    action_allowed = get_yes_no_answer(f"remove role {role} from group {group['name']}?")
+                    if action_allowed:
                         roles.remove(role)
+            elif action_allowed:
+                for role in additional_roles:
+                    roles.remove(role)
 
-        print("roles: ", roles)
-        roles = ",".join(list(dict.fromkeys(roles)))
-        update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
-                     roles=roles, name=group['name'])
+        if roles != existing_group_roles:
+            # roles = ",".join(list(dict.fromkeys(roles)))
+            roles = ",".join(roles)
+            update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
+                     group=group, roles=roles)
+
+        return
 
 
 def generate_group_identifier(group, tenant_id):
@@ -258,15 +277,17 @@ def extract_roles_from_group(group, tenant_id):
     return roles
 
 
-def extract_members_from_group(group, tenant_id):
+def extract_members_from_group(group, tenant_id, as_string=False):
     """
     Does not check if member exists on tenant
     :param group:
     :param tenant_id:
-    :return: Comma separated list of members (e.g. "guy1,guy2")
+    :param as_string:
+    :return: Comma separated string of members (e.g. "guy1,guy2") or list of members.
     """
     members = [member['uid'] for member in group['members'] if member['tenants'] in ['all', tenant_id]]
-    members = ",".join(sorted(members))
+    if as_string:
+        members = ",".join(sorted(members))
 
     return members
 
@@ -290,7 +311,7 @@ def update_group(digest_login, tenant_url, tenant_id,
         if not name:
             name = group['name']
         if not members:
-            members = extract_members_from_group(group, tenant_id)
+            members = extract_members_from_group(group, tenant_id, as_string=True)
         if not roles:
             roles = extract_roles_from_group(group, tenant_id)
         if not description:
@@ -322,11 +343,11 @@ def update_group(digest_login, tenant_url, tenant_id,
 
 
 def create_group(digest_login, tenant_url, tenant_id, group):
-    log(f"Try to create group {group['name']} ... ")
+    log(f"trying to create group {group['name']}. ")
 
     url = f'{tenant_url}/api/groups/'
     # extract members and roles
-    members = extract_members_from_group(group, tenant_id).split(",")
+    members = extract_members_from_group(group, tenant_id)
     # check if member exist on tenant
     for member in members:
         if not get_user(username=member, digest_login=digest_login, tenant_url=tenant_url):
@@ -341,6 +362,7 @@ def create_group(digest_login, tenant_url, tenant_id, group):
         'roles': roles,
         'members': members,
     }
+
     try:
         response = post_request(url, digest_login, '/api/groups/', data=data)
     except RequestError as err:

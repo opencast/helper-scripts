@@ -1,3 +1,5 @@
+import json
+
 from rest_requests.get_response_content import get_json_content
 from rest_requests.request import post_request, get_request
 
@@ -23,6 +25,33 @@ def start_workflow(base_url, digest_login, workflow_definition, media_package):
     data = {'definition': workflow_definition, 'mediapackage': media_package}
 
     post_request(url, digest_login, element_description="/workflow/start", data=data)
+
+
+def start_task(base_url, digest_login, workflow_definition, event_id):
+    """
+        Start a workflow on a media package.
+
+    :param base_url: The URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param workflow_definition: The workflow definition
+    :type workflow_definition: str
+    :param event_id: the event id
+    :type event_id: str
+    :return: The workflow instance
+    :rtype: str
+    :raise RequestError:
+    """
+
+    url = '{}/admin-ng/tasks/new'.format(base_url)
+    # hardcode workflow definition and ingest start date since I don't think it's actually relevant
+    metadata = {'workflow': workflow_definition,
+                'configuration': {'{}'.format(event_id): {"workflowDefinitionId": "fast",
+                                                          "ingest_start_date": "20210607T020914Z"}}}
+    data = {'metadata': json.dumps(metadata)}
+
+    post_request(url, digest_login, element_description="/admin-ng/tasks/new", data=data)
 
 
 def get_workflow_instances(base_url, digest_login, params):

@@ -2,12 +2,13 @@ import yaml
 import json
 from args.args_parser import get_args_parser
 from args.args_error import args_error
-from rest_requests.request import get_request, post_request
-from rest_requests.request_error import RequestError
+# from rest_requests.request import get_request, post_request
+# from rest_requests.request_error import RequestError
 from rest_requests.basic_requests import get_tenants
 
 
 VERBOSE_FLAG = True
+
 
 def parse_args():
     """
@@ -35,8 +36,14 @@ def parse_args():
     if len(args.environment) > 1:
         args_error(parser, "You can only provide one environment. Either 'staging' or 'production'")
 
-    if not args.tenantid: args.tenantid = ['']
-    if not args.check: args.check = ['all']
+    if not args.tenantid:
+        args.tenantid = ['']
+
+    if not args.check:
+        args.check = ['all']
+    elif args.check[0] not in ['users', 'groups', 'cast', 'capture']:
+        args_error(parser, "The check should be 'users', 'groups', 'cast' or 'capture'")
+
     global VERBOSE_FLAG
     if args.verbose and args.verbose[0] == "True":
         VERBOSE_FLAG = True

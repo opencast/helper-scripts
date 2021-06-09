@@ -127,7 +127,7 @@ def check_group_members(group, existing_group, tenant_id):
     members = existing_group_members.copy()
     missing_members = [member for member in group_members if member not in existing_group_members]
     for member in missing_members:
-        if not get_user(username=member, digest_login=DIGEST_LOGIN, tenant_url=tenant_url):
+        if not get_user(username=member, tenant_id=tenant_id):
             log(f"Member {member} of group {group['name']} not found on tenant {tenant_id}.")
             missing_members.remove(member)
     additional_members = [member for member in existing_group_members if member not in group_members]
@@ -361,7 +361,7 @@ def create_group(group, tenant_id):
     members = extract_members_from_group(group, tenant_id)
     # check if member exist on tenant
     for member in members:
-        if not get_user(username=member, digest_login=DIGEST_LOGIN, tenant_url=tenant_url):
+        if not get_user(username=member, tenant_id=tenant_id):
             print(f"Member {member} does not exist.")
             members.remove(member)
     members = ",".join(members)

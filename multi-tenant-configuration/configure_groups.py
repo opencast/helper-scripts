@@ -10,24 +10,71 @@ from user_interaction import check_or_ask_for_permission
 from parsing_configurations import log
 
 
+CONFIG = None
+GROUP_CONFIG = None
+DIGEST_LOGIN = None
+
+
 def check_groups(tenant_id, digest_login, group_config, config):
     log('\nStart checking groups for tenant: ', tenant_id)
 
-    tenant_url = config.tenant_urls[tenant_id]
+    global DIGEST_LOGIN
+    global GROUP_CONFIG
+    global CONFIG
+    DIGEST_LOGIN = digest_login
+    GROUP_CONFIG = group_config
+    CONFIG = config
+    # tenant_url = CONFIG.tenant_urls[tenant_id]
+
     # For all Groups:
     for group in group_config['groups']:
         # Check group
         if group['tenants'] == 'all' or group['tenants'] == tenant_id:
             group['identifier'] = generate_group_identifier(group, tenant_id)
-            check_group(tenant_url=tenant_url, digest_login=digest_login, group=group, tenant_id=tenant_id)
+            check_group(group=group, tenant_id=tenant_id)
 
 
-def check_if_group_exists(tenant_url, digest_login, group, tenant_id):
-    log(f"check if group {group['name']} exists ...")
+def check_group(group, tenant_id):
+    log(f"\nCheck group {group['name']} with id {group['identifier']}")
 
+    # Check if group exists.
+    existing_group = check_if_group_exists(group, tenant_id)
+    if not existing_group:
+        # Create group if it does not exist.
+        # Ask for permission
+        action_allowed = check_or_ask_for_permission(
+            target_type='group',
+            action='create',
+            target_name=group['name'],
+            tenant_id=tenant_id
+        )
+        if action_allowed:
+            create_group(group=group, tenant_id=tenant_id)
+    else:
+        # Check if group name and description match the name and description provided in the configuration.
+        # Update them if they do not match. (Asks for permission)
+        check_group_description(group=group, existing_group=existing_group, tenant_id=tenant_id)
+        # Check if group members exist.
+        # ToDo Create missing group members. (Asks for permission) ?
+        # Check if group members match the group members provided in the configuration.
+        # Add or remove members accordingly.
+        check_group_members(group=group, existing_group=existing_group, tenant_id=tenant_id)
+        # Check if group roles match the group roles provided in the configuration.
+        # Update group roles if they do not match.(Asks for permission)
+        check_group_roles(group=group, existing_group=existing_group, tenant_id=tenant_id)
+
+        # Check external API accounts of members. Add missing API accounts.
+        # Check group type. If group is closed, remove unexpected members.
+        # Update group members. (Asks for permission)
+
+
+def check_if_group_exists(group, tenant_id):
+    log(f"check if group {group['name']} exists.")
+
+    tenant_url = CONFIG.tenant_urls[tenant_id]
     url = '{}/api/groups/{}'.format(tenant_url, group['identifier'])
     try:
-        response = get_request(url, digest_login, '/api/groups/')
+        response = get_request(url, DIGEST_LOGIN, '/api/groups/')
         return response.json()
     except RequestError as err:
         if err.get_status_code() == "404":
@@ -39,43 +86,7 @@ def check_if_group_exists(tenant_url, digest_login, group, tenant_id):
         return False
 
 
-def check_group(tenant_url, digest_login, group, tenant_id):
-    log(f"\nCheck group {group['name']} with id {group['identifier']}")
-
-    # Check if group exists.
-    existing_group = check_if_group_exists(tenant_url, digest_login, group, tenant_id)
-    if not existing_group:
-        # Create group if it does not exist. Ask for permission
-        action_allowed = check_or_ask_for_permission(
-            target_type='group',
-            action='create',
-            target_name=group['name'],
-            tenant_id=tenant_id
-        )
-        if action_allowed:
-            create_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id, group=group)
-    else:
-        # Check if group name and description match the name and description provided in the configuration.
-        # Update them if they do not match. (Asks for permission)
-        check_group_description(tenant_url=tenant_url, digest_login=digest_login,
-                                group=group, existing_group=existing_group, tenant_id=tenant_id)
-        # Check if group members exist.
-        # Create missing group members. (Asks for permission)
-        # Check if group members match the group members provided in the configuration.
-        # Add or remove members accordingly.
-        check_group_members(tenant_url=tenant_url, digest_login=digest_login,
-                            group=group, existing_group=existing_group, tenant_id=tenant_id)
-        # Check if group roles match the group roles provided in the configuration.
-        # Update group roles if they do not match.(Asks for permission)
-        check_group_roles(tenant_url=tenant_url, digest_login=digest_login,
-                          group=group, existing_group=existing_group, tenant_id=tenant_id)
-
-        # Check external API accounts of members. Add missing API accounts.
-        # Check group type. If group is closed, remove unexpected members.
-        # Update group members. (Asks for permission)
-
-
-def check_group_description(tenant_url, digest_login, group, existing_group, tenant_id):
+def check_group_description(group, existing_group, tenant_id):
     log(f"check names and description for group {group['name']}.")
     # ToDo: does it really makes sense to check for the name?
     #  This seems to be already done when checking for the existence of the group.
@@ -93,8 +104,6 @@ def check_group_description(tenant_url, digest_login, group, existing_group, ten
         )
         if action_allowed:
             update_group(
-                digest_login=digest_login,
-                tenant_url=tenant_url,
                 tenant_id=tenant_id,
                 description=group['description'],
                 name=group['name']
@@ -103,8 +112,11 @@ def check_group_description(tenant_url, digest_login, group, existing_group, ten
     return
 
 
-def check_group_members(tenant_url, digest_login, group, existing_group, tenant_id):
+def check_group_members(group, existing_group, tenant_id):
     log(f"Check members for group {group['name']}.")
+
+    # ToDo remove this also from configure_users
+    tenant_url = CONFIG.tenant_urls[tenant_id]
 
     group_members = extract_members_from_group(group=group, tenant_id=tenant_id)
     existing_group_members = sorted(filter(None, existing_group['members'].split(",")))
@@ -115,7 +127,7 @@ def check_group_members(tenant_url, digest_login, group, existing_group, tenant_
     members = existing_group_members.copy()
     missing_members = [member for member in group_members if member not in existing_group_members]
     for member in missing_members:
-        if not get_user(username=member, digest_login=digest_login, tenant_url=tenant_url):
+        if not get_user(username=member, digest_login=DIGEST_LOGIN, tenant_url=tenant_url):
             log(f"Member {member} of group {group['name']} not found on tenant {tenant_id}.")
             missing_members.remove(member)
     additional_members = [member for member in existing_group_members if member not in group_members]
@@ -163,13 +175,12 @@ def check_group_members(tenant_url, digest_login, group, existing_group, tenant_
         if members != existing_group_members:
             # members = ",".join(list(dict.fromkeys(members)))
             members = ",".join(members)
-            update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
-                         group=group, members=members)
+            update_group(tenant_id=tenant_id, group=group, members=members)
 
     return
 
 
-def check_group_roles(tenant_url, digest_login, group, existing_group, tenant_id):
+def check_group_roles(group, existing_group, tenant_id):
     log(f"Check roles for group {group['name']}.")
 
     group_roles = extract_roles_from_group(group=group, tenant_id=tenant_id).split(",")
@@ -224,8 +235,7 @@ def check_group_roles(tenant_url, digest_login, group, existing_group, tenant_id
         if roles != existing_group_roles:
             # roles = ",".join(list(dict.fromkeys(roles)))
             roles = ",".join(roles)
-            update_group(digest_login=digest_login, tenant_url=tenant_url, tenant_id=tenant_id,
-                     group=group, roles=roles)
+            update_group(tenant_id=tenant_id, group=group, roles=roles)
 
         return
 
@@ -236,11 +246,12 @@ def generate_group_identifier(group, tenant_id):
     return group['name'].replace(' ', '_').lower()
 
 
-def get_groups_from_tenant(tenant_url, digest_login):
+def get_groups_from_tenant(tenant_id):
 
+    tenant_url = CONFIG.tenant_urls[tenant_id]
     url = '{}/api/groups/'.format(tenant_url)
     try:
-        response = get_request(url, digest_login, '/api/groups/')
+        response = get_request(url, DIGEST_LOGIN, '/api/groups/')
     except RequestError as err:
         print('RequestError: ', err)
         return False
@@ -297,8 +308,7 @@ def group_description_template(description, tenant_id):
     return description
 
 
-def update_group(digest_login, tenant_url, tenant_id,
-                 group=None, name=None, description=None, roles=None, members=None):
+def update_group(tenant_id, group=None, name=None, description=None, roles=None, members=None):
     log(f"Try to update group ... ")
     if not name and not group:
         log("Cannot update group without a specified name.")
@@ -316,6 +326,7 @@ def update_group(digest_login, tenant_url, tenant_id,
             description = group_description_template(group['description'], tenant_id)
     else:
         group_id = generate_group_identifier(group={'name': name}, tenant_id=tenant_id)
+    tenant_url = CONFIG.tenant_urls[tenant_id]
     url = f'{tenant_url}/api/groups/{group_id}'
 
     data = {
@@ -326,7 +337,7 @@ def update_group(digest_login, tenant_url, tenant_id,
     }
     print('data ', data)
     try:
-        response = put_request(url, digest_login, '/api/groups/{groupId}', data=data)
+        response = put_request(url, DIGEST_LOGIN, '/api/groups/{groupId}', data=data)
     except RequestError as err:
         if err.get_status_code() == "400": # ToDo: check if this is actually 404
             print(f"Bad Request: Group with name {name} does not exist.")
@@ -340,15 +351,17 @@ def update_group(digest_login, tenant_url, tenant_id,
     return response
 
 
-def create_group(digest_login, tenant_url, tenant_id, group):
+def create_group(group, tenant_id):
     log(f"trying to create group {group['name']}. ")
 
+    tenant_url = CONFIG.tenant_urls[tenant_id]
     url = f'{tenant_url}/api/groups/'
+
     # extract members and roles
     members = extract_members_from_group(group, tenant_id)
     # check if member exist on tenant
     for member in members:
-        if not get_user(username=member, digest_login=digest_login, tenant_url=tenant_url):
+        if not get_user(username=member, digest_login=DIGEST_LOGIN, tenant_url=tenant_url):
             print(f"Member {member} does not exist.")
             members.remove(member)
     members = ",".join(members)
@@ -362,7 +375,7 @@ def create_group(digest_login, tenant_url, tenant_id, group):
     }
 
     try:
-        response = post_request(url, digest_login, '/api/groups/', data=data)
+        response = post_request(url, DIGEST_LOGIN, '/api/groups/', data=data)
     except RequestError as err:
         if err.get_status_code() == "400":
             print(f"Bad Request: Group with name {group['name']} could not be created.")

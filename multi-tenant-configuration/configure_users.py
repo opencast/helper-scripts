@@ -4,7 +4,8 @@
 # from args.args_error import args_error
 from rest_requests.request import get_request, post_request
 from rest_requests.request_error import RequestError
-from input_output.input import get_yes_no_answer
+# from input_output.input import get_yes_no_answer
+from user_interaction import check_or_ask_for_permission
 from parsing_configurations import __abort_script, log
 
 
@@ -23,26 +24,42 @@ def check_users(tenant_id, digest_login, env_conf, config):
     ENV_CONFIG = env_conf
     CONFIG = config
 
-    external_api_accounts = {}
-    for tenant in ENV_CONFIG['opencast_organizations']:
-        id = tenant['id']
-        # ToDo check if this is necessary
-        if id != "dummy":
-            external_api_accounts[id] = tenant['external_api_accounts']
+    # Check and configure System User Accounts & External API User Accounts:
+    # For all organizations:
+    for organization in ENV_CONFIG['opencast_organizations']:
+        if organization['id'] == tenant_id:                         # ToDo or 'all' ?
+            for user in organization['external_api_accounts']:
+                # For all Users                                     # ToDo System & External API ?
+                # check and configure user
+                check_user(user=user, tenant_id=tenant_id)
 
-    if not tenant_id:
-        for_all_tenants = get_yes_no_answer("Create User for all tenants?")
-        if not for_all_tenants:
-            __abort_script("Okay, not doing anything.")
-        else:
-            # create user account for all tenants
-            for tenant_id in CONFIG.tenant_ids:
-                for account in external_api_accounts[tenant_id]:
-                    create_user(account, tenant_id)
+
+def check_user(user, tenant_id):
+    log(f"Check user {user['name']} on tenant {tenant_id}.")
+
+    # Check if user exists
+    existing_user = get_user(username=user['username'], tenant_id=tenant_id)
+    if not existing_user:
+        # create user if it does not exist on tenant (Ask for permission)
+        action_allowed = check_or_ask_for_permission(
+            target_type='user',
+            action='create',
+            target_name=user['name'],
+            tenant_id=tenant_id
+        )
+        if action_allowed:
+            create_user(account=user, tenant_id=tenant_id)
     else:
-        # create user accounts on the specified tenant
-        for account in external_api_accounts[tenant_id]:
-            create_user(account, tenant_id)
+        print('User already exist.')
+        # ToDo checks
+
+        # Check if Account has External API access. (/api/info/me & /api/info/me/roles)
+        check_api_access(user=user, tenant_id=tenant_id)
+
+        # Check if Roles (from API request?) match roles in the configuration file.
+
+        # If no External API access or roles do not match:
+        # Update account (Asks for permission)
 
 
 def get_roles_as_json_array(account):
@@ -58,7 +75,7 @@ def create_user(account, tenant_id):
     :param tenant_id:       String
     :return:
     """
-    log(f"create user {account['username']}")
+    log(f"Create user {account['username']}")
 
     tenant_url = CONFIG.tenant_urls[tenant_id]
     url = '{}/admin-ng/users/'.format(tenant_url)
@@ -75,7 +92,7 @@ def create_user(account, tenant_id):
     except RequestError as err:
         if err.get_status_code() == "409":
             print("Conflict, a user with username {} already exist.".format(account['username']))
-        if err.get_status_code() == "403":
+        elif err.get_status_code() == "403":
             print("Forbidden, not enough permissions to create a user with a admin role.")
         return False
     except Exception as e:
@@ -83,6 +100,26 @@ def create_user(account, tenant_id):
         return False
 
     return response
+
+
+def check_api_access(user, tenant_id):
+    # ToDo
+
+    tenant_url = CONFIG.tenant_urls[tenant_id]
+    url = '{}/api/info/me/'.format(tenant_url)
+    data = {
+        'tenant_id': tenant_id,
+        'username': user['username'],
+        'password': user['password']
+    }
+
+    try:
+        response = get_request(url, DIGEST_LOGIN, '/api/info/me', data=data)
+        print(response.json())
+    except Exception as e:
+        print(e)
+
+    return
 
 
 def get_user(username, tenant_id):

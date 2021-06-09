@@ -9,7 +9,7 @@ from parsing_configurations import __abort_script, log
 
 
 def check_users(tenant_id, digest_login, env_conf, config):
-    log('\nstart checking users for tenant: ', tenant_id)
+    log('\nStart checking users for tenant: ', tenant_id)
 
     external_api_accounts = {}
     for tenant in env_conf['opencast_organizations']:

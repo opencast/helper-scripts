@@ -27,14 +27,21 @@ def main():
     script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
     group_config = read_yaml_file(script_config.group_path)                         # read group config file
 
+    # if tenant is not given, we perform the checks for all tenants
+    if tenant_id:
+        tenants_to_check = [tenant_id]
+    else:
+        tenants_to_check = script_config.tenant_ids
+
     ###   Start checks   ###
-    if check == 'all':
-        check_users(tenant_id=tenant_id, digest_login=digest_login, env_conf=env_conf, config=script_config)
-        check_groups(tenant_id=tenant_id, digest_login=digest_login, group_config=group_config, config=script_config)
-    elif check == 'users':
-        check_users(tenant_id=tenant_id, digest_login=digest_login, env_conf=env_conf, config=script_config)
-    elif check == 'groups':
-        check_groups(tenant_id=tenant_id, digest_login=digest_login, group_config=group_config, config=script_config)
+    for tenant_id in tenants_to_check:
+        if check == 'all':
+            check_users(tenant_id=tenant_id, digest_login=digest_login, env_conf=env_conf, config=script_config)
+            check_groups(tenant_id=tenant_id, digest_login=digest_login, group_config=group_config, config=script_config)
+        elif check == 'users':
+            check_users(tenant_id=tenant_id, digest_login=digest_login, env_conf=env_conf, config=script_config)
+        elif check == 'groups':
+            check_groups(tenant_id=tenant_id, digest_login=digest_login, group_config=group_config, config=script_config)
 
 
 if __name__ == '__main__':

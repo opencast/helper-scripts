@@ -65,6 +65,7 @@ def parse_config(config, env_config, digest_login):
 
     # ToDo should mh_default_org be removed from tenant_ids?
     config.tenant_ids = get_tenants(config.base_url, digest_login)
+    config.tenant_ids.remove('mh_default_org')
 
     if not (hasattr(config, 'tenant_urls') and config.tenant_urls):
         config.tenant_urls = {}

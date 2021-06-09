@@ -1,7 +1,7 @@
-import yaml
-import json
-from args.args_parser import get_args_parser
-from args.args_error import args_error
+# import yaml
+# import json
+# from args.args_parser import get_args_parser
+# from args.args_error import args_error
 from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
 from configure_users import get_user
@@ -9,16 +9,13 @@ from input_output.input import get_yes_no_answer, get_configurable_answer
 from user_interaction import check_or_ask_for_permission
 from parsing_configurations import log
 
+
 def check_groups(tenant_id, digest_login, group_config, config):
-    log('\nstart checking groups for tenant: ', tenant_id)
-    # ToDo handle case if no tenant_id is given
+    log('\nStart checking groups for tenant: ', tenant_id)
 
     tenant_url = config.tenant_urls[tenant_id]
     # For all Groups:
     for group in group_config['groups']:
-        # check for all tenants if tenant_id is not given
-        if not tenant_id:
-            tenant_id = group['tenants']
         # Check group
         if group['tenants'] == 'all' or group['tenants'] == tenant_id:
             group['identifier'] = generate_group_identifier(group, tenant_id)
@@ -64,7 +61,8 @@ def check_group(tenant_url, digest_login, group, tenant_id):
                                 group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group members exist.
         # Create missing group members. (Asks for permission)
-        # Check if group members match the group members provided in the configuration. Add or remove members accordingly.
+        # Check if group members match the group members provided in the configuration.
+        # Add or remove members accordingly.
         check_group_members(tenant_url=tenant_url, digest_login=digest_login,
                             group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group roles match the group roles provided in the configuration.

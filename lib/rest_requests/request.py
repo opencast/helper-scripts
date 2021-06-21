@@ -11,7 +11,7 @@ from rest_requests.request_error import RequestError
 
 
 def get_request(url, digest_login, element_description, asset_type_description=None, asset_description=None,
-                stream=False):
+                stream=False, headers=None):
     """
     Make a get request to the given url with the given digest login. If the request fails with an error or a status
     code != 200, a Request Error with the error message /status code and the given descriptions is thrown.
@@ -28,13 +28,18 @@ def get_request(url, digest_login, element_description, asset_type_description=N
     :type asset_description: str
     :param stream: Whether to stream response
     :type stream: bool
+    :param headers: The headers to include in the request
+    :type headers: dict
     :return: response
     :raise RequestError:
     """
 
+    auth = HTTPDigestAuth(digest_login.user, digest_login.password)
+    headers = headers if headers else {}
+    headers["X-Requested-Auth"] = "Digest"
+
     try:
-        response = requests.get(url, auth=HTTPDigestAuth(digest_login.user, digest_login.password),
-                                headers={"X-Requested-Auth": "Digest"}, stream=stream)
+        response = requests.get(url, auth=auth, headers=headers, stream=stream)
     except Exception as e:
         raise RequestError.with_error(url, str(e), element_description, asset_type_description, asset_description)
 

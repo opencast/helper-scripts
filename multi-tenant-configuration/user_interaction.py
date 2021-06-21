@@ -1,15 +1,16 @@
 from parsing_configurations import log
-from collections import namedtuple
+# from collections import namedtuple
 import re
 
 
-Permission = namedtuple('Permission', ['tenant', 'target', 'permission_value'])
+# Permission = namedtuple('Permission', ['tenant', 'target', 'permission_value'])
 permissions = {
     'user': {},
     'group': {}
 }
 ANSWER_PATTERN = r"^[yn]$|^[yn][ta][ta]$"
 HELP_OPTION = 'h'
+ALL = 'all'
 
 
 def check_or_ask_for_permission(target_type, action, target_name, tenant_id, option_i=False) -> bool:
@@ -29,37 +30,52 @@ def get_permission(target_type, action, target_name, tenant_id) -> bool:
 
     log('permissions: ', permissions)
 
-    permission = None
-    target_permission = None
-    tenant_permission = None
+    # permission = None
+    # target_permission = None
+    # tenant_permission = None
 
-    try:
-        for p in permissions[target_type][action]:
-            # most specific permission
-            if p.tenant == tenant_id and p.target == target_name:
-                permission = p.permission_value
-                break
-            # either tenant or target specific
-            elif p.tenant == 'all' and p.target == target_name:
-                target_permission = p.permission_value
-            elif p.tenant == tenant_id and p.target == 'all':
-                tenant_permission = p.permission_value
-            # most general permission
-            elif p.tenant == 'all' and p.target == 'all':
-                permission = p.permission_value
+    key = __build_key(action, tenant_id, target_name)
+    if key in permissions[target_type].keys():
+        return permissions[target_type][key]
+    key = __build_key(action, tenant='all', target=target_name)
+    if key in permissions[target_type].keys():
+        return permissions[target_type][key]
+    key = __build_key(action, tenant=tenant_id, target='all')
+    if key in permissions[target_type].keys():
+        return permissions[target_type][key]
+    key = __build_key(action, tenant='all', target='all')
+    if key in permissions[target_type].keys():
+        return permissions[target_type][key]
 
-        # target permission is prioritized over tenant permission
-        # both will overwrite a general permission
-        if target_permission is not None:
-            permission = target_permission
-        elif tenant_permission is not None:
-            permission = tenant_permission
+    return None
+
+    # try:
+    #     for p in permissions[target_type][action]:
+    #         # most specific permission
+    #         if p.tenant == tenant_id and p.target == target_name:
+    #             permission = p.permission_value
+    #             break
+    #         # either tenant or target specific
+    #         elif p.tenant == 'all' and p.target == target_name:
+    #             target_permission = p.permission_value
+    #         elif p.tenant == tenant_id and p.target == 'all':
+    #             tenant_permission = p.permission_value
+    #         # most general permission
+    #         elif p.tenant == 'all' and p.target == 'all':
+    #             permission = p.permission_value
+    #
+    #     # target permission is prioritized over tenant permission
+    #     # both will overwrite a general permission
+    #     if target_permission is not None:
+    #         permission = target_permission
+    #     elif tenant_permission is not None:
+    #         permission = tenant_permission
 
     # if no permission is found, None is returned
-    except KeyError:
-        print('no permission found')
-
-    return permission
+    # except KeyError:
+    #     print('no permission found')
+    #
+    # return permission
 
 
 def ask_user(target_type, action, target_name, tenant_id, option_i=False) -> str:
@@ -98,6 +114,10 @@ def parsable(answer) -> bool:
         return False
 
 
+def __build_key(action, tenant, target):
+    return action + ':' + tenant + ':' + target
+
+
 def process_answer(answer, target_type, action, target_name, tenant_id, option_i) -> bool:
 
     # simple yes or no case (not stored)
@@ -113,12 +133,15 @@ def process_answer(answer, target_type, action, target_name, tenant_id, option_i
     permission_value = True if answer.startswith('y') else False
     tenant = 'all' if answer[1] == 'a' else tenant_id
     target = 'all' if answer[2] == 'a' else target_name
-    p = Permission(tenant, target, permission_value)
+    # p = Permission(tenant, target, permission_value)
+    key = __build_key(action, tenant, target)
+    permissions[target_type][key] = permission_value
 
-    try:
-        permissions[target_type][action].append(p)
-    except:
-        permissions[target_type][action] = [p]
+    # try:
+    #     # permissions[target_type][action].append(p)
+    #     permissions[target_type][action][tenant][target] = permission_value
+    # except:
+    #     permissions[target_type][action] = [p]
 
     return permission_value
 

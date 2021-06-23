@@ -5,7 +5,7 @@
 from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
 from configure_users import get_user
-from input_output.input import get_yes_no_answer, get_configurable_answer
+from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
 from parsing_configurations import log
 
@@ -310,6 +310,7 @@ def group_description_template(description, tenant_id):
 
 def update_group(tenant_id, group=None, name=None, description=None, roles=None, members=None):
     log(f"Try to update group ... ")
+
     if not name and not group:
         log("Cannot update group without a specified name.")
         return False
@@ -335,7 +336,7 @@ def update_group(tenant_id, group=None, name=None, description=None, roles=None,
         'roles': roles,
         'members': members,
     }
-    print('data ', data)
+
     try:
         response = put_request(url, DIGEST_LOGIN, '/api/groups/{groupId}', data=data)
     except RequestError as err:
@@ -348,6 +349,7 @@ def update_group(tenant_id, group=None, name=None, description=None, roles=None,
         return False
 
     log(f"Updated group {name}.")
+
     return response
 
 

@@ -4,17 +4,19 @@ import sys
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
 import config
-# from data_handling.elements import get_id
-# from data_handling.errors import MediaPackageError
-# from data_handling.parse_manifest import parse_manifest_from_endpoint
-# from import_mp.import_mp import import_mp
-# from input_output.input import get_yes_no_answer
-# from rest_requests.api_requests import get_events_of_series
-# from rest_requests.assetmanager_requests import get_media_package
-from rest_requests.request import get_request, post_request
+from rest_requests.request import get_request, post_request, big_post_request
 from rest_requests.request_error import RequestError
 from parse_args import parse_args
 from args.digest_login import DigestLogin
+import string
+import random
+
+
+alphabet = list(string.ascii_letters)
+for i in range(10):
+    alphabet.append(str(i))
+for c in ['Ä','Ö','Ü','ä','ö','ü']:
+    alphabet.append(c)
 
 
 def main():
@@ -22,7 +24,7 @@ def main():
     Populate the specified Opencast system with random sample events
     """
 
-    # use api/events/{id}
+    # use api/events/{id} ?
 
     target_url, number_of_events = parse_args()
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
@@ -39,25 +41,42 @@ def main():
 
     # test request
     url = f'{target_url}/api/info/me'
-    response = get_request(url, digest_login, "events")
-    print(response.json())
+    try:
+        response = get_request(url, digest_login, "events")
+    except:
+        __abort_script("Something went wrong. No Connection to API. Stopping script. ")
 
     for i in range(number_of_events):
         try:
             # create event
-            url = f'{target_url}/api/info/me'
+            url = f'{target_url}/ingest/addMediaPackage/fast'
+            files = [config.test_video_path]
 
             data = {
-
+                'creator': __generate_random_name(),
+                'title': __generate_random_name(),
+                'flavor': 'presentation/source',
+                'acl': '{"acl": {"ace": [{"allow": true,"role": "ROLE_Z","action": "dance"}]}}'
             }
-            response = post_request(url, digest_login, "events", data=data)
-            print(response.json())
+
+            response = big_post_request(url, digest_login, "events", data=data, files=files)
+            print(response)
 
         except Exception as e:
             print("ERROR")
             print(str(e))
+            __abort_script("Something went wrong. Could not create event. Stopping script")
 
-    print("Done.")
+        print("Done.")
+
+
+def __generate_random_name():
+
+    name = ''
+    for i in range(random.randint(1, 30)):
+        name += random.choice(alphabet)
+
+    return name
 
 
 def __abort_script(message):

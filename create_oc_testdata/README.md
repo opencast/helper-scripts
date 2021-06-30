@@ -2,10 +2,10 @@
 
 This script creates random samples of Events (and Series) on the specified Opencast system.
 
-
 ## How to Use
 
 ### Configuration
+
 The script is configured by editing the values in `config.py`:
 
 | Configuration Key | Description                               | Default/Example              |
@@ -25,14 +25,15 @@ The script can be called with the following parameters (all parameters in bracke
 
 `main.py [-t TARGET_URL ] [-n NUMBER_OF_EVENTS ]`
 
-| Short Option | Long Option | Description                                                     |
-| :----------: | :---------- | :-------------------------------------------------------------- |
-| `-t`         | `--target`  | The target url of the Opencast system                        |
-| `-n`         | `--number`  | The number of Events to be created              |
+| Short Option | Long Option | Description                                |
+| :----------: | :---------- | :----------------------------------------- |
+| `-t`         | `--target`  | The target url of the Opencast system      |
+| `-n`         | `--number`  | The number of Events to be created         |
+| `-f`         | `--file`    | The path to a test video                   |
 
 #### Usage example
 
-`main.py -t localhost:8080 -n 10`
+`main.py -t localhost:8080 -n 10 -f home/test/video.mp3`
 
 ## Requirements
 

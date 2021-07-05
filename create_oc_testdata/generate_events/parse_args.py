@@ -2,7 +2,7 @@ from args.args_parser import get_args_parser
 from args.args_error import args_error
 
 
-MAX_NUMBER_OF_EVENTS = 1000
+MAX_NUMBER_OF_EVENTS = 2000
 
 
 def parse_args():

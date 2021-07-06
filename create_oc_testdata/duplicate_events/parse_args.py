@@ -20,13 +20,10 @@ def parse_args():
 
     args = parser.parse_args()
 
-    if not args.target_url:
-        args.target_url = [None]
-    if not args.number:
-        args.number = [None]
-    elif args.number[0] > MAX_NUMBER_OF_DUPLICATES:
-        args_error(parser, "to many duplicates ...")
-    if not args.file:
-        args.file = [None]
+    args.target_url = args.target_url if args.target_url else [None]
+    args.number = args.number if args.number else [None]
+    if args.number[0] and args.number[0] > MAX_NUMBER_OF_DUPLICATES:
+        args_error(parser, "too many duplicates ...")
+    args.file = args.file if args.file else [None]
 
     return args.target_url[0], args.number[0], args.file[0]

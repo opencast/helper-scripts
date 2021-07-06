@@ -12,12 +12,14 @@ import yaml
 
 def main():
     """
-    Duplicate the events on the specified Opencast system defined in the yaml file
+    Duplicate the events on a specified Opencast system
     """
 
-    target_url, number_of_events, file_path = parse_args()
+    # create digest login
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
 
+    # parse args
+    target_url, number_of_events, file_path = parse_args()
     target_url = target_url if target_url else config.target_url
     number_of_duplicates = number_of_events if number_of_events else config.number_of_duplicates
     file_path = file_path if file_path else config.yaml_file_path

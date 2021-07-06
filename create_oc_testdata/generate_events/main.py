@@ -17,9 +17,11 @@ def main():
     Populate the specified Opencast system with random sample events
     """
 
-    target_url, number_of_events, file_path = parse_args()
+    # create digest login
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
 
+    # parse args
+    target_url, number_of_events, file_path = parse_args()
     target_url = target_url if target_url else config.target_url
     number_of_events = number_of_events if number_of_events else config.number_of_events
     file_path = file_path if file_path else config.test_video_path
@@ -50,7 +52,6 @@ def main():
         }
         try:
             print(post_request(url, digest_login, "series", data=data))
-            # print(response)
         except Exception as e:
             print(str(e))
             __abort_script("Something went wrong. Could not create series. Stopping script")
@@ -59,12 +60,9 @@ def main():
     event_ids = []
     url = f'{target_url}/ingest/addMediaPackage'
     files = [file_path]
-
     for i in range(number_of_events):
-
         event_id = "ID-" + __generate_random_name(length=5)
         event_ids.append(event_id)
-
         data = {
             'creator': __generate_random_name(),
             'title': __generate_random_name(),
@@ -78,28 +76,25 @@ def main():
                         '{"allow": true,"role": "ROLE_ADMIN","action": "write"}'
                     ']}}'
         }
-
         try:
-            response = big_post_request(url, digest_login, "events", data=data, files=files)
-            print(response)
+            print(big_post_request(url, digest_login, "events", data=data, files=files))
         except Exception as e:
             print(str(e))
             __abort_script("Something went wrong. Could not create event. Stopping script")
 
     # write event IDs to yaml file
-    yaml_content = {'event-IDs': event_ids}
     with open(config.yaml_file_path, 'w') as file:
-        yaml.dump(yaml_content, file)
+        yaml.dump({'event-IDs': event_ids}, file)
 
     print("Done.")
 
 
 def __create_alphabet():
     alphabet = list(string.ascii_letters)
-    # for i in range(10):
-    #     alphabet.append(str(i))
-    # for c in ['Ä','Ö','Ü','ä','ö','ü']:
-    #     alphabet.append(c)
+    for i in range(10):
+        alphabet.append(str(i))
+    for c in ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü']:
+        alphabet.append(c)
     return alphabet
 
 alphabet = __create_alphabet()

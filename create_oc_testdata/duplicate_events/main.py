@@ -42,7 +42,7 @@ def main():
         data = {
             'event_identifier': id,
             'workflow_definition_identifier': 'duplicate-event',
-            'configuration': '{"numberOfEvents":"{' + str(number_of_duplicates) + '}"}'
+            'configuration': '{"numberOfEvents":"' + str(number_of_duplicates) + '"}'
         }
         try:
             response = post_request(url, digest_login, "events", data=data)

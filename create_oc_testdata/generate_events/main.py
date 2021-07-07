@@ -91,10 +91,10 @@ def main():
 
 def __create_alphabet():
     alphabet = list(string.ascii_letters)
-    for i in range(10):
-        alphabet.append(str(i))
-    for c in ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü']:
-        alphabet.append(c)
+    # for i in range(10):
+    #     alphabet.append(str(i))
+    # for c in ['Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü']:
+    #     alphabet.append(c)
     return alphabet
 
 alphabet = __create_alphabet()

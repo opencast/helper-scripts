@@ -17,13 +17,12 @@ def parse_args():
     """
     parser, optional_args, required_args = get_args_parser()
 
-    # ToDo change optional to required_args ?
     required_args.add_argument("-e", "--environment", type=str, nargs='+',
                                help="the environment (either 'staging' or 'production')")
     optional_args.add_argument("-t", "--tenantid", type=str, nargs='+', help="target tenant id")
     optional_args.add_argument("-c", "--check", type=str, nargs='+',
                                help="checks to be performed ('users', 'groups', 'cast' or 'capture') (default: all)")
-    optional_args.add_argument("-v", "--verbose", type=str, nargs='+',help="enables more logging")
+    optional_args.add_argument("-v", "--verbose", type=str, nargs='+', help="enables more logging")
 
     args = parser.parse_args()
 
@@ -90,9 +89,9 @@ def create_group_config_file_from_json_file(json_file_path, yaml_file_path='test
     """
 
     with open(json_file_path, 'r') as json_file:
-        jsonData = json.load(json_file)
+        json_data = json.load(json_file)
     with open(yaml_file_path, 'w') as file:
-        yaml.dump(jsonData, file, sort_keys=False)
+        yaml.dump(json_data, file, sort_keys=False)
 
     return True
 

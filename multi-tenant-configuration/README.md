@@ -35,27 +35,27 @@ access to the events/series) and the same password to both tenants._
 The names in the group config file must be unique per Tenant!
 
 ### Usage
-**ToDo**
 
-The script can be called with the following parameters (all parameters in brackets are optional):
+The script can be called with the following command (all parameters in brackets are optional):
 
-`main.py ... `
+`python main.py -e ENVIRONMENT [-t TENANT_ID] [-c CHECK] [-v True]`
 
 | Param | Description |
 | :---: | :---------- |
-| `-t` / `--tenant` | The id(s) of the tenant to be configured |
 | `-e` / `--environment` | The environment where to find the configuration file (either `staging` or `production`) |
-| ... / ... | ... | 
+| `-t` / `--tenantid` | The id of the target tenant to be configured |
+| `-c` / `--check` | checks to be performed (`users`, `groups`, `cast` or `capture`) (default: `all`) | 
+| `-v` / `--verbose` | enables logging to be prompted if set to `True` | 
 
-#### Usage example
-**ToDo**
+#### example:
 
-`main.py ... `
+`python main.py -e staging -t tenant1 -c groups -v True`
 
 ## Requirements
-**ToDo**
 
-This scrypt was written for Python 3.8. You can install the necessary packages with
+This script was written for Python 3.8. You can install the necessary packages with
+
+**ToDo check the requirements file**
 
 `pip install -r requirements.txt`
 

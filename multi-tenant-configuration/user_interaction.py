@@ -1,9 +1,7 @@
 from parsing_configurations import log
-# from collections import namedtuple
 import re
 
 
-# Permission = namedtuple('Permission', ['tenant', 'target', 'permission_value'])
 permissions = {
     'user': {},
     'group': {}

@@ -2,8 +2,6 @@ import yaml
 import json
 from args.args_parser import get_args_parser
 from args.args_error import args_error
-# from rest_requests.request import get_request, post_request
-# from rest_requests.request_error import RequestError
 from rest_requests.basic_requests import get_tenants
 
 

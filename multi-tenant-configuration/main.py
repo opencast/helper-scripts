@@ -2,18 +2,10 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
-# import io
-# import yaml
-# from args.args_parser import get_args_parser
-# from args.args_error import args_error
-# from rest_requests.request_error import RequestError
-# from input_output.input import get_yes_no_answer
 from args.digest_login import DigestLogin
 from parsing_configurations import parse_args, read_yaml_file, parse_config
 from configure_users import check_users
 from configure_groups import check_groups
-# from rest_requests.request import get_request, post_request
-# from rest_requests.request_error import RequestError
 import config
 
 

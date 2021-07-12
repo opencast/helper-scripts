@@ -10,8 +10,7 @@ ENV_CONFIG = None
 DIGEST_LOGIN = None
 
 
-def check_users(tenant_id, digest_login, env_conf, config):
-    log('\nStart checking users for tenant: ', tenant_id)
+def set_config_users(digest_login, env_conf, config):
 
     global DIGEST_LOGIN
     global ENV_CONFIG
@@ -19,6 +18,12 @@ def check_users(tenant_id, digest_login, env_conf, config):
     DIGEST_LOGIN = digest_login
     ENV_CONFIG = env_conf
     CONFIG = config
+
+    return
+
+
+def check_users(tenant_id):
+    log('\nStart checking users for tenant: ', tenant_id)
 
     # Check and configure System User Accounts & External API User Accounts:
     # For all organizations:
@@ -46,8 +51,6 @@ def check_user(user, tenant_id):
         if action_allowed:
             create_user(account=user, tenant_id=tenant_id)
     else:
-        print('User already exist.')
-
         # Check if Account has External API access. (/api/info/me)
         check_api_access(user=user, tenant_id=tenant_id)
         # Check if Roles match roles in the configuration file. (/api/info/me/roles)
@@ -74,8 +77,7 @@ def create_user(account, tenant_id):
     """
     log(f"Create user {account['username']}")
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = '{}/admin-ng/users/'.format(tenant_url)
+    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/'
     data = {
         'username': account['username'],
         'password': account['password'],
@@ -88,12 +90,12 @@ def create_user(account, tenant_id):
         response = post_request(url, DIGEST_LOGIN, '/admin-ng/users/', data=data)
     except RequestError as err:
         if err.get_status_code() == "409":
-            print("Conflict, a user with username {} already exist.".format(account['username']))
+            print(f"Conflict, a user with username {account['username']} already exist.")
         elif err.get_status_code() == "403":
             print("Forbidden, not enough permissions to create a user with a admin role.")
         return False
     except Exception as e:
-        print("User could not be created: {}".format(str(e)))
+        print("User could not be created: ", str(e))
         return False
 
     return response
@@ -123,9 +125,7 @@ def update_user(tenant_id, user_id=None, user=None, name=None, email=None, roles
 
     print(roles)
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = f'{tenant_url}/admin-ng/users/{user_id}.json'
-
+    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user_id}.json'
     data = {
         'name': name,
         'email': email,
@@ -218,8 +218,7 @@ def check_user_roles(user, tenant_id):
 
 def get_user_info(user, tenant_id):
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = '{}/api/info/me'.format(tenant_url)
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
     headers = {
         'X-RUN-AS-USER': user['username']
     }
@@ -237,8 +236,7 @@ def get_user_roles(user, tenant_id):
     # ToDo check if the 'effective roles' should be excluded here
     # -> switch to /admin-ng/users/{username}.json
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = '{}/api/info/me/roles'.format(tenant_url)
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me/roles'
     headers = {
         'X-RUN-AS-USER': user['username']
     }
@@ -261,8 +259,7 @@ def get_user(username, tenant_id):
     :return:
     """
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = f'{tenant_url}/admin-ng/users/{username}.json'
+    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{username}.json'
 
     try:
         response = get_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json')

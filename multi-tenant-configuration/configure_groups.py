@@ -11,8 +11,7 @@ GROUP_CONFIG = None
 DIGEST_LOGIN = None
 
 
-def check_groups(tenant_id, digest_login, group_config, config):
-    log('\nStart checking groups for tenant: ', tenant_id)
+def set_config_groups(digest_login, group_config, config):
 
     global DIGEST_LOGIN
     global GROUP_CONFIG
@@ -20,10 +19,15 @@ def check_groups(tenant_id, digest_login, group_config, config):
     DIGEST_LOGIN = digest_login
     GROUP_CONFIG = group_config
     CONFIG = config
-    # tenant_url = CONFIG.tenant_urls[tenant_id]
+
+    return
+
+
+def check_groups(tenant_id):
+    log('\nStart checking groups for tenant: ', tenant_id)
 
     # For all Groups:
-    for group in group_config['groups']:
+    for group in GROUP_CONFIG['groups']:
         # Check group
         if group['tenants'] == 'all' or group['tenants'] == tenant_id:
             group['identifier'] = generate_group_identifier(group, tenant_id)
@@ -51,7 +55,6 @@ def check_group(group, tenant_id):
         # Update them if they do not match. (Asks for permission)
         check_group_description(group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group members exist.
-        # ToDo Create missing group members. (Asks for permission) ?
         # Check if group members match the group members provided in the configuration.
         # Add or remove members accordingly.
         check_group_members(group=group, existing_group=existing_group, tenant_id=tenant_id)
@@ -67,8 +70,7 @@ def check_group(group, tenant_id):
 def check_if_group_exists(group, tenant_id):
     log(f"check if group {group['name']} exists.")
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = '{}/api/groups/{}'.format(tenant_url, group['identifier'])
+    url = f"{CONFIG.tenant_urls[tenant_id]}/api/groups/{group['identifier']}"
     try:
         response = get_request(url, DIGEST_LOGIN, '/api/groups/')
         return response.json()
@@ -78,7 +80,7 @@ def check_if_group_exists(group, tenant_id):
         else:
             raise Exception
     except Exception as e:
-        print("ERROR: {}".format(str(e)))
+        print("ERROR: ", str(e))
         return False
 
 
@@ -110,9 +112,6 @@ def check_group_description(group, existing_group, tenant_id):
 
 def check_group_members(group, existing_group, tenant_id):
     log(f"Check members for group {group['name']}.")
-
-    # ToDo remove this also from configure_users
-    tenant_url = CONFIG.tenant_urls[tenant_id]
 
     group_members = extract_members_from_group(group=group, tenant_id=tenant_id)
     existing_group_members = sorted(filter(None, existing_group['members'].split(",")))
@@ -244,15 +243,14 @@ def generate_group_identifier(group, tenant_id):
 
 def get_groups_from_tenant(tenant_id):
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = '{}/api/groups/'.format(tenant_url)
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/'
     try:
         response = get_request(url, DIGEST_LOGIN, '/api/groups/')
     except RequestError as err:
         print('RequestError: ', err)
         return False
     except Exception as e:
-        print(f"Groups could not be retrieved from {tenant_url}. \n", "Error: ", str(e))
+        print("Groups could not be retrieved. \n", "Error: ", str(e))
         return False
 
     return response.json()
@@ -323,8 +321,7 @@ def update_group(tenant_id, group=None, name=None, description=None, roles=None,
             description = group_description_template(group['description'], tenant_id)
     else:
         group_id = generate_group_identifier(group={'name': name}, tenant_id=tenant_id)
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = f'{tenant_url}/api/groups/{group_id}'
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/{group_id}'
 
     data = {
         'name': name,
@@ -352,8 +349,7 @@ def update_group(tenant_id, group=None, name=None, description=None, roles=None,
 def create_group(group, tenant_id):
     log(f"trying to create group {group['name']}. ")
 
-    tenant_url = CONFIG.tenant_urls[tenant_id]
-    url = f'{tenant_url}/api/groups/'
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/'
 
     # extract members and roles
     members = extract_members_from_group(group, tenant_id)

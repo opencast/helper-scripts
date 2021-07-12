@@ -65,15 +65,16 @@ def read_yaml_file(path):
 
 
 def parse_config(config, env_config, digest_login):
-    # ToDo Check if all mandatory configurations are given
+    # ToDo Check if all mandatory configurations are given i.e. url pattern or a url for all tenants
 
     # ToDo should mh_default_org be removed from tenant_ids?
     config.tenant_ids = get_tenants(config.base_url, digest_login)
     config.tenant_ids.remove('mh_default_org')
 
-    if not (hasattr(config, 'tenant_urls') and config.tenant_urls):
+    if not hasattr(config, 'tenant_urls'):
         config.tenant_urls = {}
-        for tenant_id in config.tenant_ids:
+    for tenant_id in config.tenant_ids:
+        if not tenant_id in config.tenant_urls:
             config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
 
     return config

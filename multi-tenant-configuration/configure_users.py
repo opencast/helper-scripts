@@ -9,6 +9,9 @@ CONFIG = None
 ENV_CONFIG = None
 DIGEST_LOGIN = None
 
+# ToDo should this be moved to the config file?
+UNEXPECTED_ROLES = ["ROLE_ADMIN", "ROLE_ADMIN_UI", "ROLE_UI_", "ROLE_CAPTURE_"]
+
 
 def set_config_users(digest_login, env_conf, config):
 
@@ -27,14 +30,20 @@ def check_users(tenant_id):
 
     # Check and configure System User Accounts & External API User Accounts:
     for organization in ENV_CONFIG['opencast_organizations']:
-        if organization['id'] == tenant_id:                         # ToDo or 'all' ?
-            for user in organization['external_api_accounts']:      # ToDo System & External API ?
-                # check and configure user
-                check_user(user=user, tenant_id=tenant_id)
+        # check switchcast system accounts
+        if organization['id'] == 'dummy':
+            log(f'Checking system accounts for tenant {tenant_id} ...')
+            for system_account in organization['switchcast_system_accounts']:
+                check_user(system_account, tenant_id)
+        # check and configure external api accounts
+        if organization['id'] == tenant_id:                                     # ToDo or 'all' ?
+            log(f'Checking External API accounts for tenant {tenant_id} ...')
+            for user in organization['external_api_accounts']:
+                check_user(user, tenant_id)
 
 
 def check_user(user, tenant_id):
-    log(f"Check user {user['name']} on tenant {tenant_id}.")
+    log(f"Checking user {user['name']} on tenant {tenant_id}.")
 
     # Check if user exists
     existing_user = get_user(username=user['username'], tenant_id=tenant_id)
@@ -43,16 +52,18 @@ def check_user(user, tenant_id):
         action_allowed = check_or_ask_for_permission(
             target_type='user',
             action='create',
-            target_name=user['name'],
+            target_name=user['username'],
             tenant_id=tenant_id
         )
         if action_allowed:
             create_user(account=user, tenant_id=tenant_id)
     else:
-        # Check if Account has External API access.
-        check_api_access(user=user, tenant_id=tenant_id)
+        # Check if password is correct and if the account has External API access.
+        __check_api_access(user=user, tenant_id=tenant_id)
         # Check if the user roles match the roles in the configuration file.
-        check_user_roles(user=user, tenant_id=tenant_id)
+        __check_user_roles(user, tenant_id)
+        # check for unexpected roles in the effective roles.
+        __check_effective_roles(user, tenant_id)
 
 
 def __get_roles_as_json_array(account, as_string=False):
@@ -65,8 +76,9 @@ def __get_roles_as_json_array(account, as_string=False):
 
 
 def create_user(account, tenant_id):
-    """ sends a POST request to the admin UI to create a User
-
+    """
+    sends a POST request to the admin UI to create a User
+    uses the /admin-ng/users/ endpoint
     :param account:         dict    user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
     :param tenant_id:       String
     :return:
@@ -97,29 +109,27 @@ def create_user(account, tenant_id):
     return response
 
 
-def update_user(tenant_id, user_id=None, user=None, name=None, email=None, roles=None):
-    log(f"Try to update user ... ")
+def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
+    log(f"Trying to update user ... ")
 
-    if not user_id and not user:
-        log("Cannot update user without a specified name.")
-        return False
-
-    if user:
-        if not user_id:
-            user_id = user['username']
-        if not name:
-            name = user['name']
-        if not email:
-            email = user['email']
-        if not roles:
-            roles = user['roles']
-
+    # user_id = user['username']
+    #     if not name:
+    #         name = user['name']
+    #     if not email:
+    #         email = user['email']
+    #     if not roles:
+    #         roles = user['roles']
+    name = overwrite_name if overwrite_email else user['name']
+    email = overwrite_email if overwrite_email else user['email']
+    roles = overwrite_roles if overwrite_roles else user['roles']
+    pw = overwrite_pw if overwrite_pw else user['password']
     if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
         roles = [roles]
     roles = __get_roles_as_json_array(account={'roles': roles}, as_string=True)
 
-    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user_id}.json'
+    url = f"{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user['username']}.json"
     data = {
+        'password': pw,
         'name': name,
         'email': email,
         'roles': roles
@@ -140,18 +150,56 @@ def update_user(tenant_id, user_id=None, user=None, name=None, email=None, roles
     return response
 
 
-def check_api_access(user, tenant_id):
-    log(f"Check API access for user {user['username']}")
+def __check_api_access(user, tenant_id):
 
-    if not get_user_info(user=user, tenant_id=tenant_id):
-        # ToDo ask for permission to solve the problem
-        print('User has no API Access')
+    log(f"Checking API access for user {user['username']}")
+
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
+    headers = {} # {'X-RUN-AS-USER': user['username']}
+    login = {
+        'user': user['username'],
+        'password': user['password']
+    }
+
+    try:
+        get_request(url, login, '/api/info/me', headers=headers, use_digest=False)
+    except RequestError:
+        print(f"User {user['username']} has no API Access")
+        # ToDo add to group to get API access roles?
+        action_allowed = check_or_ask_for_permission(
+            target_type='user',
+            action='configure user',
+            target_name=user['username'],
+            tenant_id=tenant_id
+        )
+        if action_allowed:
+            update_user(tenant_id, user=user)
+    except Exception as e:
+        print('Error: Failed to check for API access.')
+        print(str(e))
+        return False
+
+    return
 
 
-def check_user_roles(user, tenant_id):
+def __check_effective_roles(user, tenant_id):
+    log(f"Check effective user roles of user {user['username']}")
+
+    effective_user_roles = get_user_roles(user['username'], tenant_id)
+    for role in effective_user_roles:
+        for unexpected_role in UNEXPECTED_ROLES:
+            # ToDo improve this check if role matches unexpected role
+            if unexpected_role in role:
+                print(f"Unexpected role found for User {user['username']}: {role}")
+
+    return
+
+
+def __check_user_roles(user, tenant_id):
     log(f"Check user roles of user {user['username']}")
 
-    existing_user_roles = get_user_roles(user, tenant_id)
+    # ToDo change this to exclude group roles
+    existing_user_roles = get_user_roles(user['username'], tenant_id)
     user_roles = user['roles']
 
     print('system roles: ', existing_user_roles)
@@ -169,7 +217,7 @@ def check_user_roles(user, tenant_id):
             action_allowed = check_or_ask_for_permission(
                 target_type='user',
                 action='add missing user roles',
-                target_name=user['name'],
+                target_name=user['username'],
                 tenant_id=tenant_id,
                 option_i=True
             )
@@ -187,7 +235,7 @@ def check_user_roles(user, tenant_id):
             action_allowed = check_or_ask_for_permission(
                 target_type='user',
                 action='remove additional user roles',
-                target_name=user['name'],
+                target_name=user['username'],
                 tenant_id=tenant_id,
                 option_i=True
             )
@@ -203,34 +251,36 @@ def check_user_roles(user, tenant_id):
         if roles != existing_user_roles:
             # roles = ",".join(roles)
             print(roles)
-            update_user(tenant_id=tenant_id, user=user, roles=roles)
+            update_user(tenant_id, user, overwrite_roles=roles)
 
         return
 
 
-def get_user_info(user, tenant_id):
+# def get_user_info(user, tenant_id):
+#
+#     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
+#     headers = {
+#         'X-RUN-AS-USER': user['username']
+#     }
+#     try:
+#         response = get_request(url, DIGEST_LOGIN, '/api/info/me', headers=headers)
+#     except Exception as e:
+#         log(e)
+#         return False
+#
+#     return response.json()
 
-    url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
-    headers = {
-        'X-RUN-AS-USER': user['username']
-    }
-    try:
-        response = get_request(url, DIGEST_LOGIN, '/api/info/me', headers=headers)
-    except Exception as e:
-        log(e)
-        return False
 
-    return response.json()
-
-
-def get_user_roles(user, tenant_id):
-    # ToDo check if the 'effective roles' should be excluded here
-    # -> switch to /admin-ng/users/{username}.json
-
+def get_user_roles(user_name, tenant_id):
+    """
+    returns the effective roles of a user (user roles + group roles).
+    Uses DigestLogin
+    :param user_name:
+    :param tenant_id:
+    :return:
+    """
     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me/roles'
-    headers = {
-        'X-RUN-AS-USER': user['username']
-    }
+    headers = {'X-RUN-AS-USER': user_name}
     try:
         response = get_request(url, DIGEST_LOGIN, '/api/info/me/roles', headers=headers)
     except Exception as e:
@@ -240,17 +290,14 @@ def get_user_roles(user, tenant_id):
     return response.json()
 
 
-
 def get_user(username, tenant_id):
-    """ sends a GET request to the admin UI to get a User
+    """ sends a GET request to the admin UI to get a user
 
     :param username:        String
     :param tenant_id:       String
     :return:
     """
-
     url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{username}.json'
-
     try:
         response = get_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json')
     except RequestError as err:

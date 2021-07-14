@@ -30,12 +30,15 @@ def main():
     ###   Start checks   ###
     for tenant_id in tenants_to_check:
         if check == 'all':
-            check_users(tenant_id=tenant_id)
-            check_groups(tenant_id=tenant_id)
+            check_users(tenant_id)
+            check_groups(tenant_id)
+            # ToDo switchcast_system_accounts(tenant_id)
         elif check == 'users':
-            check_users(tenant_id=tenant_id)
+            check_users(tenant_id)
         elif check == 'groups':
-            check_groups(tenant_id=tenant_id)
+            check_groups(tenant_id)
+        # elif check == 'capture':
+        #     switchcast_system_accounts(tenant_id)
 
 
 if __name__ == '__main__':

@@ -4,7 +4,8 @@
 base_url = "http://localhost:8080"
 
 # If you have multiple tenants use an URL pattern.
-# example: tenant_url_pattern = "https://{}.example.org"
+# example:
+# tenant_url_pattern = "https://{}.example.org"
 tenant_url_pattern = "http://{}:8080"
 
 # You can also define a dictionary of tenant URLs, which will be prioritized over the URL pattern:

@@ -26,11 +26,9 @@ def check_users(tenant_id):
     log('\nStart checking users for tenant: ', tenant_id)
 
     # Check and configure System User Accounts & External API User Accounts:
-    # For all organizations:
     for organization in ENV_CONFIG['opencast_organizations']:
         if organization['id'] == tenant_id:                         # ToDo or 'all' ?
-            for user in organization['external_api_accounts']:
-                # For all Users                                     # ToDo System & External API ?
+            for user in organization['external_api_accounts']:      # ToDo System & External API ?
                 # check and configure user
                 check_user(user=user, tenant_id=tenant_id)
 
@@ -51,12 +49,10 @@ def check_user(user, tenant_id):
         if action_allowed:
             create_user(account=user, tenant_id=tenant_id)
     else:
-        # Check if Account has External API access. (/api/info/me)
+        # Check if Account has External API access.
         check_api_access(user=user, tenant_id=tenant_id)
-        # Check if Roles match roles in the configuration file. (/api/info/me/roles)
+        # Check if the user roles match the roles in the configuration file.
         check_user_roles(user=user, tenant_id=tenant_id)
-        # If no External API access or roles do not match:
-        # Update account (Asks for permission)
 
 
 def __get_roles_as_json_array(account, as_string=False):
@@ -118,12 +114,9 @@ def update_user(tenant_id, user_id=None, user=None, name=None, email=None, roles
         if not roles:
             roles = user['roles']
 
-    if not isinstance(roles, list):
+    if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
         roles = [roles]
-    # roles = [str({'name': role, 'type': 'INTERNAL'}) for role in roles]
     roles = __get_roles_as_json_array(account={'roles': roles}, as_string=True)
-
-    print(roles)
 
     url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user_id}.json'
     data = {
@@ -131,13 +124,12 @@ def update_user(tenant_id, user_id=None, user=None, name=None, email=None, roles
         'email': email,
         'roles': roles
     }
-
     try:
-        response = put_request(url, DIGEST_LOGIN, '/api/groups/{username}.json', data=data)
+        response = put_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json', data=data)
     except RequestError as err:
-        if err.get_status_code() == "400": # ToDo: check if this is actually 404
-            print(f"Bad Request: Invalid data provided.")
         print("RequestError: ", err)
+        if err.get_status_code() == "400":
+            print(f"Bad Request: Invalid data provided.")
         return False
     except Exception as e:
         print(f"User with name {name} could not be updated. \n", "Exception: ", str(e))
@@ -222,11 +214,10 @@ def get_user_info(user, tenant_id):
     headers = {
         'X-RUN-AS-USER': user['username']
     }
-
     try:
         response = get_request(url, DIGEST_LOGIN, '/api/info/me', headers=headers)
     except Exception as e:
-        print(e)
+        log(e)
         return False
 
     return response.json()
@@ -240,7 +231,6 @@ def get_user_roles(user, tenant_id):
     headers = {
         'X-RUN-AS-USER': user['username']
     }
-
     try:
         response = get_request(url, DIGEST_LOGIN, '/api/info/me/roles', headers=headers)
     except Exception as e:
@@ -264,11 +254,9 @@ def get_user(username, tenant_id):
     try:
         response = get_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json')
     except RequestError as err:
-        if err.get_status_code() == "404":
-            return False
-        else:
+        if not err.get_status_code() == "404":
             print(err)
-            return False
+        return False
     except Exception as e:
         print(e)
         return False

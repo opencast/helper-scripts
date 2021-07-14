@@ -18,8 +18,8 @@ def main():
     env_conf = read_yaml_file(config.env_path.format(environment))                  # read environment config file
     script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
     group_config = read_yaml_file(script_config.group_path)                         # read group config file
-    set_config_users(digest_login=digest_login, env_conf=env_conf, config=script_config)
-    set_config_groups(digest_login=digest_login, group_config=group_config, config=script_config)
+    set_config_users(digest_login, env_conf, script_config)                         # import config to the user script
+    set_config_groups(digest_login, group_config, script_config)                    # import config to the group script
 
     # if tenant is not given, we perform the checks for all tenants
     if tenant_id:

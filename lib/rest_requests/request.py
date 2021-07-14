@@ -4,14 +4,14 @@ This module offers different types of requests to a given URL.
 import os
 
 import requests
-from requests.auth import HTTPDigestAuth
+from requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from requests_toolbelt import MultipartEncoder
 
 from rest_requests.request_error import RequestError
 
 
-def get_request(url, digest_login, element_description, asset_type_description=None, asset_description=None,
-                stream=False, headers=None):
+def get_request(url, login, element_description, asset_type_description=None, asset_description=None,
+                stream=False, headers=None, use_digest=True):
     """
     Make a get request to the given url with the given digest login. If the request fails with an error or a status
     code != 200, a Request Error with the error message /status code and the given descriptions is thrown.
@@ -34,9 +34,12 @@ def get_request(url, digest_login, element_description, asset_type_description=N
     :raise RequestError:
     """
 
-    auth = HTTPDigestAuth(digest_login.user, digest_login.password)
     headers = headers if headers else {}
-    headers["X-Requested-Auth"] = "Digest"
+    if use_digest:
+        auth = HTTPDigestAuth(login.user, login.password)
+        headers["X-Requested-Auth"] = "Digest"
+    else:
+        auth = HTTPBasicAuth(login['user'], login['password'])
 
     try:
         response = requests.get(url, auth=auth, headers=headers, stream=stream)

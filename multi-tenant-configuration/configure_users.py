@@ -61,9 +61,9 @@ def check_user(user, tenant_id):
         # Check if password is correct and if the account has External API access.
         __check_api_access(user=user, tenant_id=tenant_id)
         # Check if the user roles match the roles in the configuration file.
-        __check_user_roles(user, tenant_id)
+        __check_user_roles(user, existing_user, tenant_id)
         # check for unexpected roles in the effective roles.
-        __check_effective_roles(user, tenant_id)
+        __check_effective_user_roles(user, tenant_id)
 
 
 def __get_roles_as_json_array(account, as_string=False):
@@ -79,9 +79,11 @@ def create_user(account, tenant_id):
     """
     sends a POST request to the admin UI to create a User
     uses the /admin-ng/users/ endpoint
-    :param account:         dict    user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
-    :param tenant_id:       String
-    :return:
+    :param account: The user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
+    :type account: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: response
     """
     log(f"Create user {account['username']}")
 
@@ -110,15 +112,24 @@ def create_user(account, tenant_id):
 
 
 def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
+    """
+    Updates a user with the parameters provided in the user argument
+    if they are not overwritten by the optional parameters.
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :param user: The user as defined in the config, including the username used to identify the user on the system
+    :param overwrite_name: Optional name to use instead
+    :type overwrite_name: String
+    :param overwrite_email: Optional email to use instead
+    :type overwrite_email: String
+    :param overwrite_roles: Optional roles to use instead
+    :type overwrite_roles: List
+    :param overwrite_pw: Optional password to use instead
+    :type overwrite_pw: String
+    :return: response
+    """
     log(f"Trying to update user ... ")
 
-    # user_id = user['username']
-    #     if not name:
-    #         name = user['name']
-    #     if not email:
-    #         email = user['email']
-    #     if not roles:
-    #         roles = user['roles']
     name = overwrite_name if overwrite_email else user['name']
     email = overwrite_email if overwrite_email else user['email']
     roles = overwrite_roles if overwrite_roles else user['roles']
@@ -151,16 +162,25 @@ def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, over
 
 
 def __check_api_access(user, tenant_id):
-
+    """
+    Checks if the user defined in the config has access to the API.
+    The check tries to login with the username and password defined in the config,
+    and sends a get request to '/api/info/me' .
+    If check fails, asks for user permission to update user.
+    :param user: The user defined in the config
+    :type user: Dict
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: True
+    """
     log(f"Checking API access for user {user['username']}")
 
     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
-    headers = {} # {'X-RUN-AS-USER': user['username']}
+    headers = {}
     login = {
         'user': user['username'],
         'password': user['password']
     }
-
     try:
         get_request(url, login, '/api/info/me', headers=headers, use_digest=False)
     except RequestError:
@@ -179,31 +199,47 @@ def __check_api_access(user, tenant_id):
         print(str(e))
         return False
 
-    return
+    return True
 
 
-def __check_effective_roles(user, tenant_id):
+def __check_effective_user_roles(user, tenant_id):
+    """
+    Checks if the effective user roles of the user contain unexpected roles.
+    prints a warning for each unexpected role.
+    :param user: User containing the username for whom to retrieve the roles
+    :type user: Dict
+    :param tenant_id: The ID of the target tenant
+    :type tenant_id: String
+    :return: True
+    """
     log(f"Check effective user roles of user {user['username']}")
 
     effective_user_roles = get_user_roles(user['username'], tenant_id)
     for role in effective_user_roles:
         for unexpected_role in UNEXPECTED_ROLES:
-            # ToDo improve this check if role matches unexpected role
             if unexpected_role in role:
-                print(f"Unexpected role found for User {user['username']}: {role}")
+                print(f"WARNING: Unexpected role found for User {user['username']}: {role}")
 
-    return
+    return True
 
 
-def __check_user_roles(user, tenant_id):
+def __check_user_roles(user, existing_user, tenant_id):
+    """
+    Checks if the INTERNAL user roles match the user roles in the config file.
+    If check fails, asks for user permission to update user.
+    :param user: The user as defined in the config file
+    :type user: Dict
+    :param existing_user: The user as defined on the tenant
+    :type: Dict
+    :param tenant_id: The target tenant
+    :type: String
+    :return: True
+    """
     log(f"Check user roles of user {user['username']}")
 
-    # ToDo change this to exclude group roles
-    existing_user_roles = get_user_roles(user['username'], tenant_id)
+    existing_user_roles = extract_internal_user_roles(existing_user)
     user_roles = user['roles']
-
-    print('system roles: ', existing_user_roles)
-    print('config roles: ', user_roles)
+    log('config roles: ', user_roles)
 
     roles = existing_user_roles.copy()
     missing_roles = [role for role in user_roles if role not in existing_user_roles]
@@ -212,6 +248,7 @@ def __check_user_roles(user, tenant_id):
     if user_roles == existing_user_roles:
         log('User roles match.')
     else:
+        print("existing user roles: ", existing_user_roles)
         if missing_roles:
             print("Missing roles: ", missing_roles)
             action_allowed = check_or_ask_for_permission(
@@ -250,34 +287,20 @@ def __check_user_roles(user, tenant_id):
 
         if roles != existing_user_roles:
             # roles = ",".join(roles)
-            print(roles)
             update_user(tenant_id, user, overwrite_roles=roles)
 
-        return
-
-
-# def get_user_info(user, tenant_id):
-#
-#     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
-#     headers = {
-#         'X-RUN-AS-USER': user['username']
-#     }
-#     try:
-#         response = get_request(url, DIGEST_LOGIN, '/api/info/me', headers=headers)
-#     except Exception as e:
-#         log(e)
-#         return False
-#
-#     return response.json()
+    return True
 
 
 def get_user_roles(user_name, tenant_id):
     """
     returns the effective roles of a user (user roles + group roles).
-    Uses DigestLogin
-    :param user_name:
-    :param tenant_id:
-    :return:
+    Uses DigestLogin.
+    :param user_name: The username of the user on the tenant
+    :type user_name: String
+    :param tenant_id: The traget tenant
+    :type tenant_id: String
+    :return: The roles as dict
     """
     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me/roles'
     headers = {'X-RUN-AS-USER': user_name}
@@ -290,12 +313,34 @@ def get_user_roles(user_name, tenant_id):
     return response.json()
 
 
-def get_user(username, tenant_id):
-    """ sends a GET request to the admin UI to get a user
+def extract_internal_user_roles(existing_user, as_string=False):
+    """
+    Extracts the INTERNAL user roles from a user on the tenant.
+    :param existing_user: The user as defined on the tenant
+    :type existing_user: JSON
+    :param as_string: Whether the roles should be returned as a string
+    :type as_string: Boolean
+    :return: roles, as list or string
+    """
+    roles = []
+    for role in existing_user['roles']:
+        # ToDo check if 'INTERNAL' is the right thing to use here
+        if role['type'] == 'INTERNAL':
+            roles.append(role['name'])
+    if as_string:
+        roles = ",".join(sorted(roles))
 
-    :param username:        String
-    :param tenant_id:       String
-    :return:
+    return roles
+
+
+def get_user(username, tenant_id):
+    """
+    Sends a GET request to the admin UI to get a user
+    :param username: The username of the user on the tenant
+    :type username: String
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: user as JSON
     """
     url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{username}.json'
     try:
@@ -308,4 +353,4 @@ def get_user(username, tenant_id):
         print(e)
         return False
 
-    return response
+    return response.json()

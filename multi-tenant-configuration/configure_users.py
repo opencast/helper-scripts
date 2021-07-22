@@ -47,15 +47,15 @@ def check_users(tenant_id: str):
         if organization['id'] == 'dummy':
             log(f'Checking system accounts for tenant {tenant_id} ...')
             for system_account in organization['switchcast_system_accounts']:
-                check_user(system_account, tenant_id)
+                __check_user(system_account, tenant_id)
         # check and configure external api accounts
         if organization['id'] == tenant_id:                                     # ToDo or 'all' ?
             log(f'Checking External API accounts for tenant {tenant_id} ...')
             for user in organization['external_api_accounts']:
-                check_user(user, tenant_id)
+                __check_user(user, tenant_id)
 
 
-def check_user(user: dict, tenant_id: str):
+def __check_user(user: dict, tenant_id: str):
     """
     Performs all checks for the specified user:
     - checks if user exists
@@ -88,109 +88,6 @@ def check_user(user: dict, tenant_id: str):
         __check_user_roles(user, existing_user, tenant_id)
         # check for unexpected roles in the effective roles.
         __check_effective_user_roles(user, tenant_id)
-
-
-def __get_roles_as_json_array(account, as_string=False):
-    """
-    Returns the roles of a user account in json format either as a dict or as a string
-    :param account: User account as defined in the config file
-    :type account: dict
-    :param as_string: If the roles should be returned as json string or json object
-    :type as_string: bool
-    :return: The roles in json format
-    """
-    roles = [{'name': role, 'type': 'INTERNAL'} for role in account['roles']]
-    if as_string:
-        roles = [str(role) for role in roles]
-        roles = '[' + ','.join(roles) + ']'
-
-    return roles
-
-
-def create_user(account, tenant_id):
-    """
-    sends a POST request to the admin UI to create a User
-    uses the /admin-ng/users/ endpoint
-    :param account: The user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
-    :type account: dict
-    :param tenant_id: The target tenant
-    :type tenant_id: String
-    :return: response
-    """
-    log(f"Create user {account['username']}")
-
-    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/'
-    data = {
-        'username': account['username'],
-        'password': account['password'],
-        'name':     account['name'],
-        'email':    account['email'],
-        'roles':    __get_roles_as_json_array(account, as_string=True)
-    }
-
-    try:
-        response = post_request(url, DIGEST_LOGIN, '/admin-ng/users/', data=data)
-    except RequestError as err:
-        if err.get_status_code() == "409":
-            print(f"Conflict, a user with username {account['username']} already exist.")
-        elif err.get_status_code() == "403":
-            print("Forbidden, not enough permissions to create a user with a admin role.")
-        return False
-    except Exception as e:
-        print("User could not be created: ", str(e))
-        return False
-
-    return response
-
-
-def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
-    """
-    Updates a user with the parameters provided in the user argument
-    if they are not overwritten by the optional parameters.
-    :param tenant_id: The target tenant
-    :type tenant_id: String
-    :param user: The user as defined in the config, including the username used to identify the user on the system
-    :param overwrite_name: Optional name to use instead
-    :type overwrite_name: String
-    :param overwrite_email: Optional email to use instead
-    :type overwrite_email: String
-    :param overwrite_roles: Optional roles to use instead
-    :type overwrite_roles: List
-    :param overwrite_pw: Optional password to use instead
-    :type overwrite_pw: String
-    :return: response
-    """
-    log(f"Trying to update user ... ")
-
-    name = overwrite_name if overwrite_email else user['name']
-    email = overwrite_email if overwrite_email else user['email']
-    roles = overwrite_roles if overwrite_roles else user['roles']
-    pw = overwrite_pw if overwrite_pw else user['password']
-    if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
-        roles = [roles]
-    roles = __get_roles_as_json_array(account={'roles': roles}, as_string=True)
-
-    url = f"{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user['username']}.json"
-    data = {
-        'password': pw,
-        'name': name,
-        'email': email,
-        'roles': roles
-    }
-    try:
-        response = put_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json', data=data)
-    except RequestError as err:
-        print("RequestError: ", err)
-        if err.get_status_code() == "400":
-            print(f"Bad Request: Invalid data provided.")
-        return False
-    except Exception as e:
-        print(f"User with name {name} could not be updated. \n", "Exception: ", str(e))
-        return False
-
-    log(f"Updated user {name}.")
-
-    return response
 
 
 def __check_api_access(user: dict, tenant_id: str) -> bool:
@@ -324,6 +221,115 @@ def __check_user_roles(user, existing_user, tenant_id):
     return True
 
 
+def get_user(username, tenant_id):
+    """
+    Sends a GET request to the admin UI to get a user
+    :param username: The username of the user on the tenant
+    :type username: String
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: user as JSON
+    """
+    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{username}.json'
+    try:
+        response = get_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json')
+    except RequestError as err:
+        if not err.get_status_code() == "404":
+            print(err)
+        return False
+    except Exception as e:
+        print(e)
+        return False
+
+    return response.json()
+
+
+def create_user(account, tenant_id):
+    """
+    sends a POST request to the admin UI to create a User
+    uses the /admin-ng/users/ endpoint
+    :param account: The user account to be created      (e.g. {'username': 'Peter', 'password': '123'}
+    :type account: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: response
+    """
+    log(f"Create user {account['username']}")
+
+    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/'
+    data = {
+        'username': account['username'],
+        'password': account['password'],
+        'name':     account['name'],
+        'email':    account['email'],
+        'roles':    __get_roles_as_json_array(account, as_string=True)
+    }
+
+    try:
+        response = post_request(url, DIGEST_LOGIN, '/admin-ng/users/', data=data)
+    except RequestError as err:
+        if err.get_status_code() == "409":
+            print(f"Conflict, a user with username {account['username']} already exist.")
+        elif err.get_status_code() == "403":
+            print("Forbidden, not enough permissions to create a user with a admin role.")
+        return False
+    except Exception as e:
+        print("User could not be created: ", str(e))
+        return False
+
+    return response
+
+
+def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
+    """
+    Updates a user with the parameters provided in the user argument
+    if they are not overwritten by the optional parameters.
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :param user: The user as defined in the config, including the username used to identify the user on the system
+    :param overwrite_name: Optional name to use instead
+    :type overwrite_name: String
+    :param overwrite_email: Optional email to use instead
+    :type overwrite_email: String
+    :param overwrite_roles: Optional roles to use instead
+    :type overwrite_roles: List
+    :param overwrite_pw: Optional password to use instead
+    :type overwrite_pw: String
+    :return: response
+    """
+    log(f"Trying to update user ... ")
+
+    name = overwrite_name if overwrite_email else user['name']
+    email = overwrite_email if overwrite_email else user['email']
+    roles = overwrite_roles if overwrite_roles else user['roles']
+    pw = overwrite_pw if overwrite_pw else user['password']
+    if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
+        roles = [roles]
+    roles = __get_roles_as_json_array(account={'roles': roles}, as_string=True)
+
+    url = f"{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user['username']}.json"
+    data = {
+        'password': pw,
+        'name': name,
+        'email': email,
+        'roles': roles
+    }
+    try:
+        response = put_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json', data=data)
+    except RequestError as err:
+        print("RequestError: ", err)
+        if err.get_status_code() == "400":
+            print(f"Bad Request: Invalid data provided.")
+        return False
+    except Exception as e:
+        print(f"User with name {name} could not be updated. \n", "Exception: ", str(e))
+        return False
+
+    log(f"Updated user {name}.")
+
+    return response
+
+
 def get_user_roles(user_name, tenant_id):
     """
     returns the effective roles of a user (user roles + group roles).
@@ -365,24 +371,18 @@ def extract_internal_user_roles(user: dict, as_string=False):
     return roles
 
 
-def get_user(username, tenant_id):
+def __get_roles_as_json_array(account, as_string=False):
     """
-    Sends a GET request to the admin UI to get a user
-    :param username: The username of the user on the tenant
-    :type username: String
-    :param tenant_id: The target tenant
-    :type tenant_id: String
-    :return: user as JSON
+    Returns the roles of a user account in json format either as a dict or as a string
+    :param account: User account as defined in the config file
+    :type account: dict
+    :param as_string: If the roles should be returned as json string or json object
+    :type as_string: bool
+    :return: The roles in json format
     """
-    url = f'{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{username}.json'
-    try:
-        response = get_request(url, DIGEST_LOGIN, '/admin-ng/users/{username}.json')
-    except RequestError as err:
-        if not err.get_status_code() == "404":
-            print(err)
-        return False
-    except Exception as e:
-        print(e)
-        return False
+    roles = [{'name': role, 'type': 'INTERNAL'} for role in account['roles']]
+    if as_string:
+        roles = [str(role) for role in roles]
+        roles = '[' + ','.join(roles) + ']'
 
-    return response.json()
+    return roles

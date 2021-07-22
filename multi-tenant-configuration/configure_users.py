@@ -14,6 +14,16 @@ UNEXPECTED_ROLES = ["ROLE_ADMIN", "ROLE_ADMIN_UI", "ROLE_UI_", "ROLE_CAPTURE_"]
 
 
 def set_config_users(digest_login, env_conf, config):
+    """
+    Sets/imports the global config variables.
+    must be called before any checks can be performed.
+    :param digest_login: The digest login to be used
+    :type digest_login: DigestLogin
+    :param env_conf: The environment configuration which specifies the user and system accounts
+    :type env_conf: dict
+    :param config: The script configuration
+    :type config: dict
+    """
 
     global DIGEST_LOGIN
     global ENV_CONFIG
@@ -22,10 +32,13 @@ def set_config_users(digest_login, env_conf, config):
     ENV_CONFIG = env_conf
     CONFIG = config
 
-    return
 
-
-def check_users(tenant_id):
+def check_users(tenant_id: str):
+    """
+    Performs the checks for each user on the specified tenant
+    :param tenant_id: The target tenant
+    :type tenant_id: str
+    """
     log('\nStart checking users for tenant: ', tenant_id)
 
     # Check and configure System User Accounts & External API User Accounts:
@@ -42,7 +55,18 @@ def check_users(tenant_id):
                 check_user(user, tenant_id)
 
 
-def check_user(user, tenant_id):
+def check_user(user: dict, tenant_id: str):
+    """
+    Performs all checks for the specified user:
+    - checks if user exists
+    - checks if user has API access (and if password matches)
+    - checks if the user roles match the roles in the config file
+    - checks if the user has unexpected roles (effective roles)
+    :param user: The user to be checked
+    :type user: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: str
+    """
     log(f"Checking user {user['name']} on tenant {tenant_id}.")
 
     # Check if user exists
@@ -67,6 +91,14 @@ def check_user(user, tenant_id):
 
 
 def __get_roles_as_json_array(account, as_string=False):
+    """
+    Returns the roles of a user account in json format either as a dict or as a string
+    :param account: User account as defined in the config file
+    :type account: dict
+    :param as_string: If the roles should be returned as json string or json object
+    :type as_string: bool
+    :return: The roles in json format
+    """
     roles = [{'name': role, 'type': 'INTERNAL'} for role in account['roles']]
     if as_string:
         roles = [str(role) for role in roles]
@@ -161,7 +193,7 @@ def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, over
     return response
 
 
-def __check_api_access(user, tenant_id):
+def __check_api_access(user: dict, tenant_id: str) -> bool:
     """
     Checks if the user defined in the config has access to the API.
     The check tries to login with the username and password defined in the config,
@@ -313,17 +345,17 @@ def get_user_roles(user_name, tenant_id):
     return response.json()
 
 
-def extract_internal_user_roles(existing_user, as_string=False):
+def extract_internal_user_roles(user: dict, as_string=False):
     """
     Extracts the INTERNAL user roles from a user on the tenant.
-    :param existing_user: The user as defined on the tenant
-    :type existing_user: JSON
+    :param user: The user as defined on the tenant
+    :type user: dict
     :param as_string: Whether the roles should be returned as a string
-    :type as_string: Boolean
+    :type as_string: bool
     :return: roles, as list or string
     """
     roles = []
-    for role in existing_user['roles']:
+    for role in user['roles']:
         # ToDo check if 'INTERNAL' is the right thing to use here
         if role['type'] == 'INTERNAL':
             roles.append(role['name'])

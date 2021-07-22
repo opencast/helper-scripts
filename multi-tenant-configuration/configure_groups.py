@@ -122,11 +122,7 @@ def __check_group_description(group: dict, existing_group: dict, tenant_id: str)
             tenant_id=tenant_id
         )
         if action_allowed:
-            update_group(
-                tenant_id=tenant_id,
-                description=group['description'],
-                name=group['name']
-            )
+            update_group(tenant_id, group)
 
 
 def __check_group_members(group: dict, existing_group: dict, tenant_id: str):
@@ -198,7 +194,7 @@ def __check_group_members(group: dict, existing_group: dict, tenant_id: str):
         if members != existing_group_members:
             # members = ",".join(list(dict.fromkeys(members)))
             members = ",".join(members)
-            update_group(tenant_id=tenant_id, group=group, members=members)
+            update_group(tenant_id, group, overwrite_members=members)
 
 
 def __check_group_roles(group: dict, existing_group: dict, tenant_id: str):
@@ -265,9 +261,7 @@ def __check_group_roles(group: dict, existing_group: dict, tenant_id: str):
         if roles != existing_group_roles:
             # roles = ",".join(list(dict.fromkeys(roles)))
             roles = ",".join(roles)
-            update_group(tenant_id=tenant_id, group=group, roles=roles)
-
-        return
+            update_group(tenant_id, group, overwrite_roles=roles)
 
 
 def get_group(group: dict, tenant_id: str):

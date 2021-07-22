@@ -94,31 +94,6 @@ def __check_group(group: dict, tenant_id: str):
         # Update group members. (Asks for permission)
 
 
-def get_group(group: dict, tenant_id: str):
-    """
-    Checks if the group exists on the specified tenant
-    :param group: The group as defined in the configuration file
-    :type group: dict
-    :param tenant_id: The target tenant
-    :type tenant_id: str
-    :return: The group as specified on the tenant if it exists or False
-    """
-    log(f"check if group {group['name']} exists.")
-
-    url = f"{CONFIG.tenant_urls[tenant_id]}/api/groups/{group['identifier']}"
-    try:
-        response = get_request(url, DIGEST_LOGIN, '/api/groups/')
-        return response.json()
-    except RequestError as err:
-        if err.get_status_code() == "404":
-            pass
-        else:
-            raise Exception
-    except Exception as e:
-        print("ERROR: ", str(e))
-    return False
-
-
 def __check_group_description(group: dict, existing_group: dict, tenant_id: str):
     """
     Checks if the group description matches.
@@ -295,80 +270,76 @@ def __check_group_roles(group: dict, existing_group: dict, tenant_id: str):
         return
 
 
-def __generate_group_identifier(group: dict, tenant_id: str):
+def get_group(group: dict, tenant_id: str):
     """
-    generates the group identifier based on the group name
-    :param group: The group as specified in the configuration file
+    Checks if the group exists on the specified tenant
+    :param group: The group as defined in the configuration file
     :type group: dict
     :param tenant_id: The target tenant
     :type tenant_id: str
-    :return: The group id: str
+    :return: The group as specified on the tenant if it exists or False
     """
-    # ToDo check if the generated identifiers are correct! (the same as in the ruby script)
-    # return f"{tenant_id}_{group['name'].replace(' ', '_')}".lower()
-    return group['name'].replace(' ', '_').lower()
+    log(f"check if group {group['name']} exists.")
+
+    url = f"{CONFIG.tenant_urls[tenant_id]}/api/groups/{group['identifier']}"
+    try:
+        response = get_request(url, DIGEST_LOGIN, '/api/groups/')
+        return response.json()
+    except RequestError as err:
+        if err.get_status_code() == "404":
+            pass
+        else:
+            raise Exception
+    except Exception as e:
+        print("ERROR: ", str(e))
+    return False
 
 
-def __extract_roles_from_group(group: dict, tenant_id: str, as_string=False):
+def create_group(group: dict, tenant_id: str):
     """
-    Parses the group configuration and extracts the tenant specific group roles for a specific group.
-    :param group: The group as specified in the configuration file
+    Sends a POST request to /api/groups/ to create a new group with the given parameter.
+    :param group: The group to be created (usually the one specified in the configuration file)
     :type group: dict
     :param tenant_id: The target tenant
     :type tenant_id: str
-    :param as_string: Whether the roles should be returned as a string or a list
-    :type as_string: bool
-    :return: Sorted comma separated list of roles (e.g. "ROLE_ADMIN,ROLE_SUDO" or ['ROLE_ADMIN', 'ROLE_SUDO'] )
+    :return: Returns the response if successful or False if the request failed
     """
-    roles = []
-    for permission in group['permissions']:
-        # add all default roles
-        if permission['tenants'] == 'all':
-            for role in permission['roles']:
-                roles.append(role)
-        # add/remove tenant specific roles
-        elif permission['tenants'] == tenant_id:
-            for role in permission['roles']['add']:
-                roles.append(role)
-            for role in permission['roles']['remove']:
-                if role in roles:
-                    roles.remove(role)
-    if as_string:
-        roles = ','.join(sorted(roles))
-    return roles
+    log(f"trying to create group {group['name']}. ")
 
+    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/'
 
-def __extract_members_from_group(group: dict, tenant_id: str, as_string=False):
-    """
-    Parses the group configuration and extracts the tenant specific group members.
-    Does not check if a member exists on the tenant.
-    :param group: The group as specified in the configuration file
-    :type group: dict
-    :param tenant_id: The target tenant
-    :type tenant_id: str
-    :param as_string: Whether the roles should be returned as a string or a list
-    :type as_string: bool
-    :return: Comma separated string of members (e.g. "guy1,guy2") or list of members.
-    """
-    members = [member['uid'] for member in group['members'] if member['tenants'] in ['all', tenant_id]]
-    if as_string:
-        members = ",".join(sorted(members))
-    return members
+    # extract members and roles
+    members = __extract_members_from_group(group, tenant_id)
+    # check if member exist on tenant
+    for member in members:
+        if not get_user(username=member, tenant_id=tenant_id):
+            print(f"Warning: Member {member} does not exist.")
+            members.remove(member)
+    members = ",".join(members)
+    roles = __extract_roles_from_group(group, tenant_id, as_string=True)
 
+    data = {
+        'name': group['name'],
+        'description': __group_description_template(group['description'], tenant_id),
+        'roles': roles,
+        'members': members,
+    }
+    try:
+        response = post_request(url, DIGEST_LOGIN, '/api/groups/', data=data)
+    except RequestError as err:
+        if err.get_status_code() == "400":
+            print(f"Bad Request: Group with name {group['name']} could not be created.")
+        elif err.get_status_code() == "409":
+            print(f"Conflict: Group with name {group['name']} could not be created.\n"
+                  f"Potentially, Group with name {group['name']} already exists.")
+        print("RequestError: ", err)
+        return False
+    except Exception as e:
+        print(f"Group with name {group['name']} could not be created. \n", "Exception: ", str(e))
+        return False
 
-def __group_description_template(description: str, tenant_id: str):
-    """
-    replaces placeholders for names in the group description
-    :param description: The group description with placeholders
-    :type description: str
-    :param tenant_id: The tenant id to be inserted into the description
-    :type tenant_id: str
-    :return: group description with the inserted name, str
-    """
-    # ToDo check for a better way to insert into template
-    description = description.replace("${name}", tenant_id)
-
-    return description
+    log(f"created group {group['name']}.\nmembers: {members} \nroles: {roles} ")
+    return response
 
 
 def update_group(tenant_id: str, group: dict,
@@ -436,51 +407,80 @@ def update_group(tenant_id: str, group: dict,
     return response
 
 
-def create_group(group: dict, tenant_id: str):
+def __generate_group_identifier(group: dict, tenant_id: str):
     """
-    Sends a POST request to /api/groups/ to create a new group with the given parameter.
-    :param group: The group to be created (usually the one specified in the configuration file)
+    generates the group identifier based on the group name
+    :param group: The group as specified in the configuration file
     :type group: dict
     :param tenant_id: The target tenant
     :type tenant_id: str
-    :return: Returns the response if successful or False if the request failed
+    :return: The group id: str
     """
-    log(f"trying to create group {group['name']}. ")
+    # ToDo check if the generated identifiers are correct! (the same as in the ruby script)
+    # return f"{tenant_id}_{group['name'].replace(' ', '_')}".lower()
+    return group['name'].replace(' ', '_').lower()
 
-    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/'
 
-    # extract members and roles
-    members = __extract_members_from_group(group, tenant_id)
-    # check if member exist on tenant
-    for member in members:
-        if not get_user(username=member, tenant_id=tenant_id):
-            print(f"Warning: Member {member} does not exist.")
-            members.remove(member)
-    members = ",".join(members)
-    roles = __extract_roles_from_group(group, tenant_id, as_string=True)
+def __group_description_template(description: str, tenant_id: str):
+    """
+    replaces placeholders for names in the group description
+    :param description: The group description with placeholders
+    :type description: str
+    :param tenant_id: The tenant id to be inserted into the description
+    :type tenant_id: str
+    :return: group description with the inserted name, str
+    """
+    # ToDo check for a better way to insert into template
+    description = description.replace("${name}", tenant_id)
 
-    data = {
-        'name': group['name'],
-        'description': __group_description_template(group['description'], tenant_id),
-        'roles': roles,
-        'members': members,
-    }
-    try:
-        response = post_request(url, DIGEST_LOGIN, '/api/groups/', data=data)
-    except RequestError as err:
-        if err.get_status_code() == "400":
-            print(f"Bad Request: Group with name {group['name']} could not be created.")
-        elif err.get_status_code() == "409":
-            print(f"Conflict: Group with name {group['name']} could not be created.\n"
-                  f"Potentially, Group with name {group['name']} already exists.")
-        print("RequestError: ", err)
-        return False
-    except Exception as e:
-        print(f"Group with name {group['name']} could not be created. \n", "Exception: ", str(e))
-        return False
+    return description
 
-    log(f"created group {group['name']}.\nmembers: {members} \nroles: {roles} ")
-    return response
+
+def __extract_members_from_group(group: dict, tenant_id: str, as_string=False):
+    """
+    Parses the group configuration and extracts the tenant specific group members.
+    Does not check if a member exists on the tenant.
+    :param group: The group as specified in the configuration file
+    :type group: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: str
+    :param as_string: Whether the roles should be returned as a string or a list
+    :type as_string: bool
+    :return: Comma separated string of members (e.g. "guy1,guy2") or list of members.
+    """
+    members = [member['uid'] for member in group['members'] if member['tenants'] in ['all', tenant_id]]
+    if as_string:
+        members = ",".join(sorted(members))
+    return members
+
+
+def __extract_roles_from_group(group: dict, tenant_id: str, as_string=False):
+    """
+    Parses the group configuration and extracts the tenant specific group roles for a specific group.
+    :param group: The group as specified in the configuration file
+    :type group: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: str
+    :param as_string: Whether the roles should be returned as a string or a list
+    :type as_string: bool
+    :return: Sorted comma separated list of roles (e.g. "ROLE_ADMIN,ROLE_SUDO" or ['ROLE_ADMIN', 'ROLE_SUDO'] )
+    """
+    roles = []
+    for permission in group['permissions']:
+        # add all default roles
+        if permission['tenants'] == 'all':
+            for role in permission['roles']:
+                roles.append(role)
+        # add/remove tenant specific roles
+        elif permission['tenants'] == tenant_id:
+            for role in permission['roles']['add']:
+                roles.append(role)
+            for role in permission['roles']['remove']:
+                if role in roles:
+                    roles.remove(role)
+    if as_string:
+        roles = ','.join(sorted(roles))
+    return roles
 
 
 # def get_groups_from_tenant(tenant_id):

@@ -1,5 +1,6 @@
 from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
+from args.digest_login import DigestLogin
 from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
 from parsing_configurations import __abort_script, log
@@ -13,7 +14,7 @@ DIGEST_LOGIN = None
 UNEXPECTED_ROLES = ["ROLE_ADMIN", "ROLE_ADMIN_UI", "ROLE_UI_", "ROLE_CAPTURE_"]
 
 
-def set_config_users(digest_login, env_conf, config):
+def set_config_users(digest_login: DigestLogin, env_conf: dict, config: dict):
     """
     Sets/imports the global config variables.
     must be called before any checks can be performed.
@@ -300,12 +301,14 @@ def update_user(tenant_id: str, user: dict,
     """
     log(f"Trying to update user ... ")
 
-    name = overwrite_name if overwrite_email else user['name']
+    name = overwrite_name if overwrite_name else user['name']
     email = overwrite_email if overwrite_email else user['email']
     roles = overwrite_roles if overwrite_roles else user['roles']
     pw = overwrite_pw if overwrite_pw else user['password']
-    if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
-        roles = [roles]
+    # if not isinstance(roles, list):     # in case only one role is given, make sure roles is a list
+    #     roles = [roles]
+    # in case only one role is given, make sure roles is a list
+    roles = roles if isinstance(roles, list) else [roles]
     roles = __get_roles_as_json_array(account={'roles': roles}, as_string=True)
 
     url = f"{CONFIG.tenant_urls[tenant_id]}/admin-ng/users/{user['username']}.json"
@@ -327,7 +330,6 @@ def update_user(tenant_id: str, user: dict,
         return False
 
     log(f"Updated user {name}.")
-
     return response
 
 

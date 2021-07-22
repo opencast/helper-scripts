@@ -131,7 +131,7 @@ def __check_api_access(user: dict, tenant_id: str) -> bool:
     return True
 
 
-def __check_effective_user_roles(user, tenant_id):
+def __check_effective_user_roles(user: dict, tenant_id: str):
     """
     Checks if the effective user roles of the user contain unexpected roles.
     prints a warning for each unexpected role.
@@ -152,7 +152,7 @@ def __check_effective_user_roles(user, tenant_id):
     return True
 
 
-def __check_user_roles(user, existing_user, tenant_id):
+def __check_user_roles(user: dict, existing_user: dict, tenant_id: str):
     """
     Checks if the INTERNAL user roles match the user roles in the config file.
     If check fails, asks for user permission to update user.
@@ -221,7 +221,7 @@ def __check_user_roles(user, existing_user, tenant_id):
     return True
 
 
-def get_user(username, tenant_id):
+def get_user(username: str, tenant_id: str):
     """
     Sends a GET request to the admin UI to get a user
     :param username: The username of the user on the tenant
@@ -244,7 +244,7 @@ def get_user(username, tenant_id):
     return response.json()
 
 
-def create_user(account, tenant_id):
+def create_user(account: dict, tenant_id: str):
     """
     sends a POST request to the admin UI to create a User
     uses the /admin-ng/users/ endpoint
@@ -280,7 +280,8 @@ def create_user(account, tenant_id):
     return response
 
 
-def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
+def update_user(tenant_id: str, user: dict,
+                overwrite_name=None, overwrite_email=None, overwrite_roles=None, overwrite_pw=None):
     """
     Updates a user with the parameters provided in the user argument
     if they are not overwritten by the optional parameters.
@@ -330,7 +331,7 @@ def update_user(tenant_id, user, overwrite_name=None, overwrite_email=None, over
     return response
 
 
-def get_user_roles(user_name, tenant_id):
+def get_user_roles(user_name: str, tenant_id: str):
     """
     returns the effective roles of a user (user roles + group roles).
     Uses DigestLogin.
@@ -371,7 +372,7 @@ def extract_internal_user_roles(user: dict, as_string=False):
     return roles
 
 
-def __get_roles_as_json_array(account, as_string=False):
+def __get_roles_as_json_array(account: dict, as_string=False):
     """
     Returns the roles of a user account in json format either as a dict or as a string
     :param account: User account as defined in the config file

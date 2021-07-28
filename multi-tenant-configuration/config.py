@@ -3,7 +3,7 @@
 # Set this to your global admin node
 base_url = "http://localhost:8080"
 
-# If you have multiple tenants use an URL pattern.
+# If you have multiple tenants, use an URL pattern.
 # example:
 # tenant_url_pattern = "https://{}.example.org"
 tenant_url_pattern = "http://{}:8080"
@@ -16,7 +16,7 @@ tenant_url_pattern = "http://{}:8080"
 # }
 # tenant_urls = {'tenant1': 'https://develop.opencast.org'}
 
-# digest user
+# Digest User login
 digest_user = "opencast_system_account"
 digest_pw = "CHANGE_ME"
 

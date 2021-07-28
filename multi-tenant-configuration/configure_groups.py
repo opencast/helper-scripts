@@ -86,11 +86,13 @@ def __check_group(group: dict, tenant_id: str):
         # Add or remove members accordingly.
         __check_group_members(group=group, existing_group=existing_group, tenant_id=tenant_id)
         # Check if group roles match the group roles provided in the configuration.
-        # Update group roles if they do not match.(Asks for permission)
+        # Update group roles if they do not match. (Asks for permission)
         __check_group_roles(group=group, existing_group=existing_group, tenant_id=tenant_id)
         # ToDo
         # Check external API accounts of members. Add missing API accounts.
+        # ToDo should this actually be done? We already ask if members should be removed in the member check.
         # Check group type. If group is closed, remove unexpected members.
+        # Check for invalid group type
         # Update group members. (Asks for permission)
 
 
@@ -366,19 +368,6 @@ def update_group(tenant_id: str, group: dict,
     members = overwrite_members if overwrite_members else \
         __extract_members_from_group(group, tenant_id, as_string=True)
 
-    # if group:
-    #     group_id = group['identifier']
-    #     if not name:
-    #         name = group['name']
-    #     if not members:
-    #         members = __extract_members_from_group(group, tenant_id, as_string=True)
-    #     if not roles:
-    #         roles = __extract_roles_from_group(group, tenant_id, as_string=True)
-    #     if not description:
-    #         description = __group_description_template(group['description'], tenant_id)
-    # else:
-    #     group_id = __generate_group_identifier(group={'name': name}, tenant_id=tenant_id)
-
     url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/{group_id}'
     data = {
         'name': name,
@@ -475,18 +464,3 @@ def __extract_roles_from_group(group: dict, tenant_id: str, as_string=False):
     if as_string:
         roles = ','.join(sorted(roles))
     return roles
-
-
-# def get_groups_from_tenant(tenant_id):
-#
-#     url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/'
-#     try:
-#         response = get_request(url, DIGEST_LOGIN, '/api/groups/')
-#     except RequestError as err:
-#         print('RequestError: ', err)
-#         return False
-#     except Exception as e:
-#         print("Groups could not be retrieved. \n", "Error: ", str(e))
-#         return False
-#
-#     return response.json()

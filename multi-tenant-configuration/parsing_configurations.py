@@ -10,10 +10,9 @@ VERBOSE_FLAG = True
 
 def parse_args():
     """
-    Parse the arguments and check them for correctness
-
-    :return:
-    :rtype:
+    Parses the arguments and check them for correctness
+    :return: the environment, the tenant_id, the check
+    :rtype: triple
     """
     parser, optional_args, required_args = get_args_parser()
 
@@ -38,8 +37,8 @@ def parse_args():
 
     if not args.check:
         args.check = ['all']
-    elif args.check[0] not in ['users', 'groups', 'cast', 'capture']:
-        args_error(parser, "The check should be 'users', 'groups', 'cast' or 'capture'")
+    elif args.check[0] not in ['users', 'groups', 'capture']:
+        args_error(parser, "The check should be 'users', 'groups' or 'capture'")
 
     global VERBOSE_FLAG
     if args.verbose and args.verbose[0] == "True":
@@ -56,8 +55,6 @@ def read_yaml_file(path):
     :param path: path to the yaml file
     :return: returns a dictionary
     """
-    # ToDo error handling if path or file does not exist
-    # FileNotFoundError:
     with open(path, 'r') as f:
         content = yaml.load(f, Loader=yaml.FullLoader)
 
@@ -65,9 +62,6 @@ def read_yaml_file(path):
 
 
 def parse_config(config, env_config, digest_login):
-    # ToDo Check if all mandatory configurations are given i.e. url pattern or a url for all tenants
-
-    # ToDo should mh_default_org be removed from tenant_ids?
     config.tenant_ids = get_tenants(config.base_url, digest_login)
     config.tenant_ids.remove('mh_default_org')
 
@@ -80,7 +74,7 @@ def parse_config(config, env_config, digest_login):
     return config
 
 
-def create_group_config_file_from_json_file(json_file_path, yaml_file_path='test.yaml'):
+def create_yaml_file_from_json_file(json_file_path, yaml_file_path='test.yaml'):
     """
     This function can be used to transform a json file to a yaml file.
     requires import json and import yaml

@@ -6,20 +6,21 @@ from args.digest_login import DigestLogin
 from parsing_configurations import parse_args, read_yaml_file, parse_config
 from configure_users import check_users, set_config_users
 from configure_groups import check_groups, set_config_groups
+from configure_capture_accounts import check_capture_accounts, set_config_capture_accounts
 import config
 
 
 def main():
 
     ###   Parse args and config   ###
-    # ToDo Think about whether we should exclude Digest Login credentials from config.py file
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)  # create Digest Login
     environment, tenant_id, check = parse_args()                                    # parse args
     env_conf = read_yaml_file(config.env_path.format(environment))                  # read environment config file
     script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
     group_config = read_yaml_file(script_config.group_path)                         # read group config file
-    set_config_users(digest_login, env_conf, script_config)                         # import config to the user script
-    set_config_groups(digest_login, group_config, script_config)                    # import config to the group script
+    set_config_users(digest_login, env_conf, script_config)                         # import config to user script
+    set_config_groups(digest_login, group_config, script_config)                    # import config to group script
+    set_config_capture_accounts(digest_login, env_conf, script_config)              # import config to capture script
 
     # if tenant is not given, we perform the checks for all tenants
     if tenant_id:
@@ -32,13 +33,13 @@ def main():
         if check == 'all':
             check_users(tenant_id)
             check_groups(tenant_id)
-            # ToDo switchcast_system_accounts(tenant_id)
+            check_capture_accounts(tenant_id)
         elif check == 'users':
             check_users(tenant_id)
         elif check == 'groups':
             check_groups(tenant_id)
-        # elif check == 'capture':
-        #     switchcast_system_accounts(tenant_id)
+        elif check == 'capture':
+            check_capture_accounts(tenant_id)
 
 
 if __name__ == '__main__':

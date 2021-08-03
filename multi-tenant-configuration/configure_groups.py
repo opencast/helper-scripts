@@ -55,8 +55,6 @@ def __check_group(group: dict, tenant_id: str):
     - checks if group description matches
     - checks if group members match
     - checks if group roles match
-    - ToDo Check API access of all group members
-    - ToDo Check group type
     :param group: The group to be checked
     :type group: dict
     :param tenant_id: The target tenant
@@ -88,12 +86,6 @@ def __check_group(group: dict, tenant_id: str):
         # Check if group roles match the group roles provided in the configuration.
         # Update group roles if they do not match. (Asks for permission)
         __check_group_roles(group=group, existing_group=existing_group, tenant_id=tenant_id)
-        # ToDo
-        # Check external API accounts of members. Add missing API accounts.
-        # ToDo should this actually be done? We already ask if members should be removed in the member check.
-        # Check group type. If group is closed, remove unexpected members.
-        # Check for invalid group type
-        # Update group members. (Asks for permission)
 
 
 def __check_group_description(group: dict, existing_group: dict, tenant_id: str):
@@ -109,11 +101,6 @@ def __check_group_description(group: dict, existing_group: dict, tenant_id: str)
     """
     log(f"check names and description for group {group['name']}.")
 
-    # ToDo: does it really makes sense to check for the name?
-    #  This seems to be already done when checking for the existence of the group.
-    if group['name'] != existing_group['name']:
-        print("WARNING: Group names do not match. ")
-        return
     if __group_description_template(group['description'], tenant_id) == existing_group['description']:
         log('Group descriptions match.')
     else:
@@ -139,6 +126,10 @@ def __check_group_members(group: dict, existing_group: dict, tenant_id: str):
     :type tenant_id: str
     """
     log(f"Check members for group {group['name']}.")
+
+    group_roles = __extract_roles_from_group(group=group, tenant_id=tenant_id)
+    if "ROLE_ADMIN" or "ROLE_SUDO" in group_roles:
+        print("ATTENTION: This group contains admin or sudo rights!")
 
     group_members = __extract_members_from_group(group=group, tenant_id=tenant_id)
     existing_group_members = sorted(filter(None, existing_group['members'].split(",")))
@@ -309,7 +300,7 @@ def create_group(group: dict, tenant_id: str):
     # check if member exist on tenant
     for member in members:
         if not get_user(username=member, tenant_id=tenant_id):
-            print(f"Warning: Member {member} does not exist.")
+            print(f"WARNING: Member {member} does not exist.")
             members.remove(member)
     members = ",".join(members)
     roles = __extract_roles_from_group(group, tenant_id, as_string=True)
@@ -320,6 +311,7 @@ def create_group(group: dict, tenant_id: str):
         'roles': roles,
         'members': members,
     }
+    print(data)
     try:
         response = post_request(url, DIGEST_LOGIN, '/api/groups/', data=data)
     except RequestError as err:
@@ -359,7 +351,6 @@ def update_group(tenant_id: str, group: dict,
     """
     log(f"Trying to update group ... ")
 
-    group_id = group['identifier']
     name = overwrite_name if overwrite_name else group['name']
     description = overwrite_description if overwrite_description else \
         __group_description_template(group['description'], tenant_id)
@@ -368,7 +359,7 @@ def update_group(tenant_id: str, group: dict,
     members = overwrite_members if overwrite_members else \
         __extract_members_from_group(group, tenant_id, as_string=True)
 
-    url = f'{CONFIG.tenant_urls[tenant_id]}/api/groups/{group_id}'
+    url = f"{CONFIG.tenant_urls[tenant_id]}/api/groups/{group['identifier']}"
     data = {
         'name': name,
         'description': description,
@@ -378,7 +369,7 @@ def update_group(tenant_id: str, group: dict,
     try:
         response = put_request(url, DIGEST_LOGIN, '/api/groups/{groupId}', data=data)
     except RequestError as err:
-        if err.get_status_code() == "400": # ToDo: check if this is actually 404
+        if err.get_status_code() == "404":
             print(f"Bad Request: Group with name {name} does not exist.")
         print("RequestError: ", err)
         return False
@@ -399,9 +390,8 @@ def __generate_group_identifier(group: dict, tenant_id: str):
     :type tenant_id: str
     :return: The group id: str
     """
-    # ToDo check if the generated identifiers are correct! (the same as in the ruby script)
-    # return f"{tenant_id}_{group['name'].replace(' ', '_')}".lower()
-    return group['name'].replace(' ', '_').lower()
+    identifier = group['name'].replace(' ', '_').lower()
+    return identifier
 
 
 def __group_description_template(description: str, tenant_id: str):
@@ -413,9 +403,7 @@ def __group_description_template(description: str, tenant_id: str):
     :type tenant_id: str
     :return: group description with the inserted name, str
     """
-    # ToDo check for a better way to insert into template
-    description = description.replace("${name}", tenant_id)
-
+    description = description.format(tenant_id=tenant_id)
     return description
 
 

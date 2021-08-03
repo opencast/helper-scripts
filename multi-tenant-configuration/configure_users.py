@@ -3,14 +3,13 @@ from rest_requests.request_error import RequestError
 from args.digest_login import DigestLogin
 from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
-from parsing_configurations import __abort_script, log
+from parsing_configurations import log
 
 
 CONFIG = None
 ENV_CONFIG = None
 DIGEST_LOGIN = None
 
-# ToDo should this be moved to the config file?
 UNEXPECTED_ROLES = ["ROLE_ADMIN", "ROLE_ADMIN_UI", "ROLE_UI_", "ROLE_CAPTURE_"]
 
 
@@ -45,12 +44,12 @@ def check_users(tenant_id: str):
     # Check and configure System User Accounts & External API User Accounts:
     for organization in ENV_CONFIG['opencast_organizations']:
         # check switchcast system accounts
-        if organization['id'] == 'dummy':
+        if organization['id'] == 'all':
             log(f'Checking system accounts for tenant {tenant_id} ...')
             for system_account in organization['switchcast_system_accounts']:
                 __check_user(system_account, tenant_id)
         # check and configure external api accounts
-        if organization['id'] == tenant_id:                                     # ToDo or 'all' ?
+        if organization['id'] == tenant_id:
             log(f'Checking External API accounts for tenant {tenant_id} ...')
             for user in organization['external_api_accounts']:
                 __check_user(user, tenant_id)
@@ -91,7 +90,7 @@ def __check_user(user: dict, tenant_id: str):
         __check_effective_user_roles(user, tenant_id)
 
 
-def __check_api_access(user: dict, tenant_id: str) -> bool:
+def __check_api_access(user: dict, tenant_id: str):
     """
     Checks if the user defined in the config has access to the API.
     The check tries to login with the username and password defined in the config,
@@ -101,7 +100,6 @@ def __check_api_access(user: dict, tenant_id: str) -> bool:
     :type user: Dict
     :param tenant_id: The target tenant
     :type tenant_id: String
-    :return: True
     """
     log(f"Checking API access for user {user['username']}")
 
@@ -115,7 +113,6 @@ def __check_api_access(user: dict, tenant_id: str) -> bool:
         get_request(url, login, '/api/info/me', headers=headers, use_digest=False)
     except RequestError:
         print(f"User {user['username']} has no API Access")
-        # ToDo add to group to get API access roles?
         action_allowed = check_or_ask_for_permission(
             target_type='user',
             action='configure user',
@@ -125,11 +122,8 @@ def __check_api_access(user: dict, tenant_id: str) -> bool:
         if action_allowed:
             update_user(tenant_id, user=user)
     except Exception as e:
-        print('Error: Failed to check for API access.')
+        print('ERROR: Failed to check for API access.')
         print(str(e))
-        return False
-
-    return True
 
 
 def __check_effective_user_roles(user: dict, tenant_id: str):
@@ -140,7 +134,6 @@ def __check_effective_user_roles(user: dict, tenant_id: str):
     :type user: Dict
     :param tenant_id: The ID of the target tenant
     :type tenant_id: String
-    :return: True
     """
     log(f"Check effective user roles of user {user['username']}")
 
@@ -149,8 +142,6 @@ def __check_effective_user_roles(user: dict, tenant_id: str):
         for unexpected_role in UNEXPECTED_ROLES:
             if unexpected_role in role:
                 print(f"WARNING: Unexpected role found for User {user['username']}: {role}")
-
-    return True
 
 
 def __check_user_roles(user: dict, existing_user: dict, tenant_id: str):
@@ -163,7 +154,6 @@ def __check_user_roles(user: dict, existing_user: dict, tenant_id: str):
     :type: Dict
     :param tenant_id: The target tenant
     :type: String
-    :return: True
     """
     log(f"Check user roles of user {user['username']}")
 
@@ -218,8 +208,6 @@ def __check_user_roles(user: dict, existing_user: dict, tenant_id: str):
         if roles != existing_user_roles:
             # roles = ",".join(roles)
             update_user(tenant_id, user, overwrite_roles=roles)
-
-    return True
 
 
 def get_user(username: str, tenant_id: str):
@@ -365,7 +353,6 @@ def extract_internal_user_roles(user: dict, as_string=False):
     """
     roles = []
     for role in user['roles']:
-        # ToDo check if 'INTERNAL' is the right thing to use here
         if role['type'] == 'INTERNAL':
             roles.append(role['name'])
     if as_string:

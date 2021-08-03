@@ -1,7 +1,7 @@
 ---
 
 opencast_organizations:
-  - id: dummy
+  - id: all
     name: Dummy Tenant
     aai_org: switch.ch
     stream_sec_key: 5387689

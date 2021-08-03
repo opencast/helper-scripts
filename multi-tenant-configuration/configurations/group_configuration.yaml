@@ -23,7 +23,7 @@ groups:
           - ROLE_ADMIN
           - ROLE_SUDO
   - name: Organization Administrators
-    description: Organization administrators have full access to all content of ${name}
+    description: Organization administrators have full access to all content of {tenant_id}
     tenants: all
     type: open
     members: []

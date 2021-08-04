@@ -1,5 +1,3 @@
-import os
-
 from rest_requests.get_response_content import get_string_content
 from rest_requests.request import get_request
 
@@ -60,14 +58,3 @@ def export_video_file(digest_login, url, target_file):
             if chunk:
                 f.write(chunk)
                 f.flush()
-
-
-def make_filename_unique(directory, filename, file_extension):
-    counter = 1
-    original_filename = filename
-    path = os.path.join(directory, '{}.{}'.format(filename, file_extension))
-    while os.path.exists(path):
-        filename = original_filename + "(" + str(counter) + ")"
-        path = os.path.join(directory, '{}.{}'.format(filename, file_extension))
-        counter += 1
-    return filename

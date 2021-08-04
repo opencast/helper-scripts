@@ -9,7 +9,8 @@ namespaces = {'manifest': 'http://mediapackage.opencastproject.org'}
 
 Asset = namedtuple('Asset', ['id', 'flavor', 'mimetype', 'filename', 'path', 'tags', 'url'])
 Publication = namedtuple('Publication', ['channel', 'tracks', 'attachments', 'catalogs'])
-MediaPackage = namedtuple('MediaPackage', ['id', 'series_id', 'tracks', 'attachments', 'catalogs', 'publications'])
+MediaPackage = namedtuple('MediaPackage', ['id', 'title', 'series_id', 'series_title', 'tracks', 'attachments',
+                                           'catalogs', 'publications'])
 
 
 def parse_manifest_from_endpoint(manifest, mp_id, ignore_errors=False, with_publications=False):
@@ -83,10 +84,9 @@ def __parse_manifest(manifest, mp_id, mp_path, ignore_errors=False, with_publica
     :raise MediaPackageError:
     """
 
-    series_id = None
-    series = manifest.find("./manifest:series", namespaces)
-    if series is not None:
-        series_id = series.text
+    title = _find_attribute(manifest, "./manifest:title")
+    series_id = _find_attribute(manifest, "./manifest:series")
+    series_title = _find_attribute(manifest, "./manifest:seriestitle")
 
     tracks, catalogs, attachments = _get_assets(manifest, mp_id, mp_path, ignore_errors)
     publications = None
@@ -99,8 +99,15 @@ def __parse_manifest(manifest, mp_id, mp_path, ignore_errors=False, with_publica
             publications.append(Publication(channel=channel, tracks=pub_tracks, attachments=pub_attachments,
                                             catalogs=pub_catalogs))
 
-    return MediaPackage(id=mp_id, series_id=series_id, tracks=tracks, attachments=attachments, catalogs=catalogs,
-                        publications=publications)
+    return MediaPackage(id=mp_id, title=title, series_id=series_id, series_title=series_title, tracks=tracks,
+                        attachments=attachments, catalogs=catalogs, publications=publications)
+
+
+def _find_attribute(manifest, match):
+    attribute = manifest.find(match, namespaces)
+    if attribute is not None:
+        return attribute.text
+    return None
 
 
 def _get_assets(target, mp_id, mp_path, ignore_errors, warn=True):

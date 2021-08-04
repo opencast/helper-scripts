@@ -14,7 +14,7 @@ def make_filename_unique(base_dir, file_name, file_extension):
     :return: unique filename
     :rtype: str
     """
-    counter = 1
+    counter = 2
     original_file_name = file_name
     path = os.path.join(base_dir, '{}.{}'.format(file_name, file_extension))
     while os.path.exists(path):
@@ -35,7 +35,7 @@ def make_dirname_unique(base_dir, dir_name):
     :return: unique directory name
     :rtype: str
     """
-    counter = 1
+    counter = 2
     original_dir_name = dir_name
     path = os.path.join(base_dir, dir_name)
     while os.path.exists(path):

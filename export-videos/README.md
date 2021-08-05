@@ -30,7 +30,8 @@ First you need to configure the script in `config.py`:
 actually contain the tracks. For this to work you need to configure the presentation url if you have a separate
 presentation node.
 
-&ast;&ast; In case of duplicates, numbers are appended.
+&ast;&ast; In cases where the name cannot be expected to be unique (= is not an id) and the file or directory already
+exists, a number will be appended. This will result in duplicates if you run the script twice with the same parameters.
 
 ### Usage
 

@@ -43,6 +43,7 @@ def main():
         event_ids = [get_id(event) for event in events]
 
     print("Starting export process.")
+    series_dirs = {}
     for event_id in event_ids:
         try:
             print("Exporting media package {}".format(event_id))
@@ -61,10 +62,17 @@ def main():
 
             # build target directory path
             target_dir = config.target_directory
-
             if config.create_series_dirs and archive_mp.series_id:
-                series_dir = make_dirname_unique(target_dir, archive_mp.series_title) if config.title_folders \
-                    else archive_mp.series_id
+                if config.title_folders:
+                    # if we use series titles as folder names, we need to remember the directory so we don't create a
+                    # new one for the same series
+                    if archive_mp.series_id in series_dirs:
+                        series_dir = series_dirs[archive_mp.series_id]
+                    else:
+                        series_dir = make_dirname_unique(target_dir, archive_mp.series_title)
+                        series_dirs[archive_mp.series_id] = series_dir
+                else:
+                    series_dir = archive_mp.series_id
                 target_dir = os.path.join(target_dir, series_dir)
 
             mp_dir = make_dirname_unique(target_dir, archive_mp.title) if config.title_folders else archive_mp.id

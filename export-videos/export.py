@@ -1,7 +1,8 @@
 import os
 
 from data_handling.flavor_matcher import matches_flavor
-from rest_requests.file_requests import export_video_file, make_filename_unique, export_text_file
+from input_output.unique_names import make_filename_unique
+from rest_requests.file_requests import export_video_file, export_text_file
 from rest_requests.stream_security_requests import sign_url
 
 

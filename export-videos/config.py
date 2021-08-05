@@ -19,3 +19,4 @@ export_catalogs = ["smil/cutting", "dublincore/*"]
 target_directory = "/home/user/Desktop/videos"  # CHANGE ME
 create_series_dirs = False
 original_filenames = False
+title_folders = False

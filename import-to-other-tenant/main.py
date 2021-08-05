@@ -60,9 +60,9 @@ def main():
         try:
             mp = get_media_package(config.source_url, digest_login, event_id)
 
-            series_id, tracks, catalogs, attachments = parse_manifest_from_endpoint(mp, event_id, False)
+            mp = parse_manifest_from_endpoint(mp, event_id, False)
 
-            workflow = import_mp(series_id, tracks, catalogs, attachments, config.target_url, digest_login,
+            workflow = import_mp(mp.series_id, mp.tracks, mp.catalogs, mp.attachments, config.target_url, digest_login,
                                  config.workflow_id, config.workflow_config, False, True)
 
             print("Imported media package {} (new id: {}) and started workflow {} with id {}.".

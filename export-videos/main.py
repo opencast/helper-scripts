@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
 import config
+from input_output.unique_names import make_dirname_unique
 from args.digest_login import DigestLogin
 from data_handling.elements import get_id
 from data_handling.parse_manifest import parse_manifest_from_endpoint
@@ -42,6 +43,7 @@ def main():
         event_ids = [get_id(event) for event in events]
 
     print("Starting export process.")
+    series_dirs = {}
     for event_id in event_ids:
         try:
             print("Exporting media package {}".format(event_id))
@@ -58,19 +60,31 @@ def main():
             archive_mp_xml = get_media_package(config.admin_url, digest_login, event_id)
             archive_mp = parse_manifest_from_endpoint(archive_mp_xml, event_id, False, True)
 
-            # set target directory
+            # build target directory path
+            target_dir = config.target_directory
             if config.create_series_dirs and archive_mp.series_id:
-                mp_dir = os.path.join(config.target_directory, archive_mp.series_id, archive_mp.id)
-            else:
-                mp_dir = os.path.join(config.target_directory, archive_mp.id)
+                if config.title_folders:
+                    # if we use series titles as folder names, we need to remember the directory so we don't create a
+                    # new one for the same series
+                    if archive_mp.series_id in series_dirs:
+                        series_dir = series_dirs[archive_mp.series_id]
+                    else:
+                        series_dir = make_dirname_unique(target_dir, archive_mp.series_title)
+                        series_dirs[archive_mp.series_id] = series_dir
+                else:
+                    series_dir = archive_mp.series_id
+                target_dir = os.path.join(target_dir, series_dir)
+
+            mp_dir = make_dirname_unique(target_dir, archive_mp.title) if config.title_folders else archive_mp.id
+            target_dir = os.path.join(target_dir, mp_dir)
 
             # export
-            export_videos(archive_mp, search_mp, mp_dir, config.admin_url, digest_login, config.export_archived,
+            export_videos(archive_mp, search_mp, target_dir, config.admin_url, digest_login, config.export_archived,
                           config.export_publications, config.export_mimetypes, config.export_flavors,
                           config.stream_security, config.original_filenames)
 
             if config.export_catalogs:
-                export_catalogs(archive_mp, mp_dir, config.admin_url, digest_login, config.export_catalogs,
+                export_catalogs(archive_mp, target_dir, config.admin_url, digest_login, config.export_catalogs,
                                 config.stream_security, config.original_filenames)
 
         except Exception as e:

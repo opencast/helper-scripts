@@ -22,12 +22,16 @@ First you need to configure the script in `config.py`:
 | `export_flavors`      | The flavor(s) of videos to export (empty: videos of all flavors)            | \["delivery/*"\]                         |
 | `export_catalogs`     | The flavor(s) of catalogs to export (empty: no catalogs)                    | \["smil/cutting", "dublincore/*"\]       |
 | `target_directory`    | The path to the directory for the exported videos                           | /home/user/Desktop/videos                |
-| `create_series_dirs`  | Whether to create a directory for each series when using the `-s`option     | False                                    |
-| `original_filenames`  | Whether to keep the original filenames (otherwise track id is used)         | False                                    |
+| `create_series_dirs`  | Whether to create a directory for each series when using the `-s` option    | False                                    |
+| `original_filenames`  | Whether to keep the original filenames instead of using the element ids\*\* | False                                    |
+| `title_folders`       | Whether to use event/series titles instead of ids as folder names\*\*       | False                                    |
 
 &ast; Use the search option to export tracks used by the Engage Player, since the engage-player publication doesn't
 actually contain the tracks. For this to work you need to configure the presentation url if you have a separate
 presentation node.
+
+&ast;&ast; In cases where the name cannot be expected to be unique (= is not an id) and the file or directory already
+exists, a number will be appended. This will result in duplicates if you run the script twice with the same parameters.
 
 ### Usage
 

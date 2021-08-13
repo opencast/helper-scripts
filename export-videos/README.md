@@ -14,7 +14,7 @@ First you need to configure the script in `config.py`:
 | `presentation_url`    | The (tenant-specific) presentation URL\*                                    | https://tenant.presentation.opencast.com |
 | `digest_user`         | The user name of the digest user                                            | opencast_system_account                  |
 | `digest_pw`           | The password of the digest user                                             | CHANGE_ME                                |
-| `stream_security`     | Whether to sign the URLs before downloading                                 | False                                    |
+| `stream_security`     | Whether to sign the URLs if possible before downloading                     | False                                    |
 | `export_archived`     | Whether to export archived tracks                                           | True                                     |
 | `export_search`       | Whether to export tracks from the search service\*                          | True                                     |
 | `export_publications` | The publication channel(s) for which published tracks should be exported\*  | \["engage-player"\]                      |

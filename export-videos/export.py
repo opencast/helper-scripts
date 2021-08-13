@@ -3,7 +3,7 @@ import os
 from data_handling.flavor_matcher import matches_flavor
 from input_output.unique_names import make_filename_unique
 from rest_requests.file_requests import export_video_file, export_text_file
-from rest_requests.stream_security_requests import sign_url
+from rest_requests.stream_security_requests import sign_url, accepts_url
 
 
 def export_videos(archive_mp, search_mp, mp_dir, server_url, digest_login, export_archived, export_publications,
@@ -199,7 +199,8 @@ def __export(target_dir, asset, server_url, digest_login, sign, original_filenam
     path = os.path.join(target_dir, '{}.{}'.format(filename, file_extension))
 
     if sign:
-        url = sign_url(digest_login, server_url, url)
+        if accepts_url(digest_login, server_url, url):
+            url = sign_url(digest_login, server_url, url)
 
     os.makedirs(target_dir, exist_ok=True)
 

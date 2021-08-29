@@ -40,6 +40,8 @@ The optional dictionary `tenant_urls` can be used if the tenant-id is not an exa
 #### group config:
 The group names in the group config file must be unique per Tenant!
 
+In the group description, python placeholder can be used (i.e. `{tenant_id}`) to include the current tenant-id in the description.
+
 ### Usage
 
 The script can be called with the following command (all parameters in brackets are optional):

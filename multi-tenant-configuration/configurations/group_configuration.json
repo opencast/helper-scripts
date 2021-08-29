@@ -68,7 +68,7 @@
           "tenants": "all",
           "roles": [
             "ROLE_ADMIN_UI",
-	    "ROLE_UI_EVENTS_CREATE"
+	        "ROLE_UI_EVENTS_CREATE"
           ]
         },
         {

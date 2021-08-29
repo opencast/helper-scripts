@@ -23,28 +23,20 @@ the *configuration* file `scripts/config/group_configuration.json` contains spec
 
 The script is configured by editing the values in `config.py`:
 
-| Configuration Key | Description                               | Default/Example              |
-| :---------------- | :---------------------------------------- | :--------------------------- |
-| `url`             | The URL of the global admin node ?        | https://tenant1.opencast.com |
-| `tenant_url_pattern` | The URL pattern of the target tenants  | https://tenant2.opencast.com |
-| `tenant_urls`     | A dictioanry of server URLs of the target tenants       | https://tenant2.opencast.com |
-| `digest_user`     | The user name of the digest user          | `opencast_system_account`      |
-| `digest_pw`       | The password of the digest user           | `CHANGE_ME`                    |
-| `env_path`        | The id of the workflow to start on ingest | reimport-workflow            |
+| Configuration Key     | Description                                   | Default/Example              |
+| :-------------------- | :-------------------------------------------- | :--------------------------- |
+| `base_url`            | The URL of the global admin node              | `"http://localhost:8080"`    |
+| `tenant_url_pattern`  | The URL pattern of the target tenants         | `"http://{}:8080"`           |
+| `tenant_urls`         | Optional dictionary of server URLs per tenant | `{'tenant1': 'http://tenant1:8080', 'tenant2': 'http://tenant2:8080'}` |
+| `digest_user`         | The user name of the digest user              | `opencast_system_account`    |
+| `digest_pw`           | The password of the digest user               | `CHANGE_ME`                  |
+| `env_path`            | The path to the environment configuration file| `"environment/{}/opencast-organizations.yml"` |
+| `group_path`          | The path to the group configuration file      | `"configurations/group_configuration.yaml"` |
 
-**TODo**: check the below ...
-
-_The configured digest user needs to exist on both tenants and have the same password for both of them. This is because
-the script ingests the assets via URL, which is faster, but the user needs to be able to access the source tenant from
-the target tenant for this to work. Additionally the user currently needs to have ROLE_ADMIN to be able to use
-`/assets/{episodeid}`._
-
-_For the future, Basic Authentication and the use of an endpoint that doesn't require the Admin role (e.g.
-`api/events/{id}`) would be preferable, so you can simply add a frontend user with the necessary rights (ingest,
-access to the events/series) and the same password to both tenants._
+The configured digest user needs to exist on all tenants and has to have the same password. 
 
 #### group config:
-The names in the group config file must be unique per Tenant!
+The group names in the group config file must be unique per Tenant!
 
 ### Usage
 

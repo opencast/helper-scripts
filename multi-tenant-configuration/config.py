@@ -3,7 +3,7 @@
 # Set this to your admin node
 server_url = "http://localhost:8080"
 
-# If you have multiple tenants, use an URL pattern.
+# If you have multiple tenants, use an URL pattern. The blank {} will be filled with the tenant-id.
 # example:
 # tenant_url_pattern = "https://{}.example.org"
 tenant_url_pattern = "http://{}:8080"

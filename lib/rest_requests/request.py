@@ -42,7 +42,7 @@ def get_request(url, login, element_description, asset_type_description=None, as
         auth = HTTPDigestAuth(login.user, login.password)
         headers["X-Requested-Auth"] = "Digest"
     else:
-        auth = HTTPBasicAuth(login['user'], login['password'])
+        auth = HTTPBasicAuth(login.user, login.password)
 
     try:
         response = requests.get(url, auth=auth, headers=headers, stream=stream)

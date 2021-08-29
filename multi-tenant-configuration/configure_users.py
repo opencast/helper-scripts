@@ -1,5 +1,6 @@
 from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
+from args.basic_login import BasicLogin
 from args.digest_login import DigestLogin
 from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
@@ -105,10 +106,8 @@ def __check_api_access(user: dict, tenant_id: str):
 
     url = f'{CONFIG.tenant_urls[tenant_id]}/api/info/me'
     headers = {}
-    login = {
-        'user': user['username'],
-        'password': user['password']
-    }
+    login = BasicLogin(user=user['username'], password=user['password'])
+
     try:
         get_request(url, login, '/api/info/me', headers=headers, use_digest=False)
     except RequestError:

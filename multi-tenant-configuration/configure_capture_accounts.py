@@ -1,30 +1,25 @@
 from rest_requests.request import get_request
 from rest_requests.request_error import RequestError
-from args.digest_login import DigestLogin
+from args.basic_login import BasicLogin
 from parsing_configurations import log
 
 
 CONFIG = None
 ENV_CONFIG = None
-DIGEST_LOGIN = None
 
 
-def set_config_capture_accounts(digest_login: DigestLogin, env_conf: dict, config: dict):
+def set_config_capture_accounts(env_conf: dict, config: dict):
     """
     Sets/imports the global config variables.
     must be called before any checks can be performed.
-    :param digest_login: The digest login to be used
-    :type digest_login: DigestLogin
     :param env_conf: The environment configuration which specifies the user and system accounts
     :type env_conf: dict
     :param config: The script configuration
     :type config: dict
     """
 
-    global DIGEST_LOGIN
     global ENV_CONFIG
     global CONFIG
-    DIGEST_LOGIN = digest_login
     ENV_CONFIG = env_conf
     CONFIG = config
 
@@ -82,10 +77,8 @@ def __check_access(account: dict, tenant_id: str) -> bool:
     log(f"Checking access for Capture Agent Account {account['username']}")
 
     url = f'{CONFIG.tenant_urls[tenant_id]}/services/available.json?serviceType=org.opencastproject.ingest'
-    login = {
-        'user': account['username'],
-        'password': account['password']
-    }
+    login = BasicLogin(user=account['username'], password=account['password'])
+
     try:
         response = get_request(url, login, '/services/available.json?serviceType=org.opencastproject.ingest',
                                use_digest=False)

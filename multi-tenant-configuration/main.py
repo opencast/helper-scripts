@@ -20,7 +20,7 @@ def main():
     group_config = read_yaml_file(script_config.group_path)                         # read group config file
     set_config_users(digest_login, env_conf, script_config)                         # import config to user script
     set_config_groups(digest_login, group_config, script_config)                    # import config to group script
-    set_config_capture_accounts(digest_login, env_conf, script_config)              # import config to capture script
+    set_config_capture_accounts(env_conf, script_config)                            # import config to capture script
 
     # if tenant is not given, we perform the checks for all tenants
     if tenant_id:

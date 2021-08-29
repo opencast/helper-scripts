@@ -13,13 +13,14 @@ from rest_requests.request_error import RequestError
 def get_request(url, login, element_description, asset_type_description=None, asset_description=None,
                 stream=False, headers=None, use_digest=True):
     """
-    Make a get request to the given url with the given digest login. If the request fails with an error or a status
-    code != 200, a Request Error with the error message /status code and the given descriptions is thrown.
+    Make a get request to the given url with the given login credentials (Either Basic Auth or Digest Login).
+    If the request fails with an error or a status code != 200, a Request Error with the error message /status code
+    and the given descriptions is thrown.
 
     :param url: URL to make get request to
     :type url: str
-    :param digest_login: The login credentials for digest authentication
-    :type digest_login: DigestLogin
+    :param login: The login credentials (either HTTP Basic or digest authentication)
+    :type login: Login
     :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants'
     :type element_description: str
     :param asset_type_description: Asset type description in case of errors, e.g. 'series', 'episode'
@@ -30,6 +31,8 @@ def get_request(url, login, element_description, asset_type_description=None, as
     :type stream: bool
     :param headers: The headers to include in the request
     :type headers: dict
+    :param use_digest: Whether to use digest login
+    :type use_digest: bool
     :return: response
     :raise RequestError:
     """

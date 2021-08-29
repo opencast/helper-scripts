@@ -18,7 +18,7 @@ def parse_args():
 
     required_args.add_argument("-e", "--environment", type=str, nargs='+',
                                help="the environment (either 'staging' or 'production')")
-    optional_args.add_argument("-t", "--tenantid", type=str, nargs='+', help="target tenant id")
+    optional_args.add_argument("-t", "--tenant-id", type=str, nargs='+', help="target tenant id")
     optional_args.add_argument("-c", "--check", type=str, nargs='+',
                                help="checks to be performed ('users', 'groups', 'cast' or 'capture') (default: all)")
     optional_args.add_argument("-v", "--verbose", type=str, nargs='+', help="enables more logging")
@@ -32,8 +32,8 @@ def parse_args():
     if len(args.environment) > 1:
         args_error(parser, "You can only provide one environment. Either 'staging' or 'production'")
 
-    if not args.tenantid:
-        args.tenantid = ['']
+    if not args.tenant_id:
+        args.tenant_id = ['']
 
     if not args.check:
         args.check = ['all']
@@ -46,7 +46,7 @@ def parse_args():
     else:
         VERBOSE_FLAG = False
 
-    return args.environment[0], args.tenantid[0], args.check[0]
+    return args.environment[0], args.tenant_id[0], args.check[0]
 
 
 def read_yaml_file(path):

@@ -43,7 +43,7 @@ The script can be called with the following command (all parameters in brackets 
 | Param | Description |
 | :---: | :---------- |
 | `-e` / `--environment` | The environment where to find the configuration file (either `staging` or `production`) |
-| `-t` / `--tenantid` | The id of the target tenant to be configured |
+| `-t` / `--tenant-id` | The id of the target tenant to be configured |
 | `-c` / `--check` | checks to be performed (`users`, `groups`, `cast` or `capture`) (default: `all`) | 
 | `-v` / `--verbose` | enables logging to be prompted if set to `True` | 
 

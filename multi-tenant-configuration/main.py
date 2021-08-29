@@ -15,9 +15,9 @@ def main():
     ###   Parse args and config   ###
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)  # create Digest Login
     environment, tenant_id, check = parse_args()                                    # parse args
-    env_conf = read_yaml_file(config.env_path.format(environment))                  # read environment config file
+    env_conf = read_yaml_file(config.org_config_path.format(environment))                  # read environment config file
     script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
-    group_config = read_yaml_file(script_config.group_path)                         # read group config file
+    group_config = read_yaml_file(script_config.group_config_path)                         # read group config file
     set_config_users(digest_login, env_conf, script_config)                         # import config to user script
     set_config_groups(digest_login, group_config, script_config)                    # import config to group script
     set_config_capture_accounts(env_conf, script_config)                            # import config to capture script

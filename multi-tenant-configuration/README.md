@@ -30,8 +30,8 @@ The script is configured by editing the values in `config.py`:
 | `tenant_urls`         | Optional dictionary of server URLs per tenant | `{'tenant1': 'http://tenant1:8080', 'tenant2': 'http://tenant2:8080'}` |
 | `digest_user`         | The user name of the digest user              | `opencast_system_account`    |
 | `digest_pw`           | The password of the digest user               | `CHANGE_ME`                  |
-| `env_path`            | The path to the environment configuration file| `"environment/{}/opencast-organizations.yml"` |
-| `group_path`          | The path to the group configuration file      | `"configurations/group_configuration.yaml"` |
+| `org_config_path`     | The path to the organization config file      | `"environment/{}/opencast-organizations.yml"` |
+| `group_config_path`   | The path to the group config file             | `"configurations/group_configuration.yaml"` |
 
 The configured digest user needs to exist on all tenants and has to have the same password. 
 

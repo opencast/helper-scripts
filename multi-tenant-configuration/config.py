@@ -20,6 +20,6 @@ digest_user = "opencast_system_account"
 digest_pw = "CHANGE_ME"
 
 # path to environment configuration file
-env_path = "environment/{}/opencast-organizations.yml"
+org_config_path = "environment/{}/opencast-organizations.yml"
 # path to group configuration file
-group_path = "configurations/group_configuration.yaml"
+group_config_path = "configurations/group_configuration.yaml"

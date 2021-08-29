@@ -45,7 +45,7 @@ def check_users(tenant_id: str):
     # Check and configure System User Accounts & External API User Accounts:
     for organization in ENV_CONFIG['opencast_organizations']:
         # check switchcast system accounts
-        if organization['id'] == 'all':
+        if organization['id'] == 'All Tenants':
             log(f'Checking system accounts for tenant {tenant_id} ...')
             for system_account in organization['switchcast_system_accounts']:
                 __check_user(system_account, tenant_id)

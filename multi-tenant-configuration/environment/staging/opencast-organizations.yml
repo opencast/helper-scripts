@@ -1,18 +1,8 @@
 ---
 
 opencast_organizations:
-  - id: all
+  - id: All Tenants
     name: Dummy Tenant
-    aai_org: switch.ch
-    stream_sec_key: 5387689
-    acl_default_template: organization
-    acl_default_download: False
-    acl_default_annotate: False
-
-  # Global External API user passwords
-    opencast_system_account:
-      username: opencast_system_account
-      password: CHANGE_ME
     switchcast_system_accounts:
       - username: player
         name: Player System User
@@ -33,8 +23,6 @@ opencast_organizations:
 
   - id: tenant1
     name: Tenant1
-    aai_org: tenant1.ch
-    stream_sec_key: tu7uzgjjhghjf
     capture_agent_accounts:
       - username: ca-tenant1-ch
         password: jvblkajklvjhaklehr
@@ -56,8 +44,6 @@ opencast_organizations:
         roles: [ROLE_ADMIN, ROLE_SUDO]
   - id: tenant2
     name: Tenant2
-    aai_org: tenant2.ch
-    stream_sec_key: tu7uzgjjhghjf
     capture_agent_accounts:
       - username: ca-tenant2-ch
         password: hjfkhfzuruzf76

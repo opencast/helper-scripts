@@ -35,6 +35,8 @@ The script is configured by editing the values in `config.py`:
 
 The configured digest user needs to exist on all tenants and has to have the same password. 
 
+The optional dictionary `tenant_urls` can be used if the tenant-id is not an exact part of the tenant URL or the URLs don't follow a common pattern. 
+
 #### group config:
 The group names in the group config file must be unique per Tenant!
 

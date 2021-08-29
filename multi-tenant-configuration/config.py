@@ -1,7 +1,7 @@
 # Configuration
 
 # Set this to your admin node
-base_url = "http://localhost:8080"
+server_url = "http://localhost:8080"
 
 # If you have multiple tenants, use an URL pattern.
 # example:

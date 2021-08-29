@@ -62,7 +62,7 @@ def read_yaml_file(path):
 
 
 def parse_config(config, env_config, digest_login):
-    config.tenant_ids = get_tenants(config.base_url, digest_login)
+    config.tenant_ids = get_tenants(config.server_url, digest_login)
     config.tenant_ids.remove('mh_default_org')
 
     if not hasattr(config, 'tenant_urls'):

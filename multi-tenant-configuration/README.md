@@ -25,7 +25,7 @@ The script is configured by editing the values in `config.py`:
 
 | Configuration Key     | Description                                   | Default/Example              |
 | :-------------------- | :-------------------------------------------- | :--------------------------- |
-| `base_url`            | The URL of the global admin node              | `"http://localhost:8080"`    |
+| `server_url`            | The URL of the global admin node              | `"http://localhost:8080"`    |
 | `tenant_url_pattern`  | The URL pattern of the target tenants         | `"http://{}:8080"`           |
 | `tenant_urls`         | Optional dictionary of server URLs per tenant | `{'tenant1': 'http://tenant1:8080', 'tenant2': 'http://tenant2:8080'}` |
 | `digest_user`         | The user name of the digest user              | `opencast_system_account`    |

@@ -8,12 +8,12 @@ groups:
       - name: Guy 1
         email: test@test.de
         reason: Operations partner
-        uid: guy1
+        username: guy1
         tenants: all
       - name: Guy 2
         email: test@test.de
         reason: Operations partner
-        uid: guy2
+        username: guy2
         tenants: tenant1
     inactive_members: []
     permissions:
@@ -65,12 +65,12 @@ groups:
       - name: Guy X
         email: test@test.de
         reason: Operations partner
-        uid: guyx
+        username: guyx
         tenants: all
       - name: Guy 2
         email: test@test.de
         reason: Operations partner
-        uid: guy2
+        username: guy2
         tenants: tenant1
     inactive_members: []
     permissions:

@@ -419,7 +419,7 @@ def __extract_members_from_group(group: dict, tenant_id: str, as_string=False):
     :type as_string: bool
     :return: Comma separated string of members (e.g. "guy1,guy2") or list of members.
     """
-    members = [member['uid'] for member in group['members'] if member['tenants'] in ['all', tenant_id]]
+    members = [member['username'] for member in group['members'] if member['tenants'] in ['all', tenant_id]]
     if as_string:
         members = ",".join(sorted(members))
     return members

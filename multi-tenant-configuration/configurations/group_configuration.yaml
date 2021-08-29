@@ -4,7 +4,6 @@ groups:
   - name: System Administrators
     description: System Administrators
     tenants: all
-    type: closed
     members:
       - name: Guy 1
         email: test@test.de
@@ -25,7 +24,6 @@ groups:
   - name: Organization Administrators
     description: Organization administrators have full access to all content of {tenant_id}
     tenants: all
-    type: open
     members: []
     inactive_members: []
     permissions:
@@ -42,7 +40,6 @@ groups:
   - name: Producers
     description: Producers have limited access to content and functionality
     tenants: all
-    type: open
     members: []
     inactive_members: []
     permissions:
@@ -64,7 +61,6 @@ groups:
   - name: Tenant1 Producers
     description: Tenant1 Producers have limited access to content and functionality
     tenants: tenant1
-    type: open
     members:
       - name: Guy X
         email: test@test.de

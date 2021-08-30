@@ -3,8 +3,10 @@ import sys
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
 from args.digest_login import DigestLogin
+from input_output.logger import Logger
 from input_output.yaml_utils import read_yaml_file
-from parsing_configurations import parse_args, parse_config
+from rest_requests.basic_requests import get_tenants
+from parsing_configurations import parse_args
 from configure_users import check_users, set_config_users
 from configure_groups import check_groups, set_config_groups
 from configure_capture_accounts import check_capture_accounts, set_config_capture_accounts
@@ -14,20 +16,27 @@ import config
 def main():
 
     ###   Parse args and config   ###
-    digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)  # create Digest Login
-    environment, tenant_id, check = parse_args()                                    # parse args
-    env_conf = read_yaml_file(config.org_config_path.format(environment))                  # read environment config file
-    script_config = parse_config(config, env_conf, digest_login)                    # parse config.py
-    group_config = read_yaml_file(script_config.group_config_path)                         # read group config file
-    set_config_users(digest_login, env_conf, script_config)                         # import config to user script
-    set_config_groups(digest_login, group_config, script_config)                    # import config to group script
-    set_config_capture_accounts(env_conf, script_config)                            # import config to capture script
+    digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
+    environment, tenant_id, check, verbose = parse_args()
+    logger = Logger(verbose)
+    # read and parse organization config
+    org_conf = read_yaml_file(config.org_config_path.format(environment))
+    config.tenant_ids = get_tenants(config.server_url, digest_login)
+    config.tenant_ids.remove('mh_default_org')
+    if not hasattr(config, 'tenant_urls'):
+        config.tenant_urls = {}
+    for tenant_id in config.tenant_ids:
+        if not tenant_id in config.tenant_urls:
+            config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
+    # read group config
+    group_config = read_yaml_file(config.group_config_path)
+    # import config to scripts
+    set_config_users(digest_login, org_conf, config, logger)
+    set_config_groups(digest_login, group_config, config, logger)
+    set_config_capture_accounts(org_conf, config, logger)
 
     # if tenant is not given, we perform the checks for all tenants
-    if tenant_id:
-        tenants_to_check = [tenant_id]
-    else:
-        tenants_to_check = script_config.tenant_ids
+    tenants_to_check = [tenant_id] if tenant_id else config.tenant_ids
 
     ###   Start checks   ###
     for tenant_id in tenants_to_check:

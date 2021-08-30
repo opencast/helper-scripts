@@ -2,9 +2,9 @@ from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
 from args.basic_login import BasicLogin
 from args.digest_login import DigestLogin
+from input_output.logger import Logger
 from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
-from parsing_configurations import log
 
 
 CONFIG = None
@@ -14,7 +14,7 @@ DIGEST_LOGIN = None
 UNEXPECTED_ROLES = ["ROLE_ADMIN", "ROLE_ADMIN_UI", "ROLE_UI_", "ROLE_CAPTURE_"]
 
 
-def set_config_users(digest_login: DigestLogin, env_conf: dict, config: dict):
+def set_config_users(digest_login: DigestLogin, env_conf: dict, config: dict, logger: Logger):
     """
     Sets/imports the global config variables.
     must be called before any checks can be performed.
@@ -24,14 +24,18 @@ def set_config_users(digest_login: DigestLogin, env_conf: dict, config: dict):
     :type env_conf: dict
     :param config: The script configuration
     :type config: dict
+    :param logger: A Logger instance
+    :type logger: Logger
     """
 
     global DIGEST_LOGIN
     global ENV_CONFIG
     global CONFIG
+    global log
     DIGEST_LOGIN = digest_login
     ENV_CONFIG = env_conf
     CONFIG = config
+    log = logger.log
 
 
 def check_users(tenant_id: str):

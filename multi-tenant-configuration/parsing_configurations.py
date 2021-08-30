@@ -1,9 +1,5 @@
 from args.args_parser import get_args_parser
 from args.args_error import args_error
-from rest_requests.basic_requests import get_tenants
-
-
-VERBOSE_FLAG = True
 
 
 def parse_args():
@@ -38,28 +34,6 @@ def parse_args():
     elif args.check[0] not in ['users', 'groups', 'capture']:
         args_error(parser, "The check should be 'users', 'groups' or 'capture'")
 
-    global VERBOSE_FLAG
-    if args.verbose:
-        VERBOSE_FLAG = True
-    else:
-        VERBOSE_FLAG = False
+    verbose = True if args.verbose else False
 
-    return args.environment[0], args.tenant_id[0], args.check[0]
-
-
-def parse_config(config, env_config, digest_login):
-    config.tenant_ids = get_tenants(config.server_url, digest_login)
-    config.tenant_ids.remove('mh_default_org')
-
-    if not hasattr(config, 'tenant_urls'):
-        config.tenant_urls = {}
-    for tenant_id in config.tenant_ids:
-        if not tenant_id in config.tenant_urls:
-            config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
-
-    return config
-
-
-def log(*args):
-    if VERBOSE_FLAG:
-        print(*args)
+    return args.environment[0], args.tenant_id[0], args.check[0], verbose

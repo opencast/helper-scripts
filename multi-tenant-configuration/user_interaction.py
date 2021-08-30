@@ -1,4 +1,3 @@
-from parsing_configurations import log
 import re
 
 
@@ -53,8 +52,6 @@ def get_permission(target_type, action, target_name, tenant_id) -> bool:
     :type tenant_id: str
     :return: bool or None, the permission value
     """
-
-    log('permissions: ', permissions)
 
     key = __build_key(action, tenant_id, target_name)
     if key in permissions[target_type].keys():

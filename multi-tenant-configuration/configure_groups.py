@@ -2,9 +2,9 @@ from rest_requests.request import get_request, post_request, put_request
 from rest_requests.request_error import RequestError
 from args.digest_login import DigestLogin
 from configure_users import get_user
+from input_output.logger import Logger
 from input_output.input import get_yes_no_answer
 from user_interaction import check_or_ask_for_permission
-from parsing_configurations import log
 
 
 CONFIG = None
@@ -12,7 +12,7 @@ GROUP_CONFIG = None
 DIGEST_LOGIN = None
 
 
-def set_config_groups(digest_login: DigestLogin, group_config: dict, config: dict):
+def set_config_groups(digest_login: DigestLogin, group_config: dict, config: dict, logger: Logger):
     """
     Sets/imports the global config variables.
     Must be called before any checks can be performed.
@@ -22,14 +22,18 @@ def set_config_groups(digest_login: DigestLogin, group_config: dict, config: dic
     :type group_config: dict
     :param config: The script configuration
     :type config: dict
+    :param logger: A Logger instance
+    :type logger: Logger
     """
 
     global DIGEST_LOGIN
     global GROUP_CONFIG
     global CONFIG
+    global log
     DIGEST_LOGIN = digest_login
     GROUP_CONFIG = group_config
     CONFIG = config
+    log = logger.log
 
 
 def check_groups(tenant_id: str):

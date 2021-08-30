@@ -1,14 +1,14 @@
 from rest_requests.request import get_request
 from rest_requests.request_error import RequestError
 from args.basic_login import BasicLogin
-from parsing_configurations import log
+from input_output.logger import Logger
 
 
 CONFIG = None
 ENV_CONFIG = None
 
 
-def set_config_capture_accounts(env_conf: dict, config: dict):
+def set_config_capture_accounts(env_conf: dict, config: dict, logger: Logger):
     """
     Sets/imports the global config variables.
     must be called before any checks can be performed.
@@ -16,12 +16,16 @@ def set_config_capture_accounts(env_conf: dict, config: dict):
     :type env_conf: dict
     :param config: The script configuration
     :type config: dict
+    :param logger: A Logger instance
+    :type logger: Logger
     """
 
     global ENV_CONFIG
     global CONFIG
+    global log
     ENV_CONFIG = env_conf
     CONFIG = config
+    log = logger.log
 
 
 def check_capture_accounts(tenant_id: str):

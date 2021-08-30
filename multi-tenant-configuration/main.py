@@ -3,7 +3,8 @@ import sys
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
 from args.digest_login import DigestLogin
-from parsing_configurations import parse_args, read_yaml_file, parse_config
+from input_output.yaml_utils import read_yaml_file
+from parsing_configurations import parse_args, parse_config
 from configure_users import check_users, set_config_users
 from configure_groups import check_groups, set_config_groups
 from configure_capture_accounts import check_capture_accounts, set_config_capture_accounts

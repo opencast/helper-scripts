@@ -63,8 +63,3 @@ def parse_config(config, env_config, digest_login):
 def log(*args):
     if VERBOSE_FLAG:
         print(*args)
-
-
-def __abort_script(message):
-    print(message)
-    sys.exit()

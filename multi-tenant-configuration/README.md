@@ -25,9 +25,10 @@ The script is configured by editing the values in `config.py`:
 
 | Configuration Key     | Description                                   | Default/Example              |
 | :-------------------- | :-------------------------------------------- | :--------------------------- |
-| `server_url`            | The URL of the global admin node              | `"http://localhost:8080"`    |
+| `server_url`          | The URL of the global admin node              | `"http://localhost:8080"`    |
 | `tenant_url_pattern`  | The URL pattern of the target tenants         | `"http://{}:8080"`           |
 | `tenant_urls`         | Optional dictionary of server URLs per tenant | `{'tenant1': 'http://tenant1:8080', 'tenant2': 'http://tenant2:8080'}` |
+| `ignored_tenants`     | Optional list of tenants which are ignored    | `['mh_default_org']`         |
 | `digest_user`         | The user name of the digest user              | `opencast_system_account`    |
 | `digest_pw`           | The password of the digest user               | `CHANGE_ME`                  |
 | `org_config_path`     | The path to the organization config file      | `"environment/{}/opencast-organizations.yml"` |

@@ -15,6 +15,11 @@ tenant_url_pattern = "http://{}:8080"
 #     'tenant2': 'http://tenant2:8080'
 # }
 
+# List of tenants which should be ignored
+ignored_tenants = [
+    'mh_default_org'
+]
+
 # Digest User login
 digest_user = "opencast_system_account"
 digest_pw = "CHANGE_ME"

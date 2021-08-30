@@ -17,18 +17,19 @@ def main():
 
     ###   Parse args and config   ###
     digest_login = DigestLogin(user=config.digest_user, password=config.digest_pw)
-    environment, tenant_id, check, verbose = parse_args()
+    environment, tenant_to_check, check, verbose = parse_args()
     logger = Logger(verbose)
-    # read and parse organization config
-    org_conf = read_yaml_file(config.org_config_path.format(environment))
+    # parse script config
     config.tenant_ids = get_tenants(config.server_url, digest_login)
-    config.tenant_ids.remove('mh_default_org')
+    for ignored_tenant in config.ignored_tenants:
+        config.tenant_ids.remove(ignored_tenant)
     if not hasattr(config, 'tenant_urls'):
         config.tenant_urls = {}
     for tenant_id in config.tenant_ids:
         if not tenant_id in config.tenant_urls:
             config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
-    # read group config
+    # read organization and group config
+    org_conf = read_yaml_file(config.org_config_path.format(environment))
     group_config = read_yaml_file(config.group_config_path)
     # import config to scripts
     set_config_users(digest_login, org_conf, config, logger)
@@ -36,19 +37,15 @@ def main():
     set_config_capture_accounts(org_conf, config, logger)
 
     # if tenant is not given, we perform the checks for all tenants
-    tenants_to_check = [tenant_id] if tenant_id else config.tenant_ids
+    tenants_to_check = [tenant_to_check] if tenant_to_check else config.tenant_ids
 
     ###   Start checks   ###
     for tenant_id in tenants_to_check:
-        if check == 'all':
+        if check == 'users' or check == 'all':
             check_users(tenant_id)
+        if check == 'groups' or check == 'all':
             check_groups(tenant_id)
-            check_capture_accounts(tenant_id)
-        elif check == 'users':
-            check_users(tenant_id)
-        elif check == 'groups':
-            check_groups(tenant_id)
-        elif check == 'capture':
+        if check == 'capture' or check == 'all':
             check_capture_accounts(tenant_id)
 
 

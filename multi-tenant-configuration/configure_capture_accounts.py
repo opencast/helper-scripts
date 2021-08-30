@@ -58,9 +58,9 @@ def __check_capture_agent_account(account: dict, tenant_id: str):
 
     # check username and password
     if not account['username']:
-        print('WARNING: No Capture Agent Account has been configured')
+        print('ERROR: No Capture Agent Account has been configured')
     elif not account['password']:
-        print(f"WARNING: No password configured for Capture Agent User {account['username']}")
+        print(f"ERROR: No password configured for Capture Agent User {account['username']}")
     # Check if account has api access
     else:
         __check_access(account=account, tenant_id=tenant_id)

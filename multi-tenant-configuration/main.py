@@ -6,7 +6,7 @@ from args.digest_login import DigestLogin
 from input_output.logger import Logger
 from input_output.yaml_utils import read_yaml_file
 from rest_requests.basic_requests import get_tenants
-from parsing_configurations import parse_args
+from parse_arguments import parse_args
 from configure_users import check_users, set_config_users
 from configure_groups import check_groups, set_config_groups
 from configure_capture_accounts import check_capture_accounts, set_config_capture_accounts

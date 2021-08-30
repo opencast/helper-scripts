@@ -39,7 +39,7 @@ def parse_args():
         args_error(parser, "The check should be 'users', 'groups' or 'capture'")
 
     global VERBOSE_FLAG
-    if args.verbose and args.verbose[0] == "True":
+    if args.verbose:
         VERBOSE_FLAG = True
     else:
         VERBOSE_FLAG = False

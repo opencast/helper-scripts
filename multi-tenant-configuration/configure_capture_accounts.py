@@ -52,16 +52,12 @@ def __check_capture_agent_account(account: dict, tenant_id: str) -> bool:
     Checks if the capture agent defined in the config has access to the service registry
     with the username and password defined in the config, and sends a get request to '/services/available.json'
     to find the ingest service. If check fails, prints a warning.
-    :param account: The user defined in the config
-    :type account: dict
-    :param tenant_id: The target tenant
-    :type tenant_id: String
-    :return: bool
 
     :param account: The Capture Agent Account to be checked
     :type account: dict
     :param tenant_id: The target tenant
     :type tenant_id: str
+    :return: bool
     """
     log(f"Checking Capture Agent Account {account['username']} on tenant {tenant_id}.")
 

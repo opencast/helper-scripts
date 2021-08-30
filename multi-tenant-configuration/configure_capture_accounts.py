@@ -40,8 +40,8 @@ def check_capture_accounts(tenant_id: str):
     for organization in ENV_CONFIG['opencast_organizations']:
         # check switchcast system accounts
         if organization['id'] == tenant_id:
-            for capture_agent in organization['capture_agent_accounts']:
-                __check_capture_agent_account(capture_agent, tenant_id)
+            for capture_agent_account in organization['capture_agent_accounts']:
+                __check_capture_agent_account(capture_agent_account, tenant_id)
 
 
 def __check_capture_agent_account(account: dict, tenant_id: str):

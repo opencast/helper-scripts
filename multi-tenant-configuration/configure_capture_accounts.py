@@ -44,11 +44,20 @@ def check_capture_accounts(tenant_id: str):
                 __check_capture_agent_account(capture_agent_account, tenant_id)
 
 
-def __check_capture_agent_account(account: dict, tenant_id: str):
+def __check_capture_agent_account(account: dict, tenant_id: str) -> bool:
     """
-    Performs all checks for the specified Capture Agent Account:
-    - checks if account has API access (and if password matches)
+    Performs checks for the specified Capture Agent Account:
     - checks if username and password exists
+    - checks if account has API access (and if password matches)
+    Checks if the capture agent defined in the config has access to the service registry
+    with the username and password defined in the config, and sends a get request to '/services/available.json'
+    to find the ingest service. If check fails, prints a warning.
+    :param account: The user defined in the config
+    :type account: dict
+    :param tenant_id: The target tenant
+    :type tenant_id: String
+    :return: bool
+
     :param account: The Capture Agent Account to be checked
     :type account: dict
     :param tenant_id: The target tenant
@@ -59,33 +68,16 @@ def __check_capture_agent_account(account: dict, tenant_id: str):
     # check username and password
     if not account['username']:
         print('ERROR: No Capture Agent Account has been configured')
-    elif not account['password']:
+        return False
+    if not account['password']:
         print(f"ERROR: No password configured for Capture Agent User {account['username']}")
+        return False
+
     # Check if account has api access
-    else:
-        __check_access(account=account, tenant_id=tenant_id)
-
-
-def __check_access(account: dict, tenant_id: str) -> bool:
-    """
-    Checks if the capture agent defined in the config has access to the ingest service.
-    The check tries to access the ingest service with the username and password defined in the config,
-    and sends a get request to '/services/available.json' .
-    If check fails, prints a warning.
-    :param account: The user defined in the config
-    :type account: dict
-    :param tenant_id: The target tenant
-    :type tenant_id: String
-    :return: bool
-    """
-    log(f"Checking access for Capture Agent Account {account['username']}")
-
     url = f'{CONFIG.tenant_urls[tenant_id]}/services/available.json?serviceType=org.opencastproject.ingest'
     login = BasicLogin(user=account['username'], password=account['password'])
-
     try:
-        response = get_request(url, login, '/services/available.json?serviceType=org.opencastproject.ingest',
-                               use_digest=False)
+        response = get_request(url, login, '/services/available.json', use_digest=False)
     except RequestError:
         print(f"WARNING: Capture Agent {account['username']} has no access.")
         return False

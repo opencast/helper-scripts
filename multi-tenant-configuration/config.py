@@ -26,6 +26,6 @@ digest_pw = "CHANGE_ME"
 
 # path to environment configuration file.
 # The {} are a placeholder which will be filled with the environment passed as an argument (e.g. staging or production).
-org_config_path = "environment/{}/opencast-organizations.yml"
+org_config_path = "configurations/environment/{}/opencast-organizations.yml"
 # path to group configuration file
 group_config_path = "configurations/group_configuration.yaml"

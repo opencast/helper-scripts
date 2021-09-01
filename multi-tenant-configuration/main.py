@@ -7,7 +7,7 @@ from input_output.logger import Logger
 from input_output.yaml_utils import read_yaml_file
 from rest_requests.basic_requests import get_tenants
 from parse_arguments import parse_args
-from configure_users import check_users, set_config_users
+from configure_users import check_external_api_accounts, check_system_accounts, set_config_users
 from configure_groups import check_groups, set_config_groups
 from configure_capture_accounts import check_capture_accounts, set_config_capture_accounts
 import config
@@ -28,8 +28,12 @@ def main():
     for tenant_id in config.tenant_ids:
         if not tenant_id in config.tenant_urls:
             config.tenant_urls[tenant_id] = config.tenant_url_pattern.format(tenant_id)
-    # read organization and group config
+    # read and parse organization config
     org_conf = read_yaml_file(config.org_config_path.format(environment))
+    opencast_organizations = {}
+    for organization in org_conf['opencast_organizations']:
+        opencast_organizations[organization['id']] = organization
+    # read group config
     group_config = read_yaml_file(config.group_config_path)
     # import config to scripts
     set_config_users(digest_login, org_conf, config, logger)
@@ -42,11 +46,12 @@ def main():
     ###   Start checks   ###
     for tenant_id in tenants_to_check:
         if check == 'users' or check == 'all':
-            check_users(tenant_id)
+            check_system_accounts(opencast_organizations['All Tenants']['switchcast_system_accounts'], tenant_id)
+            check_external_api_accounts(opencast_organizations[tenant_id])
         if check == 'groups' or check == 'all':
             check_groups(tenant_id)
         if check == 'capture' or check == 'all':
-            check_capture_accounts(tenant_id)
+            check_capture_accounts(opencast_organizations[tenant_id])
 
 
 if __name__ == '__main__':

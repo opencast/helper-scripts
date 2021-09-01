@@ -38,26 +38,32 @@ def set_config_users(digest_login: DigestLogin, env_conf: dict, config: dict, lo
     log = logger.log
 
 
-def check_users(tenant_id: str):
+def check_system_accounts(system_accounts, tenant_id):
     """
-    Performs the checks for each user on the specified tenant
+    Performs checks on the system accounts (e.g. player, annotate, cast).
+
+    :param system_accounts: The switchcast system accounts to be checked
+    :type system_accounts: dict
     :param tenant_id: The target tenant
     :type tenant_id: str
     """
-    log('\nStart checking users for tenant: ', tenant_id)
+    # check switchcast system accounts
+    log(f"Start checking system accounts for tenant {tenant_id} ...")
+    for system_account in system_accounts:
+        __check_user(system_account, tenant_id)
 
-    # Check and configure System User Accounts & External API User Accounts:
-    for organization in ENV_CONFIG['opencast_organizations']:
-        # check switchcast system accounts
-        if organization['id'] == 'All Tenants':
-            log(f'Checking system accounts for tenant {tenant_id} ...')
-            for system_account in organization['switchcast_system_accounts']:
-                __check_user(system_account, tenant_id)
-        # check and configure external api accounts
-        if organization['id'] == tenant_id:
-            log(f'Checking External API accounts for tenant {tenant_id} ...')
-            for user in organization['external_api_accounts']:
-                __check_user(user, tenant_id)
+
+def check_external_api_accounts(tenant):
+    """
+    Performs checks on the external api accounts for the given tenant.
+
+    :param tenant: The target tenant
+    :type tenant: dict
+    """
+    # check and configure external api accounts
+    log(f"Start checking External API accounts for tenant {tenant['id']} ...")
+    for user in tenant['external_api_accounts']:
+        __check_user(user, tenant['id'])
 
 
 def __check_user(user: dict, tenant_id: str):

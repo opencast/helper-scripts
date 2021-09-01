@@ -28,20 +28,17 @@ def set_config_capture_accounts(env_conf: dict, config: dict, logger: Logger):
     log = logger.log
 
 
-def check_capture_accounts(tenant_id: str):
+def check_capture_accounts(tenant):
     """
     Performs the checks for each capture agent on the specified tenant
-    :param tenant_id: The target tenant
-    :type tenant_id: str
+    :param tenant: The target tenant
+    :type tenant: dict
     """
-    log('\nStart checking Capture Agent Accounts for tenant: ', tenant_id)
+    log('\nStart checking Capture Agent Accounts for tenant: ', tenant['id'])
 
     # Check and configure Capture Agent Accounts:
-    for organization in ENV_CONFIG['opencast_organizations']:
-        # check switchcast system accounts
-        if organization['id'] == tenant_id:
-            for capture_agent_account in organization['capture_agent_accounts']:
-                __check_capture_agent_account(capture_agent_account, tenant_id)
+    for capture_agent_account in tenant['capture_agent_accounts']:
+        __check_capture_agent_account(capture_agent_account, tenant['id'])
 
 
 def __check_capture_agent_account(account: dict, tenant_id: str) -> bool:

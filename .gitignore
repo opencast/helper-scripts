@@ -2,3 +2,6 @@ venv
 __pycache__
 .idea
 *.pyc
+visualize-workflow/workflow-*.json
+visualize-workflow/*.svg
+visualize-workflow/*.dat

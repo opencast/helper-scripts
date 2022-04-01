@@ -36,7 +36,7 @@ An additional script is created to start workflows on a list of media packages.
 
 Usage:
 ```
-$ sh start-multiple-workflows.sh --help
+$ bash start-multiple-workflows.sh --help
 usage: start-multiple-workflows.sh -w WORKFLOW [-W PROPERTIES] [-o OPENCAST] [-u USER] [-p PASSWORD] [-h]
 
 required arguments:
@@ -55,6 +55,6 @@ optional arguments:
 
 Example:
 ```
-cat mediapackages.txt | sh start-multiple-workflows.sh -o https://develop.opencast.org -w republish-metadata \
+cat mediapackages.txt | bash start-multiple-workflows.sh -o https://develop.opencast.org -w republish-metadata \
                                                        -W publishToEngage=false -W publishToOaiPmh=true
 ```

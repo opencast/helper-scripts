@@ -3,9 +3,13 @@ from data_handling.parse_manifest import Asset
 
 
 def asset_with_tags(old_asset, new_tags, keep_tags=None):
-    tags = new_tags + [tag for tag in old_asset.tags if keep_tags and tag in keep_tags]
-    return Asset(id=old_asset.id, flavor=old_asset.flavor, tags=tags, url=old_asset.url, filename=old_asset.filename,
-                 mimetype=old_asset.mimetype, path=old_asset.path)
+    try:
+        old_tags = [] if not (old_asset.tags and keep_tags) else [tag for tag in old_asset.tags if tag in keep_tags]
+        tags = new_tags + old_tags
+        return Asset(id=old_asset.id, flavor=old_asset.flavor, tags=tags, url=old_asset.url, filename=old_asset.filename,
+                     mimetype=old_asset.mimetype, path=old_asset.path)
+    except:
+        return None
 
 
 def asset_with_flavor(old_asset, flavor):

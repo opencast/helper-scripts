@@ -1,0 +1,35 @@
+---
+id: import
+title: Import and publish media from another Opencast
+operations:
+
+  - id: ingest-download
+    description: Download external media package elements
+    max-attempts: 4
+    exception-handler-workflow: partial-error
+    fail-on-error: 'true'
+    configurations:
+      - delete-external: 'true'
+
+  - id: publish-engage
+    description: Publishing media
+    max-attempts: 2
+    fail-on-error: 'true'
+    exception-handler-workflow: partial-error
+    configurations:
+      - download-source-flavors: '*/*'
+      - check-availability: false
+
+  - id: snapshot
+    description: Archiving media
+    exception-handler-workflow: partial-error
+    fail-on-error: true
+    configurations:
+      - source-flavors: '*/*'
+
+  - id: cleanup
+    description: Cleaning up
+    fail-on-error: 'false'
+    configurations:
+      - delete-external: 'false'
+      - preserve-flavors: 'security/*'

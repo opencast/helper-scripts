@@ -3,11 +3,11 @@
 import json
 import urllib3
 
-SOURCE_HOST = 'https://develop.opencast.org'
+SOURCE_HOST = 'https://source.opencast.org'
 SOURCE_USER = 'admin'
 SOURCE_PASS = 'opencast'
 
-TARGET_HOST = 'http://localhost:8080'
+TARGET_HOST = 'https://target.opencast.org'
 TARGET_USER = 'admin'
 TARGET_PASS = 'opencast'
 TARGET_WORKFLOW = 'import'

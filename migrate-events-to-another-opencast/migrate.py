@@ -3,7 +3,8 @@
 import json
 import urllib3
 
-SOURCE_HOST = 'https://source.opencast.org'
+SOURCE_HOST_ADMIN = 'https://source-admin.opencast.org'
+SOURCE_HOST_PRESENTATION = 'https://source-presentation.opencast.org'
 SOURCE_USER = 'admin'
 SOURCE_PASS = 'opencast'
 
@@ -24,7 +25,7 @@ def get_published_series():
 
     :return: Tuple of series Dublin Core XML and ACL XML
     '''
-    url_search = f'{SOURCE_HOST}/search/series.json'
+    url_search = f'{SOURCE_HOST_PRESENTATION}/search/series.json'
     headers = urllib3.make_headers(basic_auth=f'{SOURCE_USER}:{SOURCE_PASS}')
 
     offset = 0
@@ -50,12 +51,12 @@ def get_published_series():
             print('Importing', series_id)
 
             # get dublin core
-            url_dc = f'{SOURCE_HOST}/series/{series_id}.xml'
+            url_dc = f'{SOURCE_HOST_ADMIN}/series/{series_id}.xml'
             request = http.request('GET', url_dc, headers=headers)
             dublincore = request.data.decode('utf-8').strip()
 
             # get acl
-            url_acl = f'{SOURCE_HOST}/series/{series_id}/acl.xml'
+            url_acl = f'{SOURCE_HOST_ADMIN}/series/{series_id}/acl.xml'
             request = http.request('GET', url_acl, headers=headers)
             acl = request.data.decode('utf-8').strip()
 
@@ -89,7 +90,7 @@ def get_published_media():
 
     :return: Media package XML
     '''
-    url_search = f'{SOURCE_HOST}/search/episode.json'
+    url_search = f'{SOURCE_HOST_PRESENTATION}/search/episode.json'
     headers = urllib3.make_headers(basic_auth=f'{SOURCE_USER}:{SOURCE_PASS}')
 
     offset = 0

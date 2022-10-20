@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<definition xmlns="http://workflow.opencastproject.org">
+
+  <id>Transcribe</id>
+  <title>Generate Subtitles using Whisper AI (Experimental)</title>
+  <tags>
+    <tag>archive</tag>
+  </tags>
+  <displayOrder>700</displayOrder>
+  <description>
+	  Generate subtitles using Whisper-AI, this is an experimental AI model that can transcribe
+    speech from almost any language to text. Also is possible to translate to english with the model.
+
+    After running this workflow, you need to republish the event in order to add the subtitles to the search service 
+  </description>
+
+  <configuration_panel>
+  <![CDATA[
+    <div id="workflow-configuration">
+
+	    <fieldset>
+        <legend style="color:seagreen">Select the Transcription model: </legend>
+        <ul>
+          <li>
+            <input id="mTiny" name="transcriptionModel" type="radio" class="configField" value="TINY">
+	          <label for="mTiny">Tiny (Speed ~32x) [Disabled]</label>
+          </li>
+          <li>
+            <input id="modelBase" name="transcriptionModel" type="radio" class="configField" value="BASE">
+	          <label for="modelBase">Base (Speed ~16x)</label>
+          </li>
+          <li>
+            <input id="mSmall" name="transcriptionModel" type="radio" class="configField" value="SMALL">
+	          <label for="mSmall">Small (Speed ~6x) [Disabled]</label>
+          </li>
+          <li>
+            <input id="mMedium" name="transcriptionModel" type="radio" class="configField" value="MEDIUM">
+	          <label for="mMedium">Medium (Speed ~2x)</label>
+          </li>
+          <li>
+            <input id="mLarge" name="transcriptionModel" type="radio" class="configField" value="LARGE">
+	          <label for="mLarge">Large (Speed ~1x) [Disabled]</label>
+          </li>
+        <ul>
+        <legend style="color:seagreen">Automatic translation (Do not add for events in english) </legend>
+        <br>
+          <li>
+            <input id="transEn" name="translEn" type="checkbox" class="configField" value="false" />
+	          <label for="transEn">Add automatic transcription to english</label>
+          </li>
+        <!-- Place to keep the layoutType state --> 
+          <!-- Place to keep the layoutType state --> 
+          <input type="hidden" id="layoutType" class="configField" value="NONE" />
+      </fieldset>
+
+      <script>
+          document.getElementById("mTiny").disabled = true;
+          document.getElementById("mSmall").disabled = true;
+          document.getElementById("mLarge").disabled = true;
+
+
+      </script>
+      
+     </div>
+
+  ]]>
+
+  </configuration_panel>
+  
+  <operations>
+  <state-mappings>
+    <state-mapping state="running">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
+    <state-mapping state="failing">EVENTS.EVENTS.STATE_MAPPING.PUBLISHING</state-mapping>
+  </state-mappings>
+
+
+    <!-- Set translation parameters-->
+
+    <operation
+      id="conditional-config"
+      exception-handler-workflow="partial-error"
+      description="Setting transcription variables">
+      <configurations>
+        <configuration key="configuration-name">transcription-model</configuration>
+        <configuration key="condition-1">${mTiny}</configuration>
+        <configuration key="value-1">{{ whisper_server }}:9000</configuration>
+        <configuration key="condition-2">${modelBase}</configuration>
+        <configuration key="value-2">{{ whisper_server }}:9001</configuration>
+        <configuration key="condition-3">${mSmall}</configuration>
+        <configuration key="value-3">{{ whisper_server }}:9002</configuration>
+        <configuration key="condition-4">${mMedium}</configuration>
+        <configuration key="value-4">{{ whisper_server }}:9003</configuration>
+        <configuration key="condition-5">${mLarge}</configuration>
+        <configuration key="value-5">{{ whisper_server }}:9004</configuration>
+        <configuration key="no-match">no-model</configuration>
+ 
+      </configurations>
+    </operation>
+
+    <!-- Analyze media assets -->
+
+    <operation
+      id="analyze-tracks"
+      exception-handler-workflow="partial-error"
+      description="|__   Analyze tracks in media package and set control variables">
+      <configurations>
+        <configuration key="source-flavor">*/source</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Delete old subtitles --> 
+
+     <operation
+      id="tag"
+      exception-handler-workflow="partial-error"
+      fail-on-error="false"
+      description="Remove old archived subtitles ">
+      <configurations>
+        <configuration key="source-flavors">captions/vtt+de, captions/vtt+en</configuration>
+        <configuration key="target-tags">-archive,-engage-download</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Generate the subtitles - only if Presenter is available --> 
+
+    <operation
+      id="execute-once"
+      if= "(NOT ${presentation_source_video}) AND ${presenter_source_video}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presenter">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presenter/source)} #{id} #{out}</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+de</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="execute-once"
+      if= "((NOT ${presentation_source_video}) AND ${presenter_source_video}) AND ${transEn}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presenter (English Translation)">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presenter/source)} #{id} #{out} translate</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+en</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Generate the subtitles - only if Presentation is available --> 
+
+    <operation
+      id="execute-once"
+      if= "(NOT ${presenter_source_video}) AND ${presentation_source_video}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presentation">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presentation/source)} #{id} #{out}</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+de</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+        <operation
+      id="execute-once"
+      if= "((NOT ${presenter_source_video}) AND ${presentation_source_video}) AND ${transEn}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presentation (English Translation)">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presentation/source)} #{id} #{out} translate</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+en</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+
+    <!-- Generate the subtitles - if Presenter and Presentation are available --> 
+
+    <operation
+      id="execute-once"
+      if= "(${presenter_source_video}) AND ${presentation_source_video}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presentation and presenter together">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presenter/source)} #{id} #{out}</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+de</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+        <operation
+      id="execute-once"
+      if= "((${presenter_source_video}) AND ${presentation_source_video}) AND ${transEn}"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Run Whisper AI for presentation and presenter together (English Translation)">
+      <configurations>
+        <configuration key="exec">/etc/opencast/scripts/whisper-getvtt.sh</configuration>
+        <configuration key="params">${transcription-model} #{flavor(presenter/source)} #{id} #{out} translate</configuration>
+        <configuration key="output-filename">subtitle-output.vtt</configuration>
+        <configuration key="target-flavor">captions/vtt+en</configuration>
+        <configuration key="target-tags">archive, engage-download</configuration>
+        <configuration key="expected-type">Attachment</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Archive current state -->
+
+    <operation
+      id="snapshot"
+      exception-handler-workflow="partial-error"
+      description="Archive current mediapackage">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    </operations>
+
+</definition>

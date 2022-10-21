@@ -10,7 +10,8 @@ The script can be called with the following parameters (all parameters in bracke
 
 `main.py [-i INPUTFILE] [-o OUTPUTFILE]`
 
-Either input file (`-i`) and output file (`-o`) have to be provided or none.
+Either input file (`-i`) and output file (`-o`) have to be provided or none. \
+If none is provided the script will convert all `.xml` files which are in the folder of the script.
 
 | Short Option | Long Option | Description                                    |
 |:------------:|:------------|:-----------------------------------------------|

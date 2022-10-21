@@ -35,8 +35,6 @@ def translate_file(input_file, output_file):
     tree = ElementTree.parse(input_file)
     root = tree.getroot()
 
-    tree.write('out.xml')
-
     yaml_data = dict()
 
     data_id = root.find('{http://workflow.opencastproject.org}id')
@@ -68,6 +66,12 @@ def translate_file(input_file, output_file):
 
             if 'id' in operation.attrib:
                 data_operation['id'] = operation.attrib['id']
+            if 'if' in operation.attrib:
+                data_operation['if'] = operation.attrib['if']
+            if 'retry-strategy' in operation.attrib:
+                data_operation['retry-strategy'] = operation.attrib['retry-strategy']
+            if 'max-attempts' in operation.attrib:
+                data_operation['max-attempts'] = operation.attrib['max-attempts']
             if 'if' in operation.attrib:
                 data_operation['if'] = operation.attrib['if']
             if 'fail-on-error' in operation.attrib:

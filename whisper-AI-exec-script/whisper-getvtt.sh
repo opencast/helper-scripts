@@ -14,11 +14,7 @@ then
     echo "Translating to english"
     curl --max-time 7200 --location --request POST "$whisperServer/get-vtt?task=translate" \
     --form 'audio_file=@"/tmp/'$eventId'.aac"' -o $outputVTT
-fi
-
-
-if [[ "$translate" != "translate" ]]
-then
+else
     # Send audio for transcription
     echo "Transcribing audio"
     curl --max-time 7200 --location --request POST "$whisperServer/get-vtt?task=transcribe" \

@@ -44,6 +44,8 @@ Finally, try the script manually to be sure that can reach the whisper server.
 
 The workflow is a template, you need to configure first to your setup before to use it. Some things to take into account.
 
+The workflow as it is will remove existing subtitles flavored `captions/vtt+de` or `captions/vtt+en`.
+
 - On the `configuration_panel` field, you can enable or disable models that you will not use. simply add `document.getElementById("ID").disabled = true;` in the script part, for example:
 
     ```html

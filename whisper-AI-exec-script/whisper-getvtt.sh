@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 whisperServer=${1}
 videoFile=${2}

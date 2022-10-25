@@ -9,7 +9,7 @@
   <displayOrder>700</displayOrder>
   <description>
 	  Generate subtitles using Whisper-AI, this is an experimental AI model that can transcribe
-    speech from almost any language to text. Also is possible to translate to english with the model.
+    speech from almost any language to text. It is also possible to translate to English with the model.
 
     After running this workflow, you need to republish the event in order to add the subtitles to the search service 
   </description>

@@ -7,7 +7,7 @@ outputVTT=${4}
 translate=${5:-0}
 
 # detach audio from video for a faster transfer
-ffmpeg -y -nostdin -i "$videoFile" -vn -acodec copy "/tmp/$eventId.aac"
+ffmpeg -y -nostdin -nostats -i "$videoFile" -vn -acodec copy "/tmp/$eventId.aac"
 
 if [[ "$translate" == "translate" ]]
 then

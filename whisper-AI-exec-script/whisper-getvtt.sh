@@ -20,3 +20,5 @@ else
     curl --max-time 7200 --location --request POST "$whisperServer/get-vtt?task=transcribe" \
     --form 'audio_file=@"/tmp/'$eventId'.aac"' -o $outputVTT
 fi
+
+rm -f "/tmp/$eventId.aac"

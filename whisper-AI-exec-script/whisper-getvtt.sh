@@ -11,14 +11,14 @@ ffmpeg -y -nostdin -nostats -i "$videoFile" -vn -acodec copy "/tmp/$eventId.aac"
 
 if [[ "$translate" == "translate" ]]
 then
-    echo "Translating to english"
+    echo "Translating into english"
     curl --max-time 7200 --location --request POST "$whisperServer/get-vtt?task=translate" \
-    --form 'audio_file=@"/tmp/'$eventId'.aac"' -o $outputVTT
+    --form 'audio_file=@"/tmp/'"$eventId"'.aac"' -o "$outputVTT"
 else
     # Send audio for transcription
     echo "Transcribing audio"
     curl --max-time 7200 --location --request POST "$whisperServer/get-vtt?task=transcribe" \
-    --form 'audio_file=@"/tmp/'$eventId'.aac"' -o $outputVTT
+    --form 'audio_file=@"/tmp/'"$eventId"'.aac"' -o "$outputVTT"
 fi
 
 rm -f "/tmp/$eventId.aac"

@@ -125,7 +125,7 @@
 
     <operation
       id="execute-once"
-      if= "(NOT ${presentation_source_video}) AND ${presenter_source_video}"
+      if= "(NOT ${presentation_source_audio}) AND ${presenter_source_audio}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presenter">
@@ -141,7 +141,7 @@
 
     <operation
       id="execute-once"
-      if= "((NOT ${presentation_source_video}) AND ${presenter_source_video}) AND ${transEn}"
+      if= "((NOT ${presentation_source_audio}) AND ${presenter_source_audio}) AND ${transEn}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presenter (English Translation)">
@@ -159,7 +159,7 @@
 
     <operation
       id="execute-once"
-      if= "(NOT ${presenter_source_video}) AND ${presentation_source_video}"
+      if= "(NOT ${presenter_source_audio}) AND ${presentation_source_audio}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presentation">
@@ -175,7 +175,7 @@
 
         <operation
       id="execute-once"
-      if= "((NOT ${presenter_source_video}) AND ${presentation_source_video}) AND ${transEn}"
+      if= "((NOT ${presenter_source_audio}) AND ${presentation_source_audio}) AND ${transEn}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presentation (English Translation)">
@@ -194,7 +194,7 @@
 
     <operation
       id="execute-once"
-      if= "(${presenter_source_video}) AND ${presentation_source_video}"
+      if= "(${presenter_source_audio}) AND ${presentation_source_audio}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presentation and presenter together">
@@ -210,7 +210,7 @@
 
         <operation
       id="execute-once"
-      if= "((${presenter_source_video}) AND ${presentation_source_video}) AND ${transEn}"
+      if= "((${presenter_source_audio}) AND ${presentation_source_audio}) AND ${transEn}"
       fail-on-error="true"
       exception-handler-workflow="error"
       description="Run Whisper AI for presentation and presenter together (English Translation)">

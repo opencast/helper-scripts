@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import json
+
+import lxml.etree as le
 import urllib3
 
 SOURCE_HOST_ADMIN = 'https://source-admin.opencast.org'
@@ -12,6 +14,8 @@ TARGET_HOST = 'https://target.opencast.org'
 TARGET_USER = 'admin'
 TARGET_PASS = 'opencast'
 TARGET_WORKFLOW = 'import'
+
+ONLY_SMALL_VIDEO_TRACKS = False
 
 
 http = urllib3.PoolManager()
@@ -82,6 +86,61 @@ def create_series(dublincore, acl):
     print('Create series response:', request.status)
 
 
+def get_smallest_video_track_by_type(tracks):
+    '''
+    Searches the smallest video track for each track type. Tracks which do not contain a video will be ignored.
+
+    :param tracks: List of tracks
+    :return: Dictionary with keys for the type and values containing the smallest video track
+    '''
+    # Filter only video tracks
+    # Ignore videos with mimetype = application/x-mpegURL as these can not always be processed by opencast
+    tracks = filter(lambda track: 'video' in track and 'video' in track.get('mimetype'), tracks)
+
+    smallest_video_tracks = {}
+    for track in tracks:
+        track_type = track.get('type')
+        size = track.get('size')
+
+        if track_type not in smallest_video_tracks or size < smallest_video_tracks[track_type].get('size'):
+            smallest_video_tracks[track_type] = track
+
+    return smallest_video_tracks
+
+
+def remove_large_video_tracks_from_mediapackage(mediapackage, tracks):
+    '''
+    For each track type, removes all video tracks that are bigger than the smallest video track
+
+    :param mediapackage: Media package as XML
+    :param tracks: tracks as list used to find the smallest track
+    :return: filtered media package as XML
+    '''
+    smallest_video_tracks = get_smallest_video_track_by_type(tracks)
+
+    mediapackage = le.fromstring(bytes(mediapackage, encoding='utf-8'))
+    media = mediapackage.find('{*}media')
+    tracks = media.findall('{*}track')
+
+    for track in tracks:
+        track_id = track.get('id')
+        track_type = track.get('type')
+        video = track.find('{*}video')
+        mimetype = track.find('{*}mimetype')
+
+        # Remove useless hls playlists
+        if mimetype.text == 'application/x-mpegURL':
+            media.remove(track)
+
+        # Ensure video exists, otherwise do not remove
+        elif video is not None and 'video' in mimetype.text:
+            # Remove bigger video track
+            if track_type in smallest_video_tracks and smallest_video_tracks[track_type].get('id') != track_id:
+                media.remove(track)
+
+    return le.tostring(mediapackage, encoding='utf-8')
+
+
 def get_published_media():
     '''
     Generator, requesting all published media packages from the search service
@@ -108,12 +167,24 @@ def get_published_media():
         offset = data.get('offset') + limit
         total = data.get('total')
         results = data.get('result', [])
+
         if type(results) is not list:
             results = [results]
 
         for result in results:
             print('Importing ' + result.get('id'))
-            yield result.get('ocMediapackage')
+
+            if ONLY_SMALL_VIDEO_TRACKS:
+                media_package = result.get('mediapackage', {})
+                media = media_package.get('media', {})
+                tracks = media.get('track', [])
+
+                if type(tracks) is not list:
+                    tracks = [tracks]
+
+                yield remove_large_video_tracks_from_mediapackage(result.get('ocMediapackage'), tracks)
+            else:
+                yield result.get('ocMediapackage')
 
 
 def ingest(mediapackage):

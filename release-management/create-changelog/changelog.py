@@ -15,22 +15,19 @@ def main(branch, start_date, end_date, pat):
     next_url = URL + branch
     pullrequests = []
 
+    # Auth?
+    headers = {'Authorization': f'Bearer {pat}'} if pat else {}
+
     # get all closed pull request for a specific branch
     while next_url:
-        r = None
-        if None != pat:
-            r = requests.get(next_url)
-        else:
-            r = requests.get(next_url, headers = {
-                  "Authorization": "Bearer " + pat,
-            })
-        link_header = r.headers.get('Link')
+        result = requests.get(next_url, headers=headers)
+        link_header = result.headers.get('Link')
         next_url = None
         if link_header:
             match = re.search('<([^>]*)>; rel="next"', link_header)
             if match:
                 next_url = match.group(1)
-        pullrequests += r.json()
+        pullrequests += result.json()
 
     # filter by merge date
     for pr in pullrequests:
@@ -64,4 +61,5 @@ if __name__ == '__main__':
 
         main(branch, start_date, end_date, pat)
     else:
-        print('Usage: %s branch start-date [end-date] [github pat]' % sys.argv[0])
+        binary = sys.argv[0]
+        print(f'Usage: {binary} branch start-date [end-date] [github pat]')

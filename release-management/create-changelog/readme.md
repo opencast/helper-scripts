@@ -33,7 +33,7 @@ Dates
 -----
 Computing the dates can be annoying.  You need to find the earliest commit belonging to various combinations of branches.
 
-    git log --pretty=%as $(diff -u <(git rev-list --first-parent r/N.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
+    git log --pretty=%as -n1 $(diff -u <(git rev-list --first-parent r/N.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
 
 As an example, to generate the full list for Opencast 14 you need to know
 
@@ -42,11 +42,11 @@ As an example, to generate the full list for Opencast 14 you need to know
 
 To find the first begin-of-development date
 
-    git log --pretty=%as $(diff -u <(git rev-list --first-parent r/13.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
+    git log --pretty=%as -n1 $(diff -u <(git rev-list --first-parent r/13.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
 
 To find the 14.x branch date
 
-    git log --pretty=%as $(diff -u <(git rev-list --first-parent r/14.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
+    git log --pretty=%as -n1 $(diff -u <(git rev-list --first-parent r/14.x) <(git rev-list --first-parent develop) | sed -ne 's/^ //p' | head -1)
 
 So the final changelog calls would be
 

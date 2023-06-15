@@ -9,7 +9,7 @@ URL = 'https://api.github.com/repos/opencast/opencast/pulls' \
 JIRA_TICKET_URL = 'https://opencast.jira.com/browse/'
 
 
-def main(branch, start_date, end_date):
+def main(branch, start_date, end_date, pat):
     begin = parse(start_date).replace(tzinfo=None)
     end = parse(end_date).replace(tzinfo=None) if end_date else datetime.now()
     next_url = URL + branch
@@ -17,7 +17,13 @@ def main(branch, start_date, end_date):
 
     # get all closed pull request for a specific branch
     while next_url:
-        r = requests.get(next_url)
+        r = None
+        if None != pat:
+            r = requests.get(next_url)
+        else:
+            r = requests.get(next_url, headers = {
+                  "Authorization": "Bearer " + pat,
+            })
         link_header = r.headers.get('Link')
         next_url = None
         if link_header:
@@ -46,13 +52,16 @@ def pretty_print(title, pr_number, pr_link):
 
 if __name__ == '__main__':
     argc = len(sys.argv)
-    if 3 <= argc <= 4:
+    if 3 <= argc <= 5:
         branch = sys.argv[1]
         start_date = sys.argv[2]
         end_date = None
-        if argc == 4:
+        pat = None
+        if argc >= 4:
             end_date = sys.argv[3]
+        if argc == 5:
+            pat = sys.argv[4]
 
-        main(branch, start_date, end_date)
+        main(branch, start_date, end_date, pat)
     else:
-        print('Usage: %s branch start-date [end-date]' % sys.argv[0])
+        print('Usage: %s branch start-date [end-date] [github pat]' % sys.argv[0])

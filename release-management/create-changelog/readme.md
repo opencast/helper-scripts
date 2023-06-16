@@ -56,6 +56,20 @@ So the final changelog calls would be
 API Limits
 ----------
 
-Github enforces API limits, which this script can easily hit - especially if you run it multiple times when debugging!
-To raise this limit, you may need to create a Personal Access Token with appropriate permissions (read only to the
-upstream repo), and pass that as the *fifth* parameter.
+Github enforces API limits, which this script can easily hit - especially if you run it multiple times when debugging! 
+In such cases, it is possible to encounter an error when running the script, leading to an incorrect output
+
+    [[#3903](https://github.com/opencast/opencast/pull/3903)] -
+      Common persistence util classes that also implement transaction retries
+    Traceback (most recent call last):
+      File "opencast-helper-scripts/release-management/create-changelog/changelog.py", line 62, in <module>
+        main(branch, start_date, end_date, pat)
+      File "opencast-helper-scripts/release-management/create-changelog/changelog.py", line 34, in main
+        merged = pr.get('merged_at')
+             ^^^^^^
+    AttributeError: 'str' object has no attribute 'get'
+
+To raise this limit, you may need to create a [Personal Access Token](https://github.com/settings/tokens) with appropriate permissions (read only to the
+upstream repo), and pass that as the *fifth* parameter. So the call with the token would be
+
+    % python changelog.py develop 2022-11-16 2023-05-15 YOUR_TOKEN 

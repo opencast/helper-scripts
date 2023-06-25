@@ -1,0 +1,22 @@
+---
+exportData:
+  limit: 10
+  sortSeriesBy: TITLE
+  sortEventsBy: MEDIA_PACKAGE_ID
+  exportDir: ./export/
+  seriesFilePrefix: series_export_
+  eventFilePrefix: events_export_
+  startWithZero: False
+  nsMediapackage: '{http://search.opencastproject.org}ocMediapackage'
+  nsSeries: '{http://search.opencastproject.org}result'
+  nsSeriesDc: '{http://www.opencastproject.org/xsd/1.0/dublincore/}dublincore'
+  ingestWorkflow: fast
+
+server:
+  source-url: https://develop.opencast.org
+  source-username: admin
+  source-password: opencast
+
+  destination-url: http://localhost:8080
+  destination-username: admin
+  destination-password: opencast

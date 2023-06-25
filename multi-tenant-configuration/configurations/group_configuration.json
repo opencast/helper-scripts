@@ -1,0 +1,113 @@
+{
+  "groups" : [
+    {
+      "name": "System Administrators",
+      "description": "System Administrators",
+      "tenants": "all",
+      "type": "closed",
+      "members": [
+        {
+          "name": "Guy 1",
+          "email": "test@test.de",
+          "reason": "Operations partner",
+          "uid": "guy-1",
+          "tenants": "all"
+         },
+         {
+           "name": "Guy 2",
+           "email": "test@test.de",
+           "reason": "Operations partner",
+           "uid": "guy-2",
+           "tenants": "tenant1"
+         }
+      ],
+      "inactive_members": [ ],
+      "permissions": [
+        {
+          "tenants": "all",
+          "roles": ["ROLE_ADMIN", "ROLE_SUDO"]
+        }
+      ]
+    },
+    {
+      "name": "Organization Administrators",
+      "description": "Organization administrators have full access to all content of ${name}",
+      "tenants": "all",
+      "type": "open",
+      "members": [],
+      "inactive_members": [],
+      "permissions": [
+        {
+          "tenants": "all",
+          "roles": [
+            "ROLE_ADMIN_UI",
+            "ROLE_ORG_ADMIN"
+          ]
+        },
+        {
+          "tenants" : "tenant2",
+          "roles": {
+            "add": [
+              "ROLE_UI_EVENTS_DETAILS_ACL_VIEW",
+              "ROLE_UI_EVENTS_DETAILS_ACL_EDIT"
+            ],
+            "remove": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Producers",
+      "description": "Producers have limited access to content and functionality",
+      "tenants": "all",
+      "type": "open",
+      "members": [],
+      "inactive_members": [],
+      "permissions": [
+        {
+          "tenants": "all",
+          "roles": [
+            "ROLE_ADMIN_UI",
+	        "ROLE_UI_EVENTS_CREATE"
+          ]
+        },
+        {
+          "tenants" : "tenant1",
+          "roles": {
+            "add": [
+              "ROLE_UI_EVENTS_COUNTERS_VIEW"
+            ],
+            "remove": [
+              "ROLE_UI_EVENTS_CREATE"
+            ]
+          }
+	},
+        {
+          "tenants" : "tenant2",
+          "roles": {
+            "add": [
+              "ROLE_ORG_ADMIN"
+            ],
+            "remove": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenant2 Producers",
+      "description": "Tenant2 Producers have limited access to content and functionality",
+      "tenants": "tenant2",
+      "type": "open",
+      "members": [],
+      "inactive_members": [],
+      "permissions": [
+        {
+          "tenants": "all",
+          "roles": [
+            "ROLE_ADMIN_UI"
+          ]
+        }
+      ]
+    }
+  ]
+}

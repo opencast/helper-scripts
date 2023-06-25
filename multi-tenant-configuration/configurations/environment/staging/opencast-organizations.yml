@@ -1,0 +1,60 @@
+---
+
+opencast_organizations:
+  - id: All Tenants
+    name: Dummy Tenant
+    switchcast_system_accounts:
+      - username: player
+        name: Player System User
+        email: test@test.de
+        password: 34dchG6nbhmhnG
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+      - username: annotate
+        name: Annotate System User
+        email: test@test.de
+        password: jhvhuJH7utghfgfgJH
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+      - username: cast
+        name: Cast System User
+        email: test@test.de
+        password: jhvhuJH7utghfgfgJH
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+    capture_agent_accounts: []
+
+  - id: tenant1
+    name: Tenant1
+    capture_agent_accounts:
+      - username: ca-tenant1-ch
+        password: jvblkajklvjhaklehr
+    external_api_accounts:
+      - username: moodle-tenant1-ch
+        password: hghghjghdghdjd76
+        name: Moodle System User
+        email: test@test.de
+        roles: [ROLE_EXTERNAL_APPLICATION]
+      - username: guy1
+        password: abc
+        name: Guy 1
+        email: test@test.de
+        roles: [ROLE_ADMIN]
+      - username: guy2
+        password: abc
+        name: Guy 2
+        email: test@test.de
+        roles: [ROLE_ADMIN, ROLE_SUDO]
+  - id: tenant2
+    name: Tenant2
+    capture_agent_accounts:
+      - username: ca-tenant2-ch
+        password: hjfkhfzuruzf76
+    external_api_accounts:
+      - username: moodle-tenant2-ch
+        password: 67rdghn
+        name: Moodle System User
+        email: test@test.de
+        roles: [ROLE_EXTERNAL_APPLICATION]
+      - username: guyx
+        password: abc
+        name: Guy X
+        email: test@test.de
+        roles: [ROLE_ADMIN, ROLE_SUDO]

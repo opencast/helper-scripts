@@ -1,0 +1,31 @@
+# Configuration
+
+# Set this to your admin node
+server_url = "http://localhost:8080"
+
+# If you have multiple tenants, use an URL pattern. The blank {} will be filled with the tenant-id.
+# example:
+# tenant_url_pattern = "https://{}.example.org"
+tenant_url_pattern = "http://{}:8080"
+
+# You can also define a dictionary of tenant URLs, which will be prioritized over the URL pattern:
+# example:
+# tenant_urls = {
+#     'tenant1': 'http://tenant1:8080',
+#     'tenant2': 'http://tenant2:8080'
+# }
+
+# List of tenants which should be ignored
+ignored_tenants = [
+    'mh_default_org'
+]
+
+# Digest User login
+digest_user = "opencast_system_account"
+digest_pw = "CHANGE_ME"
+
+# path to environment configuration file.
+# The {} are a placeholder which will be filled with the environment passed as an argument (e.g. staging or production).
+org_config_path = "configurations/environment/{}/opencast-organizations.yml"
+# path to group configuration file
+group_config_path = "configurations/group_configuration.yaml"

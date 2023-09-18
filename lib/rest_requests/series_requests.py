@@ -1,4 +1,6 @@
-from rest_requests.get_response_content import get_json_content
+import json
+
+from rest_requests.get_response_content import get_json_content, get_xml_content
 from rest_requests.request import get_request, post_request
 from rest_requests.request_error import RequestError
 
@@ -72,3 +74,65 @@ def get_all_series(base_url, digest_login):
     url = '{}/series/allSeriesIdTitle.json'.format(base_url)
     response = get_request(url, digest_login, "series")
     return get_json_content(response)["series"]
+
+
+def get_dc_of_series(series_id, base_url, digest_login, element_description="series",
+                     asset_type_description=None, asset_description=None):
+    """
+    Get the series Dublin Core catalog for a given series.
+
+    :param series_id: The series id
+    :type series_id: str
+    :param base_url: The base URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :return: The series Dublin Core catalog
+    :rtype: ElementTree.Element
+    :raise RequestError:
+    """
+
+    url = '{}/series/{}.xml'.format(base_url, series_id)
+    response = get_request(url, digest_login, element_description, asset_type_description, asset_description)
+    series_dc = get_xml_content(response)
+    return series_dc
+
+
+def get_acl_of_series(series_id, base_url, digest_login, element_description="series",
+                     asset_type_description=None, asset_description=None):
+    """
+    Get the series ACL for a given series.
+
+    :param series_id: The series id
+    :type series_id: str
+    :param base_url: The base URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :return: The series ACL
+    :rtype: dict
+    :raise RequestError:
+    """
+
+    url = "{}/series/{}/acl.json".format(base_url, series_id)
+    response = get_request(url, digest_login, element_description, asset_type_description, asset_description)
+    return get_json_content(response)
+
+
+def update_acl_of_series(series_id, base_url, digest_login, acl):
+    """
+    Update acl of series
+    :param series_id: The series id
+    :type series_id: str
+    :param base_url: The base URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param acl: The series ACL
+    :type acl: dict
+    :return:
+    """
+
+    url = "{}/series/{}/accesscontrol".format(base_url, series_id)
+    data = {'override': "false", 'acl': json.dumps(acl)}
+    post_request(url, digest_login, "series", data=data)

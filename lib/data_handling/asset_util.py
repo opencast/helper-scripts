@@ -26,6 +26,10 @@ def set_tags(assets, tags, keep_tags=None):
     return [asset_with_tags(asset, tags, keep_tags=keep_tags) for asset in assets]
 
 
+def add_tag(assets, tag):
+    return [asset_with_tags(asset, [tag], keep_tags=asset.tags) for asset in assets]
+
+
 def set_flavor(assets, flavor):
     return [asset_with_flavor(asset, flavor) for asset in assets]
 

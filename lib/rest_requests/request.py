@@ -9,6 +9,8 @@ from requests_toolbelt import MultipartEncoder
 
 from rest_requests.request_error import RequestError
 
+NOT_FOUND = '404'
+
 
 def get_request(url, digest_login, element_description, asset_type_description=None, asset_description=None,
                 stream=False):

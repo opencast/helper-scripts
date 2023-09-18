@@ -1,10 +1,8 @@
 import json
 
 from rest_requests.get_response_content import get_json_content, get_xml_content
-from rest_requests.request import get_request, post_request
+from rest_requests.request import get_request, post_request, NOT_FOUND
 from rest_requests.request_error import RequestError
-
-NOT_FOUND = "404"
 
 
 def series_exists(base_url, digest_login, series_id):

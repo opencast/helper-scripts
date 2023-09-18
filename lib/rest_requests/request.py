@@ -129,3 +129,59 @@ def big_post_request(url, digest_login, element_description, asset_type_descript
         raise RequestError.with_status_code(url, str(response.status_code), element_description, asset_type_description,
                                             asset_description)
     return response
+
+
+def put_request(url, digest_login, element_description, data=None, files=None):
+    """
+    Make a put request to the given url with the given digest login. If the request fails with an error or a status
+    code != 200, a Request Error with the error message /status code and the given descriptions is thrown.
+
+    :param url: URL to make put request to
+    :type url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants'
+    :type element_description: str
+    :param data: Any data to attach to the request
+    :type data: dict
+    :param files: Any files to attach to the request
+    :type files: dict
+    :return: response
+    :raise RequestError:
+    """
+
+    try:
+        response = requests.put(url, auth=HTTPDigestAuth(digest_login.user, digest_login.password),
+                                headers={"X-Requested-Auth": "Digest"}, data=data, files=files)
+    except Exception as e:
+        raise RequestError.with_error(url, str(e), element_description)
+
+    if response.status_code < 200 or response.status_code > 299:
+        raise RequestError.with_status_code(url, str(response.status_code), element_description)
+    return response
+
+
+def delete_request(url, digest_login, element_description):
+    """
+    Make a delete request to the given url with the given digest login. If the request fails with an error or a status
+    code != 200, a Request Error with the error message /status code and the given descriptions is thrown.
+
+    :param url: URL to make put request to
+    :type url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param element_description: Element description in case of errors, e.g. 'event', 'series', 'tenants'
+    :type element_description: str
+    :return: response
+    :raise RequestError:
+    """
+
+    try:
+        response = requests.delete(url, auth=HTTPDigestAuth(digest_login.user, digest_login.password),
+                                   headers={"X-Requested-Auth": "Digest"})
+    except Exception as e:
+        raise RequestError.with_error(url, str(e), element_description)
+
+    if response.status_code < 200 or response.status_code > 299:
+        raise RequestError.with_status_code(url, str(response.status_code), element_description)
+    return response

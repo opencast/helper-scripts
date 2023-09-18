@@ -1,3 +1,4 @@
+from rest_requests.get_response_content import get_json_content
 from rest_requests.request import get_request, post_request
 from rest_requests.request_error import RequestError
 
@@ -53,3 +54,21 @@ def create_series(base_url, digest_login, series_dc, series_acl=None):
     data = {'series': series_dc, 'acl': series_acl}
 
     post_request(url, digest_login, "/series/", data=data)
+
+
+def get_all_series(base_url, digest_login):
+    """
+    Get all series.
+
+    :param base_url: The base URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :return: list of series
+    :rtype: list
+    :raise RequestError:
+    """
+
+    url = '{}/series/allSeriesIdTitle.json'.format(base_url)
+    response = get_request(url, digest_login, "series")
+    return get_json_content(response)["series"]

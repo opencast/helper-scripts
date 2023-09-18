@@ -1,11 +1,10 @@
 import os
 import sys
 
-from input_output.read_file import read_list_from_file, write_list_to_file
-from rest_requests.request_error import RequestError
-
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
+from input_output.read_file import read_list_from_file, write_list_to_file
+from rest_requests.request_error import RequestError
 import config
 from args.digest_login import DigestLogin
 from rest_requests.series_requests import delete_series, series_has_events

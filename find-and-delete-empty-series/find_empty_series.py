@@ -2,11 +2,10 @@ import os
 import sys
 import time
 
-from input_output.read_file import write_list_to_file
-from rest_requests.request_error import RequestError
-
 sys.path.append(os.path.join(os.path.abspath('..'), "lib"))
 
+from input_output.read_file import write_list_to_file
+from rest_requests.request_error import RequestError
 import config
 from args.digest_login import DigestLogin
 from rest_requests.basic_requests import get_series

@@ -42,3 +42,7 @@ def is_single_stream(tracks):
     if len(tracks) == 1:
         return True
     return all([track.flavor == tracks[0].flavor for track in tracks])
+
+
+def matches_mimetype(mimetype_a, mimetype_b):
+    return matches_flavor(mimetype_a, [mimetype_b])

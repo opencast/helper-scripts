@@ -212,7 +212,6 @@ def ingest(base_url, digest_login, mp, workflow_id, workflow_config):
     """
 
     if workflow_id:
-
         url = '{}/ingest/ingest/{}'.format(base_url, workflow_id)
     else:
         url = '{}/ingest/ingest/'.format(base_url)

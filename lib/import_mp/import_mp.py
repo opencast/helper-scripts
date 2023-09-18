@@ -89,7 +89,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_track(base_url, digest_login, new_mp, track)
         except RequestError as e:
-            optional_mp_error("Track {} could not be added.".format(track.id), ignore_errors, e)
+            optional_mp_error("Track {} could not be added".format(track.id), ignore_errors, e)
 
     for attachment in attachments:
         try:
@@ -98,7 +98,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
         except RequestError as e:
-            optional_mp_error("Attachment {} could not be added.".format(attachment.id), ignore_errors, e)
+            optional_mp_error("Attachment {} could not be added".format(attachment.id), ignore_errors, e)
 
     for catalog in catalogs:
         try:
@@ -107,7 +107,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
         except RequestError as e:
-            optional_mp_error("Catalog {} could not be added.".format(catalog.id), ignore_errors, e)
+            optional_mp_error("Catalog {} could not be added".format(catalog.id), ignore_errors, e)
 
     workflow = ingest(base_url, digest_login, new_mp, workflow_id, workflow_config)
     return workflow

@@ -223,14 +223,14 @@ def ingest(base_url, digest_login, mp, workflow_id, workflow_config):
     return __parse_ingest_response(response)
 
 
-def schedule(base_url, digest_login, mp, workflow_id, workflow_config, ca_config):
+def schedule(base_url, digest_login, mp, workflow_id, workflow_config, ca_config, start_date, end_date):
 
     if workflow_id:
         url = '{}/ingest/schedule/{}'.format(base_url, workflow_id)
     else:
         url = '{}/ingest/schedule/'.format(base_url)
 
-    data = {'mediaPackage': mp}
+    data = {'mediaPackage': mp, 'start': start_date, 'end': end_date}
     data.update(workflow_config)  # add workflow parameters
     data.update(ca_config)  # add capture agent parameters
 

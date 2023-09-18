@@ -5,62 +5,7 @@ from data_handling.elements import get_id
 from data_handling.types import ElementDescription, AssetTypeDescription, AssetDescription
 from rest_requests.get_response_content import get_xml_content, get_json_content
 from rest_requests.request import get_request
-
-
-def __get_dc_of_series(series, base_url, digest_login):
-    """
-    Get the series Dublin Core catalog for a given series.
-
-    :param series: The series
-    :type series: dict
-    :param base_url: The base URL for the request
-    :type base_url: str
-    :param digest_login: The login credentials for digest authentication
-    :type digest_login: DigestLogin
-    :return: The series Dublin Core catalog
-    :rtype: ElementTree.Element
-    :raise RequestError:
-    """
-
-    url = '{}/series/{}.xml'.format(base_url, get_id(series))
-
-    es = ElementDescription.SERIES
-    es = es.unknown()
-
-    response = get_request(url, digest_login, es, AssetTypeDescription.SERIES.singular(),
-                           AssetDescription.DC.singular())
-
-    series_dc = get_xml_content(response)
-
-    return series_dc
-
-
-def __get_acl_of_series(series, base_url, digest_login):
-    """
-    Get the series ACL for a given series.
-
-    :param series: The series
-    :type series: dict
-    :param base_url: The base URL for the request
-    :type base_url: str
-    :param digest_login: The login credentials for digest authentication
-    :type digest_login: DigestLogin
-    :return: The series ACL
-    :rtype: dict
-    :raise RequestError:
-    """
-
-    url = "{}/series/{}/acl.json".format(base_url, get_id(series))
-
-    response = get_request(url, digest_login, ElementDescription.SERIES.unknown(),
-                           AssetTypeDescription.SERIES.singular(),
-                           AssetDescription.ACL.singular())
-
-    json_content = get_json_content(response)
-
-    series_acl = json_content["acl"]
-
-    return series_acl
+from rest_requests.series_requests import get_acl_of_series, get_dc_of_series
 
 
 def __get_acls_of_event(event, base_url, digest_login):
@@ -169,9 +114,11 @@ def get_asset_of_series_from_rest(series, base_url, digest_login, asset_descript
     """
 
     if asset_description == AssetDescription.DC:
-        return __get_dc_of_series(series, base_url, digest_login)
+        return get_dc_of_series(get_id(series), base_url, digest_login, ElementDescription.SERIES.unknown(),
+                                AssetTypeDescription.SERIES.singular(), AssetDescription.DC.singular())
     else:
-        return __get_acl_of_series(series, base_url, digest_login)
+        return get_acl_of_series(get_id(series), base_url, digest_login, ElementDescription.SERIES.unknown(),
+                                 AssetTypeDescription.SERIES.singular(), AssetDescription.ACL.singular())["acl"]
 
 
 def get_assets_of_event_from_rest(event, base_url, digest_login, asset_description):

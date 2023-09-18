@@ -18,7 +18,7 @@ from check.check_data.malformed import Malformed
 from args.url_builder import URLBuilder
 from data_handling.elements import get_id, get_oaipmh_publications, published_to_oaipmh
 from data_handling.types import AssetDescription
-from rest_requests.basic_requests import get_series, get_events
+from rest_requests.basic_requests import get_series, get_events, get_all_events
 from rest_requests.oaipmh_requests import get_oaipmh_record
 from rest_requests.request_error import RequestError
 from input_output.progress_printer import ProgressPrinter
@@ -271,7 +271,7 @@ def main():
 
                 # EVENTS #
                 progress_printer.print_message("Requesting events... ", 1, False, True)
-                events = get_events(opencast_url, digest_login)
+                events = get_all_events(opencast_url, digest_login)
                 progress_printer.print_message("{} event(s) received.\n".format(len(events)), 1, True, False)
 
                 if events:

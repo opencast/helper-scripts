@@ -29,7 +29,7 @@ def start_workflow(base_url, digest_login, workflow_definition, media_package):
 
 def start_task(base_url, digest_login, workflow_definition, event_id):
     """
-        Start a workflow on a media package.
+    Start a workflow on a media package.
 
     :param base_url: The URL for the request
     :type base_url: str
@@ -39,8 +39,8 @@ def start_task(base_url, digest_login, workflow_definition, event_id):
     :type workflow_definition: str
     :param event_id: the event id
     :type event_id: str
-    :return: The workflow instance
-    :rtype: str
+    :return: The workflow instance id
+    :rtype: int
     :raise RequestError:
     """
 
@@ -51,7 +51,29 @@ def start_task(base_url, digest_login, workflow_definition, event_id):
                                                           "ingest_start_date": "20210607T020914Z"}}}
     data = {'metadata': json.dumps(metadata)}
 
-    post_request(url, digest_login, element_description="/admin-ng/tasks/new", data=data)
+    response = post_request(url, digest_login, element_description="/admin-ng/tasks/new", data=data)
+    workflow_instance_id = get_json_content(response)[0]
+    return workflow_instance_id
+
+
+def get_workflow_instance(base_url, digest_login, id):
+    """
+    Get workflow instance.
+
+    :param base_url: The URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param id: The workflow instance id
+    :type id: int
+    :return: the workflow instance
+    :rtype: dict
+    """
+
+    url = '{}/workflow/instance/{}.json'.format(base_url, id)
+
+    response = get_request(url, digest_login, "workflow instance")
+    return get_json_content(response)["workflow"]
 
 
 def get_workflow_instances(base_url, digest_login, params):

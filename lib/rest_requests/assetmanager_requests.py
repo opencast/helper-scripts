@@ -1,8 +1,6 @@
-from rest_requests.request import get_request
+from rest_requests.request import get_request, NOT_FOUND
 from rest_requests.get_response_content import get_string_content
 from rest_requests.request_error import RequestError
-
-NOT_FOUND = "404"
 
 
 def get_media_package(base_url, digest_login, mp_id):

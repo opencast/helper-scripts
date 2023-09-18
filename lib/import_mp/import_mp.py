@@ -1,7 +1,7 @@
 from data_handling.errors import SeriesError, optional_mp_error
 from rest_requests.series_requests import series_exists
 from rest_requests.ingest_media_package import create_media_package, add_track, add_attachment, add_catalog, ingest, \
-    add_track_with_url, add_attachment_with_url, add_catalog_with_url
+    add_track_with_url, add_attachment_with_url, add_catalog_with_url, create_media_package_with_id
 from rest_requests.request_error import RequestError
 from import_mp.import_series import import_series
 
@@ -27,7 +27,7 @@ def __filter_assets(catalogs, attachments):
 
 
 def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, workflow_id, workflow_config,
-              ignore_errors=False, with_url=False):
+              ignore_errors=False, with_url=False, mp_id=None):
     """
     Import a media package by first creating a new media package, then adding tracks, catalogs and attachments to it
     and finally ingesting it. Import the series as well if necessary.
@@ -52,12 +52,17 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
     :type ignore_errors: bool
     :param with_url: Whether to add the elements via URL
     :type with_url: bool
+    :param mp_id: The media package id to use (default None: let OC generate new id)
+    :type mp_id: str
     :raise MediaPackageError:
     :raise RequestError:
     """
 
     # create empty media package
-    new_mp = create_media_package(base_url, digest_login)
+    if mp_id:
+        new_mp = create_media_package_with_id(base_url, digest_login, mp_id)
+    else:
+        new_mp = create_media_package(base_url, digest_login)
 
     if series_id:
 
@@ -84,7 +89,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_track(base_url, digest_login, new_mp, track)
         except RequestError as e:
-            optional_mp_error("Track {} could not be added.".format(track.id), ignore_errors, e)
+            optional_mp_error("Track {} could not be added".format(track.id), ignore_errors, e)
 
     for attachment in attachments:
         try:
@@ -93,7 +98,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_attachment(base_url, digest_login, new_mp, attachment)
         except RequestError as e:
-            optional_mp_error("Attachment {} could not be added.".format(attachment.id), ignore_errors, e)
+            optional_mp_error("Attachment {} could not be added".format(attachment.id), ignore_errors, e)
 
     for catalog in catalogs:
         try:
@@ -102,7 +107,7 @@ def import_mp(series_id, tracks, catalogs, attachments, base_url, digest_login, 
             else:
                 new_mp = add_catalog(base_url, digest_login, new_mp, catalog)
         except RequestError as e:
-            optional_mp_error("Catalog {} could not be added.".format(catalog.id), ignore_errors, e)
+            optional_mp_error("Catalog {} could not be added".format(catalog.id), ignore_errors, e)
 
     workflow = ingest(base_url, digest_login, new_mp, workflow_id, workflow_config)
     return workflow

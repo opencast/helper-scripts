@@ -88,7 +88,7 @@ def __parse_manifest(manifest, mp_id, mp_path, ignore_errors=False, with_publica
     series_id = _find_attribute(manifest, "./manifest:series")
     series_title = _find_attribute(manifest, "./manifest:seriestitle")
 
-    tracks, catalogs, attachments = _get_assets(manifest, mp_id, mp_path, ignore_errors)
+    tracks, catalogs, attachments = _get_assets(manifest, mp_id, mp_path, ignore_errors, False)
     publications = None
 
     if with_publications:

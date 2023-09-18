@@ -1,7 +1,7 @@
 """
 This module provides methods to make some basic requests to the opencast REST API.
 """
-
+from data_handling.elements import get_id
 from rest_requests.request import get_request
 from rest_requests.get_response_content import get_json_content
 
@@ -55,9 +55,9 @@ def get_series(base_url, digest_login):
     return json_content["results"]
 
 
-def get_events(base_url, digest_login):
+def get_all_events(base_url, digest_login):
     """
-    Return all events of one tenant.
+    Return all events.
 
     :param base_url: The URL to an opencast instance including the tenant
     :type base_url: str
@@ -67,10 +67,35 @@ def get_events(base_url, digest_login):
     :raise RequestError:
     """
 
-    url = '{}/admin-ng/event/events.json?limit={}'.format(base_url, JAVA_MAX_INT)
+    all_events = []
+    offset = 0
+    limit = 1000
+    while True:
+        events = __get_events(base_url, digest_login, offset, limit)
+        if events['count'] == 0:
+            return all_events
+        all_events = all_events + events["results"]
+        offset += limit
 
+
+def __get_events(base_url, digest_login, offset=0, limit=100):
+    """
+    Return events.
+
+    :param base_url: The URL to an opencast instance including the tenant
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param offset: The pagination offset
+    :type offset: int
+    :param limit: The pagination limit
+    :type limit: int
+    :return: events
+    :raise RequestError:
+    """
+
+    url = '{}/admin-ng/event/events.json?limit={}&offset={}'.format(base_url, limit, offset)
     response = get_request(url, digest_login, "events")
-
     json_content = get_json_content(response)
 
-    return json_content["results"]
+    return json_content

@@ -51,7 +51,9 @@ def start_task(base_url, digest_login, workflow_definition, event_id):
                                                           "ingest_start_date": "20210607T020914Z"}}}
     data = {'metadata': json.dumps(metadata)}
 
-    post_request(url, digest_login, element_description="/admin-ng/tasks/new", data=data)
+    response = post_request(url, digest_login, element_description="/admin-ng/tasks/new", data=data)
+    workflow_instance = get_json_content(response)
+    return workflow_instance
 
 
 def get_workflow_instances(base_url, digest_login, params):

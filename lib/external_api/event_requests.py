@@ -18,6 +18,23 @@ def get_events_of_series(base_url, digest_login, series_id):
     """
 
     url = '{}/api/events/?filter=is_part_of:{}'.format(base_url, series_id)
-
     response = get_request(url, digest_login, "events")
+    return get_json_content(response)
+
+
+def get_failed_events(base_url, digest_login):
+    """
+    Get failed events from the API
+
+    :param base_url: The base URL for the request
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :return: list of events
+    :rtype: list
+    :raise RequestError:
+    """
+
+    url = '{}/api/events/?filter=status:EVENTS.EVENTS.STATUS.PROCESSING_FAILURE'.format(base_url)
+    response = get_request(url, digest_login, "failed events")
     return get_json_content(response)

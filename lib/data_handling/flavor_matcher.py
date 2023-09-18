@@ -1,4 +1,4 @@
-def __split_flavor(flavor):
+def split_flavor(flavor):
     """
     Split a flavor into type and subtype.
 
@@ -29,9 +29,9 @@ def matches_flavor(asset_flavor, config_flavors):
     :rtype: bool
     """
 
-    asset_flavor_type, asset_flavor_subtype = __split_flavor(asset_flavor)
+    asset_flavor_type, asset_flavor_subtype = split_flavor(asset_flavor)
     for config_flavor in config_flavors:
-        config_flavor_type, config_flavor_subtype = __split_flavor(config_flavor)
+        config_flavor_type, config_flavor_subtype = split_flavor(config_flavor)
 
         if (config_flavor_type == "*" or config_flavor_type == asset_flavor_type) and \
            (config_flavor_subtype == "*" or config_flavor_subtype == asset_flavor_subtype):

@@ -89,7 +89,7 @@ def add_attachment_with_url(base_url, digest_login, mp, attachment):
     """
 
     url = '{}/ingest/addAttachment'.format(base_url)
-    data = {'flavor': attachment.flavor, 'mediaPackage': mp, 'url': attachment.url}
+    data = {'flavor': attachment.flavor, 'mediaPackage': mp, 'url': attachment.url, 'tags': ','.join(attachment.tags)}
 
     response = post_request(url, digest_login, "/ingest/addAttachment", data=data)
     return response.content
@@ -138,7 +138,7 @@ def add_catalog_with_url(base_url, digest_login, mp, catalog):
     """
 
     url = '{}/ingest/addCatalog'.format(base_url)
-    data = {'flavor': catalog.flavor, 'mediaPackage': mp, 'url': catalog.url}
+    data = {'flavor': catalog.flavor, 'mediaPackage': mp, 'url': catalog.url, 'tags': ','.join(catalog.tags)}
 
     response = post_request(url, digest_login, "/ingest/addCatalog", data=data)
     return response.content
@@ -186,7 +186,7 @@ def add_track_with_url(base_url, digest_login, mp, track):
     """
 
     url = '{}/ingest/addTrack'.format(base_url)
-    data = {'flavor': track.flavor, 'mediaPackage': mp, 'url': track.url}
+    data = {'flavor': track.flavor, 'mediaPackage': mp, 'url': track.url, 'tags': ','.join(track.tags)}
 
     response = post_request(url, digest_login, "/ingest/addTrack", data=data)
     return response.content

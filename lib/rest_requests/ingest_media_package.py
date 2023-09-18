@@ -255,3 +255,15 @@ def __parse_ingest_response(response):
     mp_id = media_package.get("id")
 
     return Workflow(id=workflow_id, template=workflow_template, mp_id=mp_id)
+
+
+def add_assets(base_url, digest_login, new_mp, attachments, catalogs, tracks):
+    for catalog in catalogs:
+        new_mp = add_catalog_with_url(base_url, digest_login, new_mp, catalog)
+
+    for attachment in attachments:
+        new_mp = add_attachment_with_url(base_url, digest_login, new_mp, attachment)
+
+    for track in tracks:
+        new_mp = add_track_with_url(base_url, digest_login, new_mp, track)
+    return new_mp

@@ -2,7 +2,8 @@ from data_handling.flavor_matcher import matches_flavor
 from data_handling.parse_manifest import Asset
 
 
-def asset_with_tags(old_asset, tags):
+def asset_with_tags(old_asset, new_tags, keep_tags=None):
+    tags = new_tags + [tag for tag in old_asset.tags if keep_tags and tag in keep_tags]
     return Asset(id=old_asset.id, flavor=old_asset.flavor, tags=tags, url=old_asset.url, filename=old_asset.filename,
                  mimetype=old_asset.mimetype, path=old_asset.path)
 
@@ -21,8 +22,8 @@ def filter_by_flavor(assets, flavor):
     return [asset for asset in assets if matches_flavor(asset.flavor, [flavor])]
 
 
-def set_tags(assets, tags):
-    return [asset_with_tags(asset, tags) for asset in assets]
+def set_tags(assets, tags, keep_tags=None):
+    return [asset_with_tags(asset, tags, keep_tags=keep_tags) for asset in assets]
 
 
 def set_flavor(assets, flavor):

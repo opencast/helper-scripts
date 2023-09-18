@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from rest_requests.get_response_content import get_xml_content
-from rest_requests.request import get_request, post_request, big_post_request
+from rest_requests.request import get_request, post_request, big_post_request, put_request
 
 Workflow = namedtuple("Workflow", ["id", "template", "mp_id"])
 
@@ -22,6 +22,27 @@ def create_media_package(base_url, digest_login):
     url = '{}/ingest/createMediaPackage'.format(base_url)
 
     response = get_request(url, digest_login, "/ingest/createMediaPackage")
+    return response.content.decode('utf8')
+
+
+def create_media_package_with_id(base_url, digest_login, mp_id):
+    """
+    Create a new media package represented by an XML string with the given identifier.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param mp_id: The media package id to use
+    :type mp_id: str
+    :return: New media package.
+    :rtype: str
+    :raise RequestError:
+    """
+
+    url = '{}/ingest/createMediaPackageWithID/{}'.format(base_url, mp_id)
+
+    response = put_request(url, digest_login, "/ingest/createMediaPackageWithID")
     return response.content.decode('utf8')
 
 

@@ -43,16 +43,42 @@ def get_series(base_url, digest_login):
     :param digest_login: The login credentials for digest authentication
     :type digest_login: DigestLogin
     :return: series
+    :rtype: list
     :raise RequestError:
     """
 
-    url = '{}/admin-ng/series/series.json?limit={}'.format(base_url, JAVA_MAX_INT)
+    all_series = []
+    offset = 0
+    limit = 1000
 
+    while True:
+        series = __get_series(base_url, digest_login, offset, limit)
+        if series['count'] == 0:
+            return all_series
+        all_series = all_series + series["results"]
+        offset += limit
+
+
+def __get_series(base_url, digest_login, offset=0, limit=100):
+    """
+    Return series by offset and limit.
+
+    :param base_url: The URL to an opencast instance including the tenant
+    :type base_url: str
+    :param digest_login: The login credentials for digest authentication
+    :type digest_login: DigestLogin
+    :param offset: The pagination offset
+    :type offset: int
+    :param limit: The pagination limit
+    :type limit: int
+    :return: series
+    :rtype: dict
+    :raise RequestError:
+    """
+
+    url = '{}/admin-ng/series/series.json?limit={}&offset={}'.format(base_url, limit, offset)
     response = get_request(url, digest_login, "series")
-
-    json_content = get_json_content(response)
-
-    return json_content["results"]
+    return get_json_content(response)
 
 
 def get_all_events(base_url, digest_login):

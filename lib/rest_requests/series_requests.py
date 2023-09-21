@@ -1,6 +1,7 @@
 import json
 
 from rest_requests.get_response_content import get_json_content, get_xml_content
+from rest_requests.request import delete_request
 from rest_requests.request import get_request, post_request, NOT_FOUND
 from rest_requests.request_error import RequestError
 
@@ -134,3 +135,39 @@ def update_acl_of_series(series_id, base_url, digest_login, acl):
     url = "{}/series/{}/accesscontrol".format(base_url, series_id)
     data = {'override': "false", 'acl': json.dumps(acl)}
     post_request(url, digest_login, "series", data=data)
+
+
+def series_has_events(base_url, digest_login, series_id):
+    """
+    Check if a series has events.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param series_id: Series identifier
+    :type series_id: str
+    :return: True if the series has events, false otherwise
+    :rtype: bool
+    :raise RequestError: If request was not successful
+    """
+
+    url = '{}/admin-ng/series/{}/hasEvents.json'.format(base_url, series_id)
+    response = get_request(url, digest_login, '/admin-ng/series/{series_id}/hasEvents.json')
+    return get_json_content(response)["hasEvents"]
+
+
+def delete_series(base_url, digest_login, series_id):
+    """
+    Delete series.
+
+    :param base_url: Base URL for request.
+    :type base_url: str
+    :param digest_login: User and password for digest authentication.
+    :type digest_login: DigestLogin
+    :param series_id: Series identifier
+    :type series_id: str
+    :raise RequestError: If request was not successful
+    """
+    url = '{}/series/{}'.format(base_url, series_id)
+    delete_request(url, digest_login, '/series/{series_id}')

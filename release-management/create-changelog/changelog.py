@@ -49,7 +49,7 @@ def main(branch, start_date, end_date, pat):
             pretty_print(title, nr, link)
 
     if len(bot_pullrequests) > 0:
-        print('<details><summary>Bot Pull Requests</summary>\n')
+        print('<details><summary>Dependency updates</summary>\n')
         print('<ul>')
         for bot_pr in bot_pullrequests:
             link = bot_pr.get('html_url')

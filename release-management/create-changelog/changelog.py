@@ -30,22 +30,46 @@ def main(branch, start_date, end_date, pat):
         pullrequests += result.json()
 
     # filter by merge date
+    bot_pullrequests = []
     for pr in pullrequests:
         merged = pr.get('merged_at')
         if not merged:
             continue  # pull request was canceled
         merged = parse(merged).replace(tzinfo=None)
         if begin <= merged <= end:
+            # Print (dependa-)bot pull requests seperately
+            user_type = pr.get('user').get('type')
+            if user_type == 'Bot':
+                bot_pullrequests.append(pr)
+                continue
+
             link = pr.get('html_url')
             title = pr.get('title').strip()
             nr = pr.get('number')
             pretty_print(title, nr, link)
 
+    if len(bot_pullrequests) > 0:
+        print('<details><summary>Dependency updates</summary>\n')
+        print('<ul>')
+        for bot_pr in bot_pullrequests:
+            link = bot_pr.get('html_url')
+            title = bot_pr.get('title').strip()
+            nr = bot_pr.get('number')
+            bot_pretty_print(title, nr, link)
+        print('</ul>')
+        print('</details>')
+
 
 def pretty_print(title, pr_number, pr_link):
-    title = re.sub(r'^\S*[mM][hH]-\d{3,5}[,: ]*', '', title)
+    title = pretty_print_title(title)
     print('- [[#%s](%s)] -\n  %s' % (pr_number, pr_link, title))
 
+def bot_pretty_print(title, pr_number, pr_link):
+    title = pretty_print_title(title)
+    print('<li>[<a href="%s">%s</a>] - \n  %s</li>' % (pr_link, pr_number, title))
+
+def pretty_print_title(title):
+    return re.sub(r'^\S*[mM][hH]-\d{3,5}[,: ]*', '', title)
 
 if __name__ == '__main__':
     argc = len(sys.argv)

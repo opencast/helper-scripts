@@ -1,0 +1,5 @@
+[Unit]
+Description=Opencast Service Sanitizer
+
+[Service]
+ExecStart=/root/scripts/sanitize_services.sh

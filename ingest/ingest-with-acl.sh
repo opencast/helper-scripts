@@ -23,7 +23,7 @@ echo '<?xml version="1.0" encoding="UTF-8" standalone="no"?>
   <dcterms:temporal xsi:type="dcterms:Period">start='"${START}"'; end='"${END}"'; scheme=W3C-DTF;</dcterms:temporal>
   <dcterms:description>demo</dcterms:description>
   <dcterms:subject>demo</dcterms:subject>
-  <dcterms:language>demo</dcterms:language>
+  <dcterms:language>eng</dcterms:language>
   <dcterms:spatial>pyca</dcterms:spatial>
   <dcterms:title>Demo event</dcterms:title>
 </dublincore>' > "${TMP_DC}"

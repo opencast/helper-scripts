@@ -1,0 +1,269 @@
+server:
+  url: http://localhost:8080
+  workflow: fast
+  username: admin
+  password: opencast
+
+acl:
+  public:
+    - role: ROLE_ANONYMOUS
+      action: read
+  authenticated:
+    - role: ROLE_USER
+      action: read
+    - role: ROLE_ADMIN
+      action: write
+  private:
+    - role: ROLE_ADMIN
+      action: write
+
+series:
+  - identifier: ID-blender-foundation
+    publisher: Blender Foundation
+    title: Blender Foundation Productions
+  - identifier: ID-wiki-commons
+    publisher: Wiki Commons
+    title: Wiki Commons Content
+  - identifier: ID-av-portal
+    publisher: TIB AV-Portal Hannover
+    title: AV-Portal Content
+  - identifier: ID-openmedia-opencast
+    description: Media snippets published as test media for Opencast.
+    publisher: Lars Kiesow
+    title: Open Media for Opencast
+
+media:
+  - - flavor: presenter/source
+    - mediaUri: https://www.pexels.com/video/854982/download/
+    - title: Video Of A Tabby Cat
+    - creator: Pixabay
+    - license: CC0
+    - identifier: ID-cats
+    - source: https://www.pexels.com/video/video-of-a-tabby-cat-854982/
+    - created: '2017-01-14T00:00Z'
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/goat.mp4
+    - flavor: captions/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/goat.vtt
+    - title: Bleating Goat
+    - creator: Lars Kiesow
+    - license: CC0
+    - identifier: ID-goat
+    - source: https://data.lkiesow.io
+    - created: '2018-04-21T13:14:31Z'
+    - isPartOf: ID-openmedia-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/3d-print.mp4
+    - title: 3D Print
+    - creator: Lars Kiesow
+    - license: CC0
+    - identifier: ID-3d-print
+    - source: https://data.lkiesow.io
+    - created: '2021-04-17T17:22:40Z'
+    - isPartOf: ID-openmedia-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/marguerite-1080.mp4
+    - title: Marguerite
+    - creator: Lars Kiesow
+    - license: CC0
+    - identifier: ID-marguerite
+    - source: https://data.lkiesow.io
+    - created: '2021-06-13T19:18:47Z'
+    - isPartOf: ID-openmedia-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/dog-rose-720.mp4
+    - title: Dog Rose
+    - creator: Lars Kiesow
+    - license: CC0
+    - identifier: ID-dog-rose
+    - source: https://data.lkiesow.io
+    - created: '2021-06-13T19:33:33Z'
+    - isPartOf: ID-openmedia-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/westerberg.mp4
+    - title: Autum Westerberg
+    - creator: Lars Kiesow
+    - license: CC-BY
+    - identifier: ID-westerberg
+    - source: https://data.lkiesow.io
+    - created: '2020-10-16T17:38:53Z'
+    - spatial: DE, Osnabrück, Westerberg
+    - isPartOf: ID-openmedia-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/3/3f/Coffee_Run_-_Blender_Open_Movie-full_movie.webm
+    - title: Coffee Run
+    - creator: Blender Foundation
+    - license: CC-BY
+    - identifier: ID-coffee-run
+    - source: https://www.youtube.com/watch?v=PVGeM40dABA
+    - created: '2020-05-29T00:00Z'
+    - isPartOf: ID-blender-foundation
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/a/a5/Spring_-_Blender_Open_Movie.webm
+    - title: Spring
+    - creator: Blender Foundation
+    - creator: Andy Goralczyk
+    - license: CC-BY
+    - identifier: ID-spring
+    - source: https://www.youtube.com/watch?v=WhWc3b3KhnY
+    - created: '2019-04-04T00:00Z'
+    - isPartOf: ID-blender-foundation
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/0/00/NASA%27s_new_High_Dynamic_Range_Camera_Records_Rocket_Test.webm
+    - title: NASAs new High Dynamic Range Camera Records Rocket Test
+    - creator: NASA
+    - description: >
+        This is footage of Orbital ATK's Space Launch System Qualification
+        Motor 2 (QM-2) solid rocket booster test taken by NASA's High Dynamic
+        Range Stereo X (HiDyRS-X) camera.
+    - identifier: ID-nasa-rocket-booster
+    - license: PD
+    - isPartOf: ID-wiki-commons
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a7/View_of_Planet_Earth_%284K%29.webm/View_of_Planet_Earth_%284K%29.webm.360p.vp9.webm
+    - title: View of Planet Earth (4K)
+    - creator: NASA Johnson
+    - description: >
+        NASA monitors Earth's vital signs from land, air and space with a 
+        fleet of satellites and ambitious airborne and ground-based observation campaigns. 
+        The International Space Station hosts a variety of payloads and experiments supporting 
+        climate research, weather predictions, hurricane monitoring, pollution tracking, 
+        disaster response and more. For more on how NASA uses space to understand our home planet, 
+        visit: http://www.nasa.gov/earthrightnow
+        Read more on 4K in space: NASA monitors Earth's vital signs from land, air and space 
+        with a fleet of satellites and ambitious airborne and ground-based observation campaigns. 
+        The International Space Station hosts a variety of payloads and experiments supporting 
+        climate research, weather predictions, hurricane monitoring, pollution tracking, 
+        disaster response and more.
+        For more on how NASA uses space to understand our home planet, 
+        visit: http://www.nasa.gov/earthrightnow
+        Read more on 4K in space: 
+        http://www.nasa.gov/mission_pages/station/research/news/red_epic_dragon_camera
+    - identifier: ID-nasa-earth-4k
+    - license: Public Domain
+    - isPartOf: ID-wiki-commons
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream-presenter.mp4
+    - flavor: presentation/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream-presentation.mp4
+    - flavor: captions/source+en
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream.vtt
+    - title: Dual-Stream Demo
+    - creator: Lars Kiesow
+    - identifier: ID-dual-stream-demo
+    - license: CC-BY-SA
+
+  - - flavor: presentation/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/olaf-schulte-opencast.mp4
+    - flavor: captions/source+en
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/olaf-schulte-opencast.vtt
+    - title: About Opencast
+    - creator: Olaf Schulte
+    - identifier: ID-about-opencast
+
+  - - flavor: presenter/source
+    - mediaUri: https://tib.flowcenter.de/mfc/medialink/3/de7c76884c990de1084fee40abf6d7fc950610346b64411a76d59f683bd103fc23/22599_C283.mp4
+    - title: Weitsprung
+    - creator: Wälken, Paul
+    - description: >
+        Eine Jungenklasse (ca. 16 J.) beim Sportunterricht in straffer
+        Organisation: Lauf im Gelände mit Grabensprüngen. Beispiele von
+        Sprüngen in Schrittfolgetechnik. Schrittsprünge mit kurzem Anlauf unter
+        Betonung der Streckung im Absprung und des Steigenlassens im Fluge.
+        Ermitteln der Anlauflänge und Festlegen der Ablaufmarke. Weitsprünge in
+        guter und fehlerhafter Ausführung. Mit Zeitdehnung. Aufgenommen mit 20
+        B/s; Vorführgeschw. 18 B/s.
+    - identifier: ID-weitsprung
+    - license: PD
+    - isPartOf: ID-av-portal
+
+  - - flavor: presenter/source
+    - mediaUri: https://tib.flowcenter.de/mfc/medialink/3/de2a46cbb86bc3b5933395197e8076295d8fa68480e56f05e3fb081eac51894832/WasistChaos_flash9.mp4
+    - flavor: captions/source+en
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/was-ist-chaos.vtt
+    - title: Was ist Chaos?, Folge 16, Experiment der Woche.
+    - creator: Skorupka, Sascha
+    - identifier: ID-was-ist-chaos
+    - license: CC-BY-NC-ND
+    - isPartOf: ID-av-portal
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/strong-river-flowing-down-the-green-forest.mp4
+    - title: Strong river flowing down the forest
+    - creator: Nature Stock Videos
+    - description: >
+        Free stock footage of a strong river flowing down the dense green
+        summer forest on a sunny day, late in the evening. Different trees on
+        each side of the river, while white bubbles coming from the water as it
+        rushes down the rocky landscape. This footage was taken with a Mavic 2
+        Pro drone mounted on a tripod with a Katana grip
+    - identifier: ID-strong-river-flowing-down-the-green-forest
+    - license: CC0
+    - source: https://www.naturestockvideos.com/free-stock-footage-of-rivers/strong-river-flowing-down-the-green-forest/
+    - created: '2019-06-18T07:40:53Z'
+
+  - - flavor: presenter/source
+    - mediaUri: https://mars.nasa.gov/multimedia/videos/movies/Perseverance_Arrives_at_Mars/Perseverance_Arrives_at_Mars-1920.mp4
+    - title: 'Perseverance Arrives at Mars: Feb. 18, 2021 (Mission Trailer)'
+    - creator: NASA
+    - description: >
+        After nearly 300 million miles (470 million km), NASA's Perseverance
+        rover completes its journey to Mars on Feb. 18, 2021. But, to reach the
+        surface of the Red Planet, it has to survive the harrowing final phase
+        known as Entry, Descent, and Landing.
+    - identifier: ID-perseverance-arrives-at-mars
+    - license: PD
+    - source: https://mars.nasa.gov/mars2020/multimedia/videos/?v=456
+    - created: '2020-12-18T16:44:17Z'
+    - isPartOf: ID-wiki-commons
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/4/4e/Lavender_-_17156.webm
+    - title: Lavender
+    - creator: Tetzemann
+    - description: Bumblebees and butterflies on lavender
+    - identifier: ID-lavender
+    - license: CC0
+    - source: https://commons.wikimedia.org/wiki/File:Lavender_-_17156.webm
+    - created: '2018-07-07T00:00Z'
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/e/e2/1_DOF_Pendulum_with_spring-damper_Adams_simulation.mpg
+    - title: DOF Pendulum with spring-damper Adams simulation
+    - creator: I. Elgamal
+    - description: '1 DOF Pendulum with spring-damper Adams simulation with input vibration'
+    - identifier: ID-pendulum-with-spring-damper
+    - license: CC-BY-SA
+    - isPartOf: ID-wiki-commons
+    - source: https://commons.wikimedia.org/wiki/File:1_DOF_Pendulum_with_spring-damper_Adams_simulation.ogv
+    - created: '2020-06-28T00:00Z'
+
+  - - flavor: presenter/source
+    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/4/43/Espresso_video.ogv
+    - flavor: captions/source+en
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/espresso.vtt
+    - title: Espresso
+    - creator: Rosatrieu
+    - description: The video shows how espresso is typically made.
+    - identifier: ID-espresso-video
+    - license: CC-BY-SA
+    - isPartOf: ID-wiki-commons
+    - source: https://commons.wikimedia.org/wiki/File:Espresso_video.ogv
+    - created: '2013-09-22T00:00Z'
+
+  - - flavor: presenter/source
+    - mediaUri: https://data.lkiesow.io/opencast/test-media/portrait.mp4
+    - title: Portrait Mode
+    - creator: Lars Kiesow
+    - identifier: ID-portrait
+    - license: CC-BY

@@ -1,0 +1,44 @@
+#!/bin/bash
+
+getversion() {
+        if [ ! -f $1/etc/org.apache.karaf.features.cfg ]; then
+          exit 1
+        fi
+        sed -n 's/.*opencast-karaf-features\/\([0-9]*\).*/\1/p' $1/etc/org.apache.karaf.features.cfg
+}
+
+if [ $# -ge 1 ];
+then
+  search=$1
+else
+  search="develop"
+fi
+
+if [ $# -ge 2 ];
+then
+  jdk="$2"
+else
+  jdk=`grep -o 'java.release>.*' pom.xml | sed 's#java.release>\(.*\)</java.release>#\1#g'`
+fi
+
+if [ ! -d /usr/lib/jvm/java-$jdk-openjdk-amd64 ];
+then
+  echo "/usr/lib/jvm/java-$jdk-openjdk-amd64 does not exist!"
+  exit 1
+fi
+
+target=`find ./build -type d -name opencast-dist-$search* | head -n 1`
+version=$(getversion $target)
+
+echo "Attempting to start $search with jdk $jdk"
+if [ "" == "$target" ]; then
+  echo "$search does not exist!"
+  exit 1
+elif [ "$target" == "./build/opencast-dist-$search-$version-SNAPSHOT" ]; then
+  echo "Guessing that $target is right, starting that"
+elif [ "$target" != "./build/opencast-dist-$search" ]; then
+  echo "Found $target, which doesn't match ./build/opencast-dist-$search"
+  exit 1
+fi
+
+JAVA_HOME=/usr/lib/jvm/java-$jdk-openjdk-amd64 $target/bin/start-opencast

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ocbuild clean install && mv -f target/*`basename $(pwd)`* ../../build/opencast-dist-*/system/org/opencastproject/*`basename $(pwd)`/*/

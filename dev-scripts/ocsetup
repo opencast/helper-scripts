@@ -1,0 +1,125 @@
+#!/bin/bash
+
+getversion() {
+        if [ ! -f $1/etc/org.apache.karaf.features.cfg ]; then
+          exit 1
+        fi
+        sed -n 's/.*opencast-karaf-features\/\([0-9]*\).*/\1/p' $1/etc/org.apache.karaf.features.cfg
+}
+
+setup() {
+        version=$(getversion $1)
+        if [ -z "$version" ]; then
+          echo "$1/etc/org.apache.karaf.features.cfg is not a path, unable to process"
+          return 1
+        fi
+        echo "Processing $1, detected OC $version"
+        if [ "$version" -ge "9" ]; then
+                docker compose -f $COMPOSEFILE up -d
+        fi
+        docker compose -f ../docker-nginx-cors/docker-compose.yml up -d
+        
+        port=3306
+
+        echo "Setting OC config values $1"
+
+        #Mangle the config.properties file
+        sed 's/\#org.opencastproject.db.vendor.*/org.opencastproject.db.vendor=MySQL/' etc/custom.properties | \
+        sed 's/#org.opencastproject.db.jdbc.driver/org.opencastproject.db.jdbc.driver/' | \
+        sed "s/\#org.opencastproject.db.jdbc.url.*/org.opencastproject.db.jdbc.url=jdbc:mariadb:\/\/localhost:$port\/$SCHEMA\?useMysqlMetadata/" | \
+        sed "s/\#org.opencastproject.db.jdbc.user.*/org.opencastproject.db.jdbc.user=$SQLUSER/" | \
+        sed "s/\#org.opencastproject.db.jdbc.pass.*/org.opencastproject.db.jdbc.pass=$SQLPASS/" | \
+        sed 's/org.opencastproject.server.url=.*/org.opencastproject.server.url=http:\/\/localhost/' > $1/etc/custom.properties
+        echo "org.opencastproject.adopter.registration.server.url=http://localhost:5000/" >> $1/etc/custom.properties
+
+        sed 's/.*prop.org.opencastproject.host.localhost.*/prop.org.opencastproject.host.localhost = http:\/\/localhost/' etc/org.opencastproject.organization-mh_default_org.cfg > $1/etc/org.opencastproject.organization-mh_default_org.cfg
+
+        #Enable LTI
+        sed 's/\#lti.oauth.highly_trusted_consumer_key.1/lti.oauth.highly_trusted_consumer_key.1/' etc/org.opencastproject.security.lti.LtiLaunchAuthenticationHandler.cfg | \
+        sed 's/\#lti.create_jpa_user_reference=.*/lti.create_jpa_user_reference=true/' > $1/etc/org.opencastproject.security.lti.LtiLaunchAuthenticationHandler.cfg
+
+        #This line is also in the JWT bits, if it changes please change it there too!
+        sed 's/.*\(bean="oauthProtectedResourceFilter"\).*/        \<ref \1 \/\>/' etc/security/mh_default_org.xml > $1/etc/security/mh_default_org.xml
+
+        sed 's/.*\(oauth.consumer.*\)/\1/g' etc/org.opencastproject.kernel.security.OAuthConsumerDetailsService.cfg > $1/etc/org.opencastproject.kernel.security.OAuthConsumerDetailsService.cfg
+
+        echo "Enabling karaf debug, webconsole users"
+        rm -f $1/bin/setenv
+        cp -f assemblies/resources/bin/setenv $1/bin/setenv
+        echo "export KARAF_DEBUG=enable" >> $1/bin/setenv
+        rm -f $1/etc/users.properties
+        cp -f etc/users.properties $1/etc/users.properties
+        echo -e "admin = opencast,_g_:admingroup\n_g_\:admingroup = group,admin,manager,viewer,webconsole" >> $1/etc/users.properties
+
+        mkdir -p $1/data/log
+        touch $1/data/log/opencast.log
+
+        echo "Done"
+}
+
+aws() {
+        echo "Configuring $1 for AWS"
+        REGION="us-east-2"
+        DIST_BUCKET="dist"
+        ASSET_BUCKET="asset"
+        ACCESS_KEY="foo"
+        SECRET_KEY="bar"
+
+        #Enable AWS Dist and AM
+        sed 's/org.opencastproject.distribution.aws.s3.distribution.enable=.*/org.opencastproject.distribution.aws.s3.distribution.enable=true/' etc/org.opencastproject.distribution.aws.s3.AwsS3DistributionServiceImpl.cfg | \
+        sed "s/#org.opencastproject.distribution.aws.s3.region=.*/org.opencastproject.distribution.aws.s3.region=$REGION/" | \
+        sed "s/#org.opencastproject.distribution.aws.s3.bucket=.*/org.opencastproject.distribution.aws.s3.bucket=$DIST_BUCKET/" | \
+        sed "s/#org.opencastproject.distribution.aws.s3.distribution.base=.*/org.opencastproject.distribution.aws.s3.distribution.base=http:\/\/$DIST_BUCKET.s3-website.$REGION.amazonaws.com/" | \
+        sed "s/#org.opencastproject.distribution.aws.s3.access.id=.*/org.opencastproject.distribution.aws.s3.access.id=$ACCESS_KEY/" | \
+        sed "s/#org.opencastproject.distribution.aws.s3.secret.key=.*/org.opencastproject.distribution.aws.s3.secret.key=$SECRET_KEY/" > $1/etc/org.opencastproject.distribution.aws.s3.AwsS3DistributionServiceImpl.cfg
+
+        sed 's/org.opencastproject.assetmanager.aws.s3.enabled=.*/org.opencastproject.assetmanager.aws.s3.enabled=true/' etc/org.opencastproject.assetmanager.aws.s3.AwsS3AssetStore.cfg | \
+        sed "s/#org.opencastproject.assetmanager.aws.s3.region=.*/org.opencastproject.assetmanager.aws.s3.region=$REGION/" | \
+        sed "s/#org.opencastproject.assetmanager.aws.s3.bucket=.*/org.opencastproject.assetmanager.aws.s3.bucket=$ASSET_BUCKET/" | \
+        sed "s/#org.opencastproject.assetmanager.aws.s3.access.id=.*/org.opencastproject.assetmanager.aws.s3.access.id=$ACCESS_KEY/" | \
+        sed "s/#org.opencastproject.assetmanager.aws.s3.secret.key=.*/org.opencastproject.assetmanager.aws.s3.secret.key=$SECRET_KEY/" > $1/etc/org.opencastproject.assetmanager.aws.s3.AwsS3AssetStore.cfg
+
+        echo "Remember to add the relevant WOHs to the right workflows!"
+}
+
+youtube() {
+        echo "Configuring $1 for Youtube"
+        #Enable YouTube
+        mkdir -p etc/youtube-v3/ $1/data/opencast/youtube-v3/data-store
+        sed -i 's/org.opencastproject.publication.youtube.enabled=.*/org.opencastproject.publication.youtube.enabled=true/' $1/etc/org.opencastproject.publication.youtube.YouTubeV3PublicationServiceImpl.cfg
+}
+
+jwt() {
+  pushd . > /dev/null
+  #This line is from the main config above!
+  sed 's/.*\(bean="oauthProtectedResourceFilter"\).*/        \<ref \1 \/\>/' etc/security/mh_default_org.xml > $1/etc/security/mh_default_org.xml
+  cd $1
+  patch -p1 < $2
+  popd > /dev/null
+}
+
+process() {
+  if [ $# -eq 2 ]; then
+    if [ "$2" == "yt" ]; then
+      youtube $1
+    elif [ "$2" == "aws" ]; then
+      aws $1
+    elif [ "$2" == "jwt" ]; then
+      SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+      jwt $1 $SCRIPT_DIR/.oc-jwt.diff
+    fi
+  else
+    setup $1
+    set -ue
+    curl -f -s --retry 30 --retry-delay 1 --retry-all-errors http://localhost:9200/
+  fi
+}
+
+find build -maxdepth 1 -mindepth 1 -type d | while read line
+do
+  if [ $# -ge 1 ]; then
+    process $line $2
+  else
+    process $line
+  fi
+done

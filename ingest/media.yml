@@ -34,7 +34,7 @@ series:
 
 media:
   - - flavor: presenter/source
-    - mediaUri: https://www.pexels.com/video/854982/download/
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/video-of-a-tabby-cat.mp4
     - title: Video Of A Tabby Cat
     - creator: Pixabay
     - license: CC0
@@ -43,60 +43,60 @@ media:
     - created: '2017-01-14T00:00Z'
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/goat.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/goat.mp4
     - flavor: captions/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/goat.vtt
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/goat.vtt
     - title: Bleating Goat
     - creator: Lars Kiesow
     - license: CC0
     - identifier: ID-goat
-    - source: https://data.lkiesow.io
+    - source: https://radosgw.public.os.wwu.de
     - created: '2018-04-21T13:14:31Z'
     - isPartOf: ID-openmedia-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/3d-print.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/3d-print.mp4
     - title: 3D Print
     - creator: Lars Kiesow
     - license: CC0
     - identifier: ID-3d-print
-    - source: https://data.lkiesow.io
+    - source: https://radosgw.public.os.wwu.de
     - created: '2021-04-17T17:22:40Z'
     - isPartOf: ID-openmedia-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/marguerite-1080.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/marguerite-1080.mp4
     - title: Marguerite
     - creator: Lars Kiesow
     - license: CC0
     - identifier: ID-marguerite
-    - source: https://data.lkiesow.io
+    - source: https://radosgw.public.os.wwu.de
     - created: '2021-06-13T19:18:47Z'
     - isPartOf: ID-openmedia-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/dog-rose-720.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/dog-rose-720.mp4
     - title: Dog Rose
     - creator: Lars Kiesow
     - license: CC0
     - identifier: ID-dog-rose
-    - source: https://data.lkiesow.io
+    - source: https://radosgw.public.os.wwu.de
     - created: '2021-06-13T19:33:33Z'
     - isPartOf: ID-openmedia-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/westerberg.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/westerberg.mp4
     - title: Autum Westerberg
     - creator: Lars Kiesow
     - license: CC-BY
     - identifier: ID-westerberg
-    - source: https://data.lkiesow.io
+    - source: https://radosgw.public.os.wwu.de
     - created: '2020-10-16T17:38:53Z'
     - spatial: DE, Osnabrück, Westerberg
     - isPartOf: ID-openmedia-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/3/3f/Coffee_Run_-_Blender_Open_Movie-full_movie.webm
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/Coffee_Run_-_Blender_Open_Movie-full_movie.webm
     - title: Coffee Run
     - creator: Blender Foundation
     - license: CC-BY
@@ -106,7 +106,7 @@ media:
     - isPartOf: ID-blender-foundation
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/a/a5/Spring_-_Blender_Open_Movie.webm
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/Spring_-_Blender_Open_Movie.webm
     - title: Spring
     - creator: Blender Foundation
     - creator: Andy Goralczyk
@@ -117,7 +117,7 @@ media:
     - isPartOf: ID-blender-foundation
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/0/00/NASA%27s_new_High_Dynamic_Range_Camera_Records_Rocket_Test.webm
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/NASA%27s_new_High_Dynamic_Range_Camera_Records_Rocket_Test.webm
     - title: NASAs new High Dynamic Range Camera Records Rocket Test
     - creator: NASA
     - description: >
@@ -129,7 +129,7 @@ media:
     - isPartOf: ID-wiki-commons
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a7/View_of_Planet_Earth_%284K%29.webm/View_of_Planet_Earth_%284K%29.webm.360p.vp9.webm
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/View_of_Planet_Earth_%284K%29.webm.360p.vp9.webm
     - title: View of Planet Earth (4K)
     - creator: NASA Johnson
     - description: >
@@ -153,26 +153,26 @@ media:
     - isPartOf: ID-wiki-commons
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream-presenter.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/dualstream-presenter.mp4
     - flavor: presentation/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream-presentation.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/dualstream-presentation.mp4
     - flavor: captions/source+en
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/dualstream.vtt
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/dualstream.vtt
     - title: Dual-Stream Demo
     - creator: Lars Kiesow
     - identifier: ID-dual-stream-demo
     - license: CC-BY-SA
 
   - - flavor: presentation/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/olaf-schulte-opencast.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/olaf-schulte-opencast.mp4
     - flavor: captions/source+en
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/olaf-schulte-opencast.vtt
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/olaf-schulte-opencast.vtt
     - title: About Opencast
     - creator: Olaf Schulte
     - identifier: ID-about-opencast
 
   - - flavor: presenter/source
-    - mediaUri: https://tib.flowcenter.de/mfc/medialink/3/de7c76884c990de1084fee40abf6d7fc950610346b64411a76d59f683bd103fc23/22599_C283.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/22599_C283.mp4
     - title: Weitsprung
     - creator: Wälken, Paul
     - description: >
@@ -188,9 +188,9 @@ media:
     - isPartOf: ID-av-portal
 
   - - flavor: presenter/source
-    - mediaUri: https://tib.flowcenter.de/mfc/medialink/3/de2a46cbb86bc3b5933395197e8076295d8fa68480e56f05e3fb081eac51894832/WasistChaos_flash9.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/WasistChaos_flash9.mp4
     - flavor: captions/source+en
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/was-ist-chaos.vtt
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/was-ist-chaos.vtt
     - title: Was ist Chaos?, Folge 16, Experiment der Woche.
     - creator: Skorupka, Sascha
     - identifier: ID-was-ist-chaos
@@ -198,7 +198,7 @@ media:
     - isPartOf: ID-av-portal
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/strong-river-flowing-down-the-green-forest.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/strong-river-flowing-down-the-green-forest.mp4
     - title: Strong river flowing down the forest
     - creator: Nature Stock Videos
     - description: >
@@ -213,7 +213,7 @@ media:
     - created: '2019-06-18T07:40:53Z'
 
   - - flavor: presenter/source
-    - mediaUri: https://mars.nasa.gov/multimedia/videos/movies/Perseverance_Arrives_at_Mars/Perseverance_Arrives_at_Mars-1920.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/Perseverance_Arrives_at_Mars-1920.mp4
     - title: 'Perseverance Arrives at Mars: Feb. 18, 2021 (Mission Trailer)'
     - creator: NASA
     - description: >
@@ -228,7 +228,7 @@ media:
     - isPartOf: ID-wiki-commons
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/4/4e/Lavender_-_17156.webm
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/Lavender_-_17156.webm
     - title: Lavender
     - creator: Tetzemann
     - description: Bumblebees and butterflies on lavender
@@ -238,7 +238,7 @@ media:
     - created: '2018-07-07T00:00Z'
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/e/e2/1_DOF_Pendulum_with_spring-damper_Adams_simulation.mpg
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/1_DOF_Pendulum_with_spring-damper_Adams_simulation.mpg
     - title: DOF Pendulum with spring-damper Adams simulation
     - creator: I. Elgamal
     - description: '1 DOF Pendulum with spring-damper Adams simulation with input vibration'
@@ -249,9 +249,9 @@ media:
     - created: '2020-06-28T00:00Z'
 
   - - flavor: presenter/source
-    - mediaUri: https://upload.wikimedia.org/wikipedia/commons/4/43/Espresso_video.ogv
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/Espresso_video.ogv
     - flavor: captions/source+en
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/espresso.vtt
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/espresso.vtt
     - title: Espresso
     - creator: Rosatrieu
     - description: The video shows how espresso is typically made.
@@ -262,7 +262,7 @@ media:
     - created: '2013-09-22T00:00Z'
 
   - - flavor: presenter/source
-    - mediaUri: https://data.lkiesow.io/opencast/test-media/portrait.mp4
+    - mediaUri: https://radosgw.public.os.wwu.de/opencast-test-media/portrait.mp4
     - title: Portrait Mode
     - creator: Lars Kiesow
     - identifier: ID-portrait

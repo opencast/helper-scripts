@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<definition xmlns="http://workflow.opencastproject.org">
+
+  <id>import</id>
+  <title>Import episode</title>
+  <tags>
+  </tags>
+  <description>
+    Import episode from another Opencast instance
+  </description>
+  <operations>
+
+    <operation
+      id="import-wf-properties"
+      description="Load processing settings">
+      <configurations>
+        <configuration key="source-flavor">processing/defaults</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="tag"
+      description="Apply archive tag on all elements">
+      <configurations>
+        <configuration key="source-flavors">*/*</configuration>
+        <configuration key="target-tags">+archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="tag"
+      description="Remove archive tag from published elements">
+      <configurations>
+        <configuration key="source-tags">search,externalapi,internal</configuration>
+        <configuration key="target-tags">-archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="snapshot"
+      description="Archive recording">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="inspect"
+      exception-handler-workflow="partial-error"
+      description="Inspecting audio and video streams">
+      <configurations>
+        <configuration key="overwrite">false</configuration>
+        <configuration key="accept-no-media">false</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="publish-engage"
+      max-attempts="2"
+      fail-on-error="true"
+      exception-handler-workflow="error"
+      description="Distribute and publish to engage player">
+      <configurations>
+        <configuration key="download-source-tags">search</configuration>
+        <!--configuration key="streaming-source-tags">engage</configuration-->
+        <!--configuration key="check-availability">true</configuration-->
+        <!--configuration key="strategy">merge</configuration-->
+      </configurations>
+    </operation>
+
+    <operation
+      id="snapshot"
+      description="Create a snapshot and archive">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="publish-configure"
+      exception-handler-workflow="partial-error"
+      description="Publish to external api">
+      <configurations>
+        <configuration key="download-source-tags">externalapi</configuration>
+        <configuration key="channel-id">api</configuration>
+        <configuration key="mediatype">application/json</configuration>
+        <configuration key="url-pattern">
+          ${org_org_opencastproject_external_api_url!'http://localhost:8080'}/api/events/${event_id}
+        </configuration>
+        <configuration key="check-availability">false</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="snapshot"
+      description="Create a snapshot and archive">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="publish-configure"
+      exception-handler-workflow="partial-error"
+      description="Publish to editor">
+      <configurations>
+        <configuration key="download-source-tags">internal</configuration>
+        <configuration key="channel-id">internal</configuration>
+        <configuration key="url-pattern">
+          ${org_org_opencastproject_admin_ui_url!'http://localhost:8080'}/admin-ng/index.html#/events/events/${event_id}/tools/editor
+        </configuration>
+        <configuration key="check-availability">false</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="snapshot"
+      description="Create a snapshot and archive">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+      id="cleanup"
+      fail-on-error="false"
+      description="Remove temporary processing artifacts">
+      <configurations>
+        <!-- On systems with shared workspace or working file repository -->
+        <!-- you want to set this option to false. -->
+        <configuration key="delete-external">true</configuration>
+        <!-- ACLs are required again when working through ActiveMQ messages -->
+        <configuration key="preserve-flavors">security/*</configuration>
+      </configurations>
+    </operation>
+
+  </operations>
+</definition>

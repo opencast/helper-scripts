@@ -1,0 +1,6 @@
+venv
+.idea
+.vscode
+*.pyc
+downloads
+theme_id_mappings_*.json

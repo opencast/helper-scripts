@@ -1,0 +1,91 @@
+<mediapackage xmlns="http://mediapackage.opencastproject.org" duration="97248" id="ID-nasa-earth-4k" start="2022-10-21T00:03:00Z">
+    <title>View of Planet Earth (4K)</title>
+    <series>ID-wiki-commons</series>
+    <seriestitle>Wiki Commons Content</seriestitle>
+    <creators>
+        <creator>NASA Johnson</creator>
+    </creators>
+    <license>Public Domain</license>
+    <media>
+        <track id="f0b50d45-211b-4449-9c00-d675906cecbe" type="presenter/preview" ref="track:696051a6-4846-4bd0-ba59-b4b7c2826a91">
+            <mimetype>video/mp4</mimetype>
+            <tags>
+                <tag>atom</tag>
+                <tag>default</tag>
+                <tag>engage-download</tag>
+                <tag>engage-streaming</tag>
+                <tag>rss</tag>
+            </tags>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/75072b53-30da-4d9e-b09a-f45a697a4e20/View_of_Planet_Earth__4K_.webm.360p.vp9.mp4
+            </url>
+            <size>6332709</size>
+            <checksum type="md5">6bb7a3ba4dca48d4aa497465b0d7d0af</checksum>
+            <duration>97248</duration>
+            <audio id="audio-1">
+                <device/>
+                <encoder type="AAC (Advanced Audio Coding)"/>
+                <framecount>4560</framecount>
+                <channels>2</channels>
+                <samplingrate>48000</samplingrate>
+                <bitrate>114802.0</bitrate>
+            </audio>
+            <video id="video-1">
+                <device/>
+                <encoder type="H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10"/>
+                <framecount>2331</framecount>
+                <bitrate>400652.0</bitrate>
+                <framerate>23.976025</framerate>
+                <resolution>640x360</resolution>
+            </video>
+            <live>false</live>
+            <master>false</master>
+        </track>
+    </media>
+    <metadata>
+        <catalog id="de6ce14b-65eb-4b25-a1ad-0a2312a0b652" type="dublincore/episode">
+            <mimetype>text/xml</mimetype>
+            <tags/>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/17e1fbe3-774b-4ebb-914b-7f4de94f0a20/dublincore.xml
+            </url>
+        </catalog>
+    </metadata>
+    <attachments>
+        <attachment id="10ed2ffd-181a-4861-8f1d-a2e717c33d6c" type="security/xacml+episode">
+            <mimetype>text/xml</mimetype>
+            <tags/>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/e5aad76e-f0ff-443a-aaee-88ca5b2fbbd9/episode-security.xml
+            </url>
+        </attachment>
+        <attachment id="00bece63-afd3-4f12-a2bb-cfbd986e0fcc" type="security/xacml+series">
+            <mimetype>text/xml</mimetype>
+            <tags/>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/security-policy-series/xacml.xml
+            </url>
+        </attachment>
+        <attachment id="f9a05d2d-11d0-4991-a058-3f559334a256" type="presenter/player+preview" ref="track:696051a6-4846-4bd0-ba59-b4b7c2826a91">
+            <mimetype>image/jpeg</mimetype>
+            <tags>
+                <tag>engage-download</tag>
+            </tags>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/004373ae-01a7-478c-a728-3c7ad4c6b0d6/View_of_Planet_Earth__4K_.webm.360p.vp9_1.000s-player.jpg
+            </url>
+            <size>16068</size>
+        </attachment>
+        <attachment id="014ff0b8-8f19-46a5-a536-60cdc6ed1ba2" type="presenter/search+preview" ref="track:696051a6-4846-4bd0-ba59-b4b7c2826a91">
+            <mimetype>image/jpeg</mimetype>
+            <tags>
+                <tag>engage-download</tag>
+            </tags>
+            <url>
+                https://develop.opencast.org/static/mh_default_org/engage-player/ID-nasa-earth-4k/685da402-954d-4bf9-8e6f-818f59237ccb/View_of_Planet_Earth__4K_.webm.360p.vp9_1.000s-search.jpg
+            </url>
+            <size>1800</size>
+        </attachment>
+    </attachments>
+    <publications/>
+</mediapackage>

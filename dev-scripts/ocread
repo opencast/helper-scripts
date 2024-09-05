@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if [ $# -ge 1 ]; then
+  less .build/opencast-dist-$1-*/data/log/opencast.log
+else
+  less ./build/opencast-dist*/data/log/opencast.log
+fi

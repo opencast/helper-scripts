@@ -9,6 +9,7 @@ SOURCE_HOST_ADMIN = 'https://source-admin.opencast.org'
 SOURCE_HOST_PRESENTATION = 'https://source-presentation.opencast.org'
 SOURCE_USER = 'admin'
 SOURCE_PASS = 'opencast'
+SOURCE_SERIES_NAMES = []
 
 TARGET_HOST = 'https://target.opencast.org'
 TARGET_USER = 'admin'
@@ -21,13 +22,14 @@ ONLY_SMALL_VIDEO_TRACKS = False
 http = urllib3.PoolManager()
 
 
-def get_published_series():
+def get_published_series(series_name=None):
     '''
     Generator, requesting all published media packages from the search service
     of the source Opencast. The media packages hold links to all published
     media and can be passed on as-is to the target Opencast.
 
-    :return: Tuple of series Dublin Core XML and ACL XML
+    :param series_name: Name of series to be searched
+    :return: Triple of series Dublin Core XML, ACL XML and series id
     '''
     url_search = f'{SOURCE_HOST_PRESENTATION}/search/series.json'
     headers = urllib3.make_headers(basic_auth=f'{SOURCE_USER}:{SOURCE_PASS}')
@@ -38,9 +40,16 @@ def get_published_series():
 
     # get published media packages from source opencast
     while total > offset:
-        request = http.request('GET', url_search, headers=headers, fields={
+        fields = {
             'limit': limit,
-            'offset': offset})
+            'offset': offset
+        }
+
+        # Search for series by free-text query
+        if series_name:
+            fields['q'] = series_name
+
+        request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
         data = json.loads(data).get('search-results')
 
@@ -64,7 +73,7 @@ def get_published_series():
             request = http.request('GET', url_acl, headers=headers)
             acl = request.data.decode('utf-8').strip()
 
-            yield (dublincore, acl)
+            yield dublincore, acl, series_id
 
 
 def create_series(dublincore, acl):
@@ -141,12 +150,13 @@ def remove_large_video_tracks_from_mediapackage(mediapackage, tracks):
     return le.tostring(mediapackage, encoding='utf-8')
 
 
-def get_published_media():
+def get_published_media(series_id=None):
     '''
     Generator, requesting all published media packages from the search service
     of the source Opencast. The media packages hold links to all published
     media and can be passed on as-is to the target Opencast.
 
+    :param series_id: series id to which the media belongs
     :return: Media package XML
     '''
     url_search = f'{SOURCE_HOST_PRESENTATION}/search/episode.json'
@@ -158,9 +168,15 @@ def get_published_media():
 
     # get published media packages from source opencast
     while total > offset:
-        request = http.request('GET', url_search, headers=headers, fields={
+        fields = {
             'limit': limit,
-            'offset': offset})
+            'offset': offset
+        }
+
+        if series_id:
+            fields['sid'] = series_id
+
+        request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
         data = json.loads(data).get('search-results')
 
@@ -204,11 +220,21 @@ def ingest(mediapackage):
 
 
 def main():
-    for dublincore, acl in get_published_series():
-        create_series(dublincore, acl)
+    if SOURCE_SERIES_NAMES:
+        # Collect only series and related medias by series names
+        for series_name in SOURCE_SERIES_NAMES:
+            for dublincore, acl, series_id in get_published_series(series_name):
+                create_series(dublincore, acl)
 
-    for mediapackage in get_published_media():
-        ingest(mediapackage)
+                # Get series medias
+                for mediapackage in get_published_media(series_id):
+                    ingest(mediapackage)
+    else:
+        # Collect all series and medias
+        for dublincore, acl in get_published_series():
+            create_series(dublincore, acl)
+        for mediapackage in get_published_media():
+            ingest(mediapackage)
 
 
 if __name__ == '__main__':

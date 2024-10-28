@@ -19,7 +19,10 @@ You can use any workflow you want and even reprocess videos,
 but if you just want to import and publish media as they were in the old system,
 you may want to use the workflow [import.yaml](import.yaml).
 
-Update the credentials and the workflow in the `migrate.py` to configure your Opencast source and target systems. If you have a distributed installation of Opencast ensure that the URLs match your admin and presentation node. With an AllInOne installation you'll have the same URL for admin and presentation. You can configure with `ONLY_SMALL_VIDEO_TRACKS` whether only the smallest video with a low resolution should be migrated.
+Update the credentials and the workflow in the `migrate.py` to configure your Opencast source and target systems. If you have a distributed installation of Opencast ensure that the URLs match your admin and presentation node. With an AllInOne installation you'll have the same URL for admin and presentation. 
+You can configure with `ONLY_SMALL_VIDEO_TRACKS` whether only the smallest video with a low resolution should be migrated.
+
+You can migrate specific series by providing their names in `SOURCE_SERIES_NAMES`.
 
 Finally, start the migration:
 

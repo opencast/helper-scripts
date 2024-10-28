@@ -4,12 +4,20 @@ import json
 
 import lxml.etree as le
 import urllib3
+import MySQLdb
+import sys
 
 SOURCE_HOST_ADMIN = 'https://source-admin.opencast.org'
 SOURCE_HOST_PRESENTATION = 'https://source-presentation.opencast.org'
 SOURCE_USER = 'admin'
 SOURCE_PASS = 'opencast'
 SOURCE_SERIES_NAMES = []
+
+SOURCE_DB_HOST = '127.0.0.1'
+SOURCE_DB_PORT = 3306
+SOURCE_DB_USER = 'admin'
+SOURCE_DB_PASSWORD = 'opencast'
+SOURCE_DB_DATABASE = 'opencast'
 
 TARGET_HOST = 'https://target.opencast.org'
 TARGET_USER = 'admin'
@@ -20,6 +28,19 @@ ONLY_SMALL_VIDEO_TRACKS = False
 
 
 http = urllib3.PoolManager()
+
+try:
+    database = MySQLdb.connect(
+        user=SOURCE_DB_USER,
+        password=SOURCE_DB_PASSWORD,
+        host=SOURCE_DB_HOST,
+        port=SOURCE_DB_PORT,
+        database=SOURCE_DB_DATABASE
+    )
+    cursor = database.cursor()
+except MySQLdb.Error as e:
+    print(f"Error connecting to Database: {e}")
+    sys.exit(1)
 
 
 def get_published_series(series_name=None):
@@ -51,7 +72,7 @@ def get_published_series(series_name=None):
 
         request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
-        data = json.loads(data).get('search-results')
+        data = json.loads(data)
 
         offset = data.get('offset') + limit
         total = data.get('total')
@@ -60,7 +81,8 @@ def get_published_series(series_name=None):
             results = [results]
 
         for result in results:
-            series_id = result.get('id')
+            dc = result.get('dc', {})
+            series_id = dc.get('identifier')[0]
             print('Importing', series_id)
 
             # get dublin core
@@ -178,7 +200,7 @@ def get_published_media(series_id=None):
 
         request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
-        data = json.loads(data).get('search-results')
+        data = json.loads(data)
 
         offset = data.get('offset') + limit
         total = data.get('total')
@@ -188,19 +210,23 @@ def get_published_media(series_id=None):
             results = [results]
 
         for result in results:
-            print('Importing ' + result.get('id'))
+            media_package = result.get('mediapackage', {})
+            print('Importing ' + media_package.get('id'))
+
+            print('Fetch mediapackage xml from database')
+            cursor.execute('SELECT mediapackage_xml FROM oc_search WHERE id=%s', (media_package.get('id'),))
+            mediapackage_xml = cursor.fetchone()[0]
 
             if ONLY_SMALL_VIDEO_TRACKS:
-                media_package = result.get('mediapackage', {})
                 media = media_package.get('media', {})
                 tracks = media.get('track', [])
 
                 if type(tracks) is not list:
                     tracks = [tracks]
 
-                yield remove_large_video_tracks_from_mediapackage(result.get('ocMediapackage'), tracks)
+                yield remove_large_video_tracks_from_mediapackage(mediapackage_xml, tracks)
             else:
-                yield result.get('ocMediapackage')
+                yield mediapackage_xml
 
 
 def ingest(mediapackage):
@@ -239,3 +265,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    database.close()

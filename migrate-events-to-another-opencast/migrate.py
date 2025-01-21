@@ -8,7 +8,6 @@ import MySQLdb
 import sys
 
 SOURCE_HOST_ADMIN = 'https://source-admin.opencast.org'
-SOURCE_HOST_PRESENTATION = 'https://source-presentation.opencast.org'
 SOURCE_USER = 'admin'
 SOURCE_PASS = 'opencast'
 SOURCE_SERIES_NAMES = []
@@ -52,15 +51,15 @@ def get_published_series(series_name=None):
     :param series_name: Name of series to be searched
     :return: Triple of series Dublin Core XML, ACL XML and series id
     '''
-    url_search = f'{SOURCE_HOST_PRESENTATION}/search/series.json'
+    url_search = f'{SOURCE_HOST_ADMIN}/api/series/'
     headers = urllib3.make_headers(basic_auth=f'{SOURCE_USER}:{SOURCE_PASS}')
 
+    results = [True]
     offset = 0
-    total = 1
     limit = 2
 
     # get published media packages from source opencast
-    while total > offset:
+    while results:
         fields = {
             'limit': limit,
             'offset': offset
@@ -68,21 +67,19 @@ def get_published_series(series_name=None):
 
         # Search for series by free-text query
         if series_name:
-            fields['q'] = series_name
+            fields['filter'] = f'textFilter:{series_name}'
 
         request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
-        data = json.loads(data)
 
-        offset = data.get('offset') + limit
-        total = data.get('total')
-        results = data.get('result', [])
+        results = json.loads(data)
         if type(results) is not list:
             results = [results]
 
+        offset = offset + len(results)
+
         for result in results:
-            dc = result.get('dc', {})
-            series_id = dc.get('identifier')[0]
+            series_id = result.get('identifier')
             print('Importing', series_id)
 
             # get dublin core
@@ -126,45 +123,44 @@ def get_smallest_video_track_by_type(tracks):
     '''
     # Filter only video tracks
     # Ignore videos with mimetype = application/x-mpegURL as these can not always be processed by opencast
-    tracks = filter(lambda track: 'video' in track and 'video' in track.get('mimetype'), tracks)
+    tracks = filter(lambda track: track.find('{*}video') is not None and 'video' in track.findtext('{*}mimetype'), tracks)
 
     smallest_video_tracks = {}
     for track in tracks:
         track_type = track.get('type')
-        size = track.get('size')
+        size = int(track.findtext('{*}size'))
 
-        if track_type not in smallest_video_tracks or size < smallest_video_tracks[track_type].get('size'):
+        if track_type not in smallest_video_tracks or size < int(smallest_video_tracks[track_type].findtext('{*}size')):
             smallest_video_tracks[track_type] = track
 
     return smallest_video_tracks
 
 
-def remove_large_video_tracks_from_mediapackage(mediapackage, tracks):
+def remove_large_video_tracks_from_mediapackage(mediapackage):
     '''
     For each track type, removes all video tracks that are bigger than the smallest video track
 
     :param mediapackage: Media package as XML
-    :param tracks: tracks as list used to find the smallest track
     :return: filtered media package as XML
     '''
-    smallest_video_tracks = get_smallest_video_track_by_type(tracks)
-
     mediapackage = le.fromstring(bytes(mediapackage, encoding='utf-8'))
     media = mediapackage.find('{*}media')
     tracks = media.findall('{*}track')
+
+    smallest_video_tracks = get_smallest_video_track_by_type(tracks)
 
     for track in tracks:
         track_id = track.get('id')
         track_type = track.get('type')
         video = track.find('{*}video')
-        mimetype = track.find('{*}mimetype')
+        mimetype = track.findtext('{*}mimetype')
 
         # Remove useless hls playlists
-        if mimetype.text == 'application/x-mpegURL':
+        if mimetype == 'application/x-mpegURL':
             media.remove(track)
 
         # Ensure video exists, otherwise do not remove
-        elif video is not None and 'video' in mimetype.text:
+        elif video is not None and 'video' in mimetype:
             # Remove bigger video track
             if track_type in smallest_video_tracks and smallest_video_tracks[track_type].get('id') != track_id:
                 media.remove(track)
@@ -181,50 +177,48 @@ def get_published_media(series_id=None):
     :param series_id: series id to which the media belongs
     :return: Media package XML
     '''
-    url_search = f'{SOURCE_HOST_PRESENTATION}/search/episode.json'
+    url_search = f'{SOURCE_HOST_ADMIN}/api/events/'
     headers = urllib3.make_headers(basic_auth=f'{SOURCE_USER}:{SOURCE_PASS}')
 
+    results = [True]
     offset = 0
-    total = 1
     limit = 2
 
     # get published media packages from source opencast
-    while total > offset:
+    while results:
         fields = {
             'limit': limit,
             'offset': offset
         }
 
         if series_id:
-            fields['sid'] = series_id
+            fields['filter'] = f'series:{series_id}'
 
         request = http.request('GET', url_search, headers=headers, fields=fields)
         data = request.data.decode('utf-8')
-        data = json.loads(data)
 
-        offset = data.get('offset') + limit
-        total = data.get('total')
-        results = data.get('result', [])
-
+        results = json.loads(data)
         if type(results) is not list:
             results = [results]
 
+        offset = offset + len(results)
+
         for result in results:
-            media_package = result.get('mediapackage', {})
-            print('Importing ' + media_package.get('id'))
+            mediapackage_id = result.get('identifier')
+            print('Importing ' + mediapackage_id)
 
             print('Fetch mediapackage xml from database')
-            cursor.execute('SELECT mediapackage_xml FROM oc_search WHERE id=%s', (media_package.get('id'),))
-            mediapackage_xml = cursor.fetchone()[0]
+            cursor.execute('SELECT mediapackage_xml FROM oc_search WHERE id=%s', (mediapackage_id,))
+            response = cursor.fetchone()
+
+            if not response:
+                print('No mediapackage xml found')
+                continue
+
+            mediapackage_xml = response[0]
 
             if ONLY_SMALL_VIDEO_TRACKS:
-                media = media_package.get('media', {})
-                tracks = media.get('track', [])
-
-                if type(tracks) is not list:
-                    tracks = [tracks]
-
-                yield remove_large_video_tracks_from_mediapackage(mediapackage_xml, tracks)
+                yield remove_large_video_tracks_from_mediapackage(mediapackage_xml)
             else:
                 yield mediapackage_xml
 

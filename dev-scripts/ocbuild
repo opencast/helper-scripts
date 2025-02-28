@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -lt 1 ]; then
-  echo "Usage: $0 JDK_VERSION args"
+  echo "Usage: $0 [JDK_VERSION] args"
   exit 1
 fi
 

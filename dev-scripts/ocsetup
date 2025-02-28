@@ -15,7 +15,7 @@ setup() {
         fi
         echo "Processing $1, detected OC $version"
         if [ "$version" -ge "9" ]; then
-                docker compose -f $COMPOSEFILE up -d
+                docker compose -f docs/scripts/devel-dependency-containers/docker-compose-all-sql.yml up -d
         fi
         docker compose -f ../docker-nginx-cors/docker-compose.yml up -d
         
@@ -26,9 +26,9 @@ setup() {
         #Mangle the config.properties file
         sed 's/\#org.opencastproject.db.vendor.*/org.opencastproject.db.vendor=MySQL/' etc/custom.properties | \
         sed 's/#org.opencastproject.db.jdbc.driver/org.opencastproject.db.jdbc.driver/' | \
-        sed "s/\#org.opencastproject.db.jdbc.url.*/org.opencastproject.db.jdbc.url=jdbc:mariadb:\/\/localhost:$port\/$SCHEMA\?useMysqlMetadata/" | \
-        sed "s/\#org.opencastproject.db.jdbc.user.*/org.opencastproject.db.jdbc.user=$SQLUSER/" | \
-        sed "s/\#org.opencastproject.db.jdbc.pass.*/org.opencastproject.db.jdbc.pass=$SQLPASS/" | \
+        sed "s/\#org.opencastproject.db.jdbc.url.*/org.opencastproject.db.jdbc.url=jdbc:mariadb:\/\/localhost:$port\/opencast\?useMysqlMetadata/" | \
+        sed "s/\#org.opencastproject.db.jdbc.user.*/org.opencastproject.db.jdbc.user=opencast/" | \
+        sed "s/\#org.opencastproject.db.jdbc.pass.*/org.opencastproject.db.jdbc.pass=dbpassword/" | \
         sed 's/org.opencastproject.server.url=.*/org.opencastproject.server.url=http:\/\/localhost/' > $1/etc/custom.properties
         echo "org.opencastproject.adopter.registration.server.url=http://localhost:5000/" >> $1/etc/custom.properties
 

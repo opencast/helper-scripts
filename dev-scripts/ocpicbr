@@ -8,9 +8,9 @@ else
 fi
 
 #npm ci
-npm ci
+npm ci || exit 1
 export PUBLIC_URL="/admin-ui"
-npm run build
+npm run build || exit 1
 cd build
 tar cvzf ../test.tar.gz *
 cd ..

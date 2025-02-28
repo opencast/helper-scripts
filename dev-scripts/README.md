@@ -3,6 +3,17 @@ Local Development Helper Scripts
 
 This repository contains a small collection of helper scripts for local development.  These should, in theory, be portable across systems, however your milage may vary.  If you find that they don't work please file issues so we can make these better!  Ensure this directory is in your PATH to make these work right.
 
+mpr
+---
+
+Fetches and merges a pull request by pull request id.  Ensures the target branch of the PR matches the checked out version.  Supports multiple repositories, which is useful if you have a personal fork.  For example, many Opencast developers have a github.com/$USERNAME/opencast.git so they can file pull requests.  This script assumes your personal fork is origin, and the upstream fork where the PRs live is added as the (`upstream` remote)[https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes].  If that does not match your configuration then you will need to pass a second argument to override the remote name.
+
+Examples:
+
+mpr 1234 -> Merges pull request 1234 to your local clone
+mpr 1234 other -> Merges pull request 1234 from the repository named other
+
+
 ocbuild
 -------
 

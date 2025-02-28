@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ $# -lt 1 -o $# -gt 2 ]; then
+  echo "Usage: $0 PRID [remote name ]: Merge a specific pull request into the local branch, optionally from a specific remote"
+  exit 1
+fi
+
+PRID=$1
+REMOTE="upstream"
+if [ $# -eq 2 ]; then
+  REMOTE="$2"
+fi
+
+SLUG=$(git remote -v | grep $REMOTE | sed -E 's/.*github.com[:\/]([a-zA-Z0-9]*\/[a-zA-Z0-9\-]*).*/\1/g' | uniq)
+
+JSON=$(curl -s "https://api.github.com/repos/${SLUG}/pulls/${PRID}")
+FIXES="$(echo "$JSON" | jq -r .body | grep -Eo 'Closes #[0-9]*|Fixes #[0-9]*|Resolves #[0-9]*')"
+BRANCH="$(git status | sed -n 's/^On branch \(.*\)$/\1/p')"
+HEAD_REPO_URL="$(echo "$JSON" | jq -r .head.repo.ssh_url)"
+HEAD_REPO_NAME="$(echo "$JSON" | jq -r .head.repo.full_name)"
+HEAD_REF="$(echo "$JSON" | jq -r .head.ref)"
+BASE_REF="$(echo "$JSON" | jq -r .base.ref)"
+TITLE="$(echo "$JSON" | jq -r .title)"
+
+if [ "${BRANCH}" != "${BASE_REF}" ]; then
+  echo Warning: Target branch does not match current branch
+  echo "${BRANCH} != ${BASE_REF}"
+fi
+
+# commit
+tmp="$(mktemp -d)"
+echo "Merge branch '${HEAD_REF}' of ${HEAD_REPO_NAME} into ${BASE_REF}
+ 
+Pull request #${PRID}
+${FIXES}
+  ${TITLE}" > "$tmp/COMMIT_EDITMSG"
+
+
+#This branch may exist from previous, failed merges.  Remove it so it's up to date
+git branch -D pr-$PRID 2>&1 > /dev/null
+git fetch $REMOTE pull/$PRID/head:pr-$PRID
+git merge --no-ff pr-$PRID  -F "$tmp/COMMIT_EDITMSG" || exit 1
+git branch -D pr-$PRID
+rm -rf "$tmp"

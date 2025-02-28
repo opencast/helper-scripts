@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ocbuild "${@:2}" -am -pl $1

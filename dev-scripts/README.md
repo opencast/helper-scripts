@@ -32,6 +32,17 @@ ocrebuild
 Run this from a specific module's directory.  Uses `ocbuild` to build a module, then `mv -f`'s the built jar to the right place in the built distribution.  Remember to run `bundle:watch $bundlename` in the Karaf console to let it reload things on the fly.  This may break a running install if you reload certain modules, but most usually work.  Worst case, restarting Karaf should resolve the issues (assuming you haven't made any new bugs :D)
 
 
+ocmk
+----
+
+The same as above, but for running from the root of your clone.  Pass this script a comma separated list of either module directories, or module IDs (mixing formats allowed).  This will build the target module(s) dependencies, then the modules themselves.  This does *not* build the things which depend on the target modules.  Helpful when you have made changes and are seeing weird behaviour in a module and want to be sure their dependencies are freshly built.  Uses `ocbuild`.
+
+Examples:
+
+ocmk :opencast-workflow-service-impl,:opencast-search-service-impl
+ocmk modules/workflow-service-impl,modules/search-service-impl
+
+
 ocsetup
 -------
 

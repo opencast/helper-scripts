@@ -61,6 +61,11 @@ ocstart admin -> Starts the admin distribution, with whatever its default JDK is
 ocstart worker 17 -> Starts the worker distribution, with JDK 17
 ```
 
+ocstop
+------
+
+Stops the dependencies running in Docker containers started by `ocsetup`.  Does *not* stop Opencast itself.
+
 
 oclog
 -----

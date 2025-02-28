@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker compose -f docs/scripts/devel-dependency-containers/docker-compose-all-sql.yml down

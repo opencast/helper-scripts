@@ -93,4 +93,14 @@ Useful for building release builds of the Opencast Admin Interface and deploy th
 Examples:
 ```
 ocpicbr upstream -> Builds admin UI's HEAD, then cd ~/opencast/upstream/modules/admin-ui-interface, changes the url and checksum in the pom, and builds the module
-```
+
+
+ocreindex
+---------
+
+Triggers an Elastic/Opensearch reindex via Opencast's REST endpoint.  By default it triggers a complete reindex, individual indices can be accessed by passing the full url.
+
+Examples:
+
+ocreindex https://stable.opencast.org/index/rebuild -> Rebuilds all indices on stable.opencast.org
+ocreindex http://localhost:8080/index/rebuild/Search -> Rebuilds just the search index on localhost

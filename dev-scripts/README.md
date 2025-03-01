@@ -3,6 +3,16 @@ Local Development Helper Scripts
 
 This repository contains a small collection of helper scripts for local development.  These should, in theory, be portable across systems, however your milage may vary.  If you find that they don't work please file issues so we can make these better!  Ensure this directory is in your PATH to make these work right.
 
+ocpr
+----
+
+Uses the `gh` commandilne utility to fetch the list of PRs against this repository, matching the checked out branch.  For Opencast repositories it will only show you those PRs which have likely been talked about already (ie, if the PR was filed on wedesday, and you run this script on Friday you won't see the PR.)
+
+Examples:
+
+ocpr -> Displays the list of pull requests against this repository which also match the checked out branch
+
+
 mpr
 ---
 

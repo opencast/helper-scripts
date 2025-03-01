@@ -1,0 +1,12 @@
+#!/bin/bash
+
+repo=$(git remote -v | grep -oe 'opencast/.*' | grep -v 'ghsa' | grep '(fetch)' | sort | uniq | sed 's/.git .*//g' | sed 's/ (fetch)//g')
+
+#If it's tuesday
+if [ 2 == `date +"%u"` ]; then
+  dateParams="-created:\>=`date -d "today + 15 hours + 15 minutes UTC" +"%Y-%m-%dT%H:%M:%S%:z"`"
+else
+  dateParams="-created:\>=`date -d "last tuesday + 15 hours + 15 minutes UTC" +"%Y-%m-%dT%H:%M:%S%:z"`"
+fi
+
+gh search prs --repo=$repo --base `git rev-parse --abbrev-ref HEAD` --limit 120 --draft=false --state=open --sort=created -- $dateParams -label:has-conflicts

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 host -> Queries the list of OC indexes direct from Opensearch and then drops them"
+  exit 1
+fi
+set -uxe
+USER=admin
+PASS=admin
+
+HOST=$1
+
+curl -s -u "$USER:$PASS" "$HOST/_cat/indices?v" | grep -o "opencast_\w*" | while read name
+do
+  curl -u "$USER:$PASS" -X DELETE $HOST/$name
+done

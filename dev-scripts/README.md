@@ -104,3 +104,13 @@ Examples:
 
 ocreindex https://stable.opencast.org/index/rebuild -> Rebuilds all indices on stable.opencast.org
 ocreindex http://localhost:8080/index/rebuild/Search -> Rebuilds just the search index on localhost
+
+
+ocindexdrop
+-----------
+
+Finds and drops all Opencast prefixed indexes directly in your Opensearch server.  Uses `admin` as both the username and password by default, override by settings the `USER` and `PASS` environment variables.
+
+Examples:
+
+ocindexdrop http://localhost -> Drops all Opencast indexes from the Opensearch instance on localhost

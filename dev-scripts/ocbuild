@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 [JDK_VERSION] args"
+  exit 1
+fi
+
+MVNPATH="mvn"
+
+if [ -f "./mvnw" ]; then #base dir
+  MVNPATH="./mvnw"
+  DEFAULT_JDK=`grep -o 'java.release>.*' pom.xml | sed 's#java.release>\(.*\)</java.release>#\1#g'`
+elif [ -f "../mvnw" ]; then #for assemblies
+  MVNPATH="../mvnw"
+  DEFAULT_JDK=`grep -o 'java.release>.*' ../pom.xml | sed 's#java.release>\(.*\)</java.release>#\1#g'`
+elif [ -f "../../mvnw" ]; then #for modules
+  MVNPATH="../../mvnw"
+  DEFAULT_JDK=`grep -o 'java.release>.*' ../../pom.xml | sed 's#java.release>\(.*\)</java.release>#\1#g'`
+else
+  echo "WARNING: Defaulting to system maven!"
+fi
+#Looking for integers
+re='^[0-9]+$'
+if [[ $1 =~ $re ]] ; then
+  JDK="$1"
+  JAVA_HOME=/usr/lib/jvm/java-$JDK-openjdk-amd64 $MVNPATH "${@:2}"
+  exit $?
+else
+  JAVA_HOME=/usr/lib/jvm/java-$DEFAULT_JDK-openjdk-amd64 $MVNPATH "${@:1}"
+  exit $?
+fi
+
+

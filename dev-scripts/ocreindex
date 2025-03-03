@@ -1,0 +1,11 @@
+#!/bin/bash
+
+TARGET="http://localhost:8080/index/rebuild"
+
+if [ $# -ge 1 ]; then
+  TARGET="$1"
+fi
+
+echo "Reindexing at $TARGET"
+
+curl -v -f --digest -u 'opencast_system_account:CHANGE_ME' -H 'X-Requested-Auth: Digest' -X POST $TARGET

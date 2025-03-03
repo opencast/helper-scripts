@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "Assuming you want to test in the upstream dir!"
+  target="upstream"
+else
+  target="$1"
+fi
+
+#npm ci
+npm ci || exit 1
+export PUBLIC_URL="/admin-ui"
+npm run build || exit 1
+cd build
+tar cvzf ../test.tar.gz *
+cd ..
+sha=`sha256sum test.tar.gz | cut -f 1 -d " "`
+
+pushd .
+
+cd ~/opencast/$target/modules/admin-ui-interface
+sed -i 's/url>.*<\/interface/url>http:\/\/localhost\/public\/adminui\/test.tar.gz<\/interface/' pom.xml
+sed -i "s/sha256>.*<\/interface/sha256>$sha<\/interface/" pom.xml
+ocrebuild
+
+popd

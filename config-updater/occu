@@ -1,0 +1,194 @@
+#!/bin/bash
+
+# A tool for merging upstream changes into configuration files of your ansible
+# repo.
+
+set -e
+
+
+# If no arguments given, show help text and options
+if [[ "$#" -eq 0 ]]; then
+    echo "Opencast Config Updater"
+    echo "======================="
+    echo "A tool for merging upstream changes into configuration files of your ansible repo."
+    echo ""
+    echo "Usage:"
+    echo "    occu status -> checks which files require updates"
+    echo "    occu list -> list upstream config files that changed"
+    echo "    occu merge -> open a three way merge tool for a specific file"
+    echo ""
+    echo "Run any of these subcommands without arguments to learn about their usages"
+    echo ""
+    echo "Remember to 'git fetch --tags upstream' in the git repo!"
+    exit 0
+fi
+
+if [[ -z "$OCCU_OCDIR" ]]; then
+    echo "OCCU_OCDIR is not set: specify path to Opencast repository"
+fi
+ocdir="$OCCU_OCDIR"
+
+infer_repo_path() {
+    ansible_path="$1"
+    if [[ "$ansible_path" == *files/* ]]; then
+        repo_path="${ansible_path#*files/}"
+    elif [[ "$ansible_path" == *templates/* ]]; then
+        tmp="${ansible_path#*templates/}"
+        repo_path="${tmp%.j2}"
+    else
+        exit 1
+    fi
+
+    # Add `etc/` prefix if it does not exist yet
+    if [[ "$repo_path" != etc/* ]]; then
+        repo_path="etc/$repo_path"
+    fi
+
+    echo "$repo_path"
+}
+
+subcmd="$1"
+
+
+
+# ----- Subcommand STATUS ---------------------------------------------------------------------------------------------
+if [[ "$subcmd" == "status" ]]; then
+    if [[ "$#" -ne 3 && "$#" -ne 4 ]]; then
+        echo "Illegal number of parameters. Usage:"
+        echo "    occu status <base version> <target version> [<role-path>]"
+        echo ""
+        echo "Example:"
+        echo "    occu status 17.1 17.3 [roles/my-opencast]"
+        echo ""
+        echo "The <role-path> defaults to 'roles/opencast'"
+        exit 1
+    fi
+
+    base_version="$2"
+    target_version="$3"
+    role_path=${4:-roles/opencast}
+
+    echo -e "\e[1m----- Checking files in '$role_path/{templates,files}/'\e[0m"
+    echo ""
+
+    no_updates=""
+    update_needed=""
+    errors=""
+    for ansible_path in $(find . -regex "./$role_path/\(templates\|files\).*" -type f); do
+        repo_path=$(infer_repo_path "$ansible_path")
+        infer_status=$?
+        nice_ansible_path="${ansible_path#./"$role_path"/}"
+        prevdir=$(pwd)
+        cd "$ocdir"
+        if [ $infer_status -ne 0 ]; then
+            errors="$errors ‣ $nice_ansible_path\n      → cannot infer repository path\n"
+        elif ! git cat-file -e "$base_version:$repo_path" 2>/dev/null; then
+            errors="$errors ‣ $nice_ansible_path\n      → could not find file in repo: $repo_path\n"
+        elif git diff --quiet "$base_version" "$target_version" -- "$repo_path"; then
+            no_updates="$no_updates ‣ $nice_ansible_path"'\n'
+        else
+            update_needed="$update_needed ‣ $nice_ansible_path"'\n'
+        fi
+        cd "$prevdir"
+    done
+
+    echo -e "\e[1;92mFiles without upstream changes between $base_version and $target_version (no update needed):\e[0m"
+    echo -e "$no_updates"
+
+    echo -e "\e[1;91mFiles with upstream changes between $base_version and $target_version (merge required!):\e[0m"
+    echo -e "$update_needed"
+
+    echo -e "\e[1;95mUnclear (manual checking needed!):\e[0m"
+    echo -e "$errors"
+
+
+
+
+# ----- Subcommand LIST -------------------------------------------------------------------------------------------
+elif [[ "$subcmd" == "list" ]]; then
+    if [[ "$#" -ne 3 ]]; then
+        echo "Illegal number of parameters. Usage:"
+        echo "    occu list <base version> <target version>"
+        echo ""
+        echo "Example:"
+        echo "    occu list 17.1 17.3"
+        echo ""
+        exit 1
+    fi
+
+    base_version="$2"
+    target_version="$3"
+
+    echo "Opencast files in 'etc/' that changed between $base_version and $target_version:"
+    (cd "$ocdir" && git --no-pager diff --name-status "$base_version" "$target_version" -- etc/)
+
+
+
+
+# ----- Subcommand MERGE ---------------------------------------------------------------------------------------------
+elif [[ "$subcmd" == "merge" ]]; then
+    if [[ "$#" -ne 4 && "$#" -ne 5 ]]; then
+        echo "Illegal number of parameters. Usage:"
+        echo "    occu merge <base version> <target version> <path> [<path-in-repo>]"
+        echo ""
+        echo "Example:"
+        echo "    occu merge 17.1 17.3 roles/opencast/templates/security/mh_default_org.xml [etc/security/mh_default_org.xml]"
+        echo ""
+        echo "The script will try to infer the file's path in the OC repository from the given path."
+        echo "In case this doesn't work, the 'in repo' path can be given as 4th parameter."
+        exit 1
+    fi
+
+    if [[ -z "$OCCU_MERGETOOL" ]]; then
+        echo "OCCU_MERGETOOL is not set: specify mergetool command, e.g. meld"
+    fi
+    mergetool="$OCCU_MERGETOOL"
+
+    base_version="$2"
+    target_version="$3"
+    ansible_path="$4"
+
+    # Infer the repository path of the file if no path is given
+    if [[ "$#" -eq 5 ]]; then
+        repo_path="$5"
+    else
+        repo_path=$(infer_repo_path "$ansible_path")
+        if [ $? -ne 0 ]; then
+            echo "Could not infer OC repo path from given path. Expected 'files/' or 'templates/' to"
+            echo "be in path."
+            exit 1
+        fi
+    fi
+
+    prevpwd=$(pwd)
+    cd "$ocdir"
+    if ! git cat-file -e "$base_version:$repo_path" 2>/dev/null; then
+        echo "Inferred path is '$repo_path' but that does not exist in the repository."
+        echo "Specify repository path explicitly as 4th parameter"
+        exit 1
+    fi
+
+    echo "Inferred repository path is: $repo_path"
+
+    basepath=$(mktemp)
+    leftpath=$(mktemp)
+
+    if git diff --quiet "$base_version" "$target_version" -- "$repo_path"; then
+        echo "There were NO changes in this file between $base_version and $target_version"
+        echo "-> no update needed"
+        cd "$prevpwd"
+    else
+        echo "The file changed between $base_version and $target_version, starting merge tool"
+        git show "$base_version:$repo_path" >> "$basepath"
+        git show "$target_version:$repo_path" >> "$leftpath"
+        cd "$prevpwd"
+        $mergetool "$basepath" "$leftpath" "$ansible_path" -o "$ansible_path"
+    fi
+
+
+
+
+else
+    echo "Invalid subcommand. Run without arguments to learn about usage."
+    exit 1
+fi

@@ -124,3 +124,13 @@ Finds and drops all Opencast prefixed indexes directly in your Opensearch server
 Examples:
 
 ocindexdrop http://localhost -> Drops all Opencast indexes from the Opensearch instance on localhost
+
+
+download-release
+----------------
+
+Downloads the allinone tarball for a given release and then rsyncs its jars into your local m2.  This avoids having to have jars published to a central repository, which is broken sometimes.
+
+Examples:
+
+download-release 17.5 -> Downloads 17.5's allinone and places its jars into your local m2

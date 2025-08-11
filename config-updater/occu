@@ -47,6 +47,14 @@ infer_repo_path() {
     echo "$repo_path"
 }
 
+check_version() {
+    version="$1"
+    if ! [ $(cd "$ocdir" && git tag -l "$version") ]; then
+        echo "Tag $version does not exist in Opencast repository. Maybe run 'git fetch --tags'?"
+        exit 1
+    fi
+}
+
 subcmd="$1"
 
 
@@ -67,6 +75,10 @@ if [[ "$subcmd" == "status" ]]; then
     base_version="$2"
     target_version="$3"
     role_path=${4:-roles/opencast}
+    role_path=${role_path%/}
+
+    check_version "$base_version"
+    check_version "$target_version"
 
     echo -e "\e[1m----- Checking files in '$role_path/{templates,files}/'\e[0m"
     echo ""
@@ -119,6 +131,9 @@ elif [[ "$subcmd" == "list" ]]; then
     base_version="$2"
     target_version="$3"
 
+    check_version "$base_version"
+    check_version "$target_version"
+
     echo "Opencast files in 'etc/' that changed between $base_version and $target_version:"
     (cd "$ocdir" && git --no-pager diff --name-status "$base_version" "$target_version" -- etc/)
 
@@ -147,6 +162,9 @@ elif [[ "$subcmd" == "merge" ]]; then
     base_version="$2"
     target_version="$3"
     ansible_path="$4"
+
+    check_version "$base_version"
+    check_version "$target_version"
 
     # Infer the repository path of the file if no path is given
     if [[ "$#" -eq 5 ]]; then

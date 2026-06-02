@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<definition xmlns="http://workflow.opencastproject.org">
+
+  <id>partial-import-test</id>
+  <title>Partial import - Test audio merge</title>
+  <tags>
+    <tag>archive</tag>
+  </tags>
+  <displayOrder>1000</displayOrder>
+  <description>
+    Uses partial import, merges audio, concats videos and saves result in assets.
+  </description>
+
+  <configuration_panel>
+    <![CDATA[
+    <div id="workflow-configuration">
+    </div>
+    ]]>
+  </configuration_panel>
+
+  <operations>
+
+    <operation
+        id="tag"
+        description="Tagging source material for archival">
+      <configurations>
+        <configuration key="source-flavors">*/source</configuration>
+        <configuration key="target-tags">+archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+        id="snapshot"
+        fail-on-error="true"
+        exception-handler-workflow="partial-error"
+        description="Archiving">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+    <!-- Used before partial-import as recommended by the docs-->
+    <operation
+        id="inspect"
+        fail-on-error="true"
+        exception-handler-workflow="partial-error"
+        description="Inspecting mediapackage track elements">
+      <configurations>
+        <configuration key="overwrite">false</configuration>
+        <configuration key="accept-no-media">false</configuration>
+        <configuration key="accurate-frame-count">true</configuration>
+      </configurations>
+    </operation>
+
+    <operation id="partial-import"
+               description="Put videos and audio together"
+               fail-on-error="true"
+               exception-handler-workflow="partial-error">
+      <configurations>
+        <configuration key="source-presenter-flavor">presenter/source</configuration>
+        <configuration key="source-presentation-flavor">presentation/source</configuration>
+        <configuration key="source-smil-flavor">smil/source+partial</configuration>
+        <configuration key="target-presentation-flavor">presentation/unified</configuration>
+        <configuration key="target-presenter-flavor">presenter/unified</configuration>
+        <configuration key="preencode-encoding-profile">partial-import-preencode</configuration>
+        <configuration key="concat-encoding-profile">concat.work</configuration>
+        <configuration key="audio-merge-encoding-profile">audiomerge.work</configuration>
+        <configuration key="trim-encoding-profile">trim.work</configuration>
+        <configuration key="force-encoding-profile">encode.partial-import</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+        id="tag"
+        description="Tagging partial-import result for archival">
+      <configurations>
+        <configuration key="source-flavors">*/*</configuration>
+        <configuration key="target-tags">+archive</configuration>
+      </configurations>
+    </operation>
+
+    <operation
+        id="snapshot"
+        fail-on-error="true"
+        exception-handler-workflow="partial-error"
+        description="Archiving">
+      <configurations>
+        <configuration key="source-tags">archive</configuration>
+      </configurations>
+    </operation>
+
+  </operations>
+</definition>

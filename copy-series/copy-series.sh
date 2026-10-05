@@ -14,9 +14,6 @@ fi
 
 curl -s -f --digest -u "$FROM_CREDS" -H 'X-Requested-Auth: Digest' $FROM_HOST/api/series?$search | jq -r '.[].identifier' | while read identifier
 do
-  #This spits out *just* the primary DC metadata in a semi-useful format, but not the extended metadata!
-  #echo "Series"
-  #ocreq http://localhost/api/series/$identifier | jq > $identifier.json
 
   echo "Fetching ACL for $identifier from $FROM_HOST"
   curl -s -f --digest -u "$FROM_CREDS" -H 'X-Requested-Auth: Digest' $FROM_HOST/api/series/$identifier/acl | jq > $identifier-acl.json

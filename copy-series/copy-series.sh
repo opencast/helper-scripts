@@ -43,13 +43,13 @@ do
     continue
   fi
 
-  CATALOGS=$(cat $identifier-metadata.json | jq 'map({title, flavor, fields: .fields | map(select(.id != "createdBy")) | map({id, value})})')
-  #echo "$CATALOGS"
+  # Massage the output we previous recieved to match what the endpoint is expecting for inputs
+  cat "$identifier-metadata.json" | jq 'map({title, flavor, fields: .fields | map(select(.id != "createdBy")) | map({id, value})})' > "$identifier-formatted.json"
 
   echo "Creating series on $TO_HOST"
   curl -f --digest -u "$TO_CREDS" -H 'X-Requested-Auth: Digest' -X POST $TO_HOST/api/series \
-    -d "metadata=$CATALOGS" \
-    -d "acl=$(cat $identifier-acl.json)"
+    -F "metadata=@./$identifier-formatted.json" \
+    -F "acl=@./$identifier-acl.json"
 
   rm -f $identifier*.json
 done

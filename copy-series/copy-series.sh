@@ -33,6 +33,10 @@ do
 #ls *-metadata.json | sed 's/-metadata.json//g' | while read identifier
 #do
 
+  # Some OC systems return a blank ACL, but the endpoint does not like that at all, so we an empty one in this case
+  if [ "$(cat $identifier-acl.json)" == "" ]; then
+    echo "[]" > "$identifier-acl.json"
+  fi
 
   if [ $(curl -s -o /dev/null -w "%{http_code}\n" -f --digest -u "$TO_CREDS" -H 'X-Requested-Auth: Digest' $TO_HOST/api/series/$identifier) != "404" ]; then
     echo "Skipping $identifier, series may already exist!"

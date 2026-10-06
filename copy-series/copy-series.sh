@@ -14,9 +14,6 @@ fi
 
 curl -s -f --digest -u "$FROM_CREDS" -H 'X-Requested-Auth: Digest' $FROM_HOST/api/series?$search | jq -r '.[].identifier' | while read identifier
 do
-  #This spits out *just* the primary DC metadata in a semi-useful format, but not the extended metadata!
-  #echo "Series"
-  #ocreq http://localhost/api/series/$identifier | jq > $identifier.json
 
   echo "Fetching ACL for $identifier from $FROM_HOST"
   curl -s -f --digest -u "$FROM_CREDS" -H 'X-Requested-Auth: Digest' $FROM_HOST/api/series/$identifier/acl | jq > $identifier-acl.json
@@ -36,19 +33,23 @@ do
 #ls *-metadata.json | sed 's/-metadata.json//g' | while read identifier
 #do
 
+  # Some OC systems return a blank ACL, but the endpoint does not like that at all, so we an empty one in this case
+  if [ "$(cat $identifier-acl.json)" == "" ]; then
+    echo "[]" > "$identifier-acl.json"
+  fi
 
   if [ $(curl -s -o /dev/null -w "%{http_code}\n" -f --digest -u "$TO_CREDS" -H 'X-Requested-Auth: Digest' $TO_HOST/api/series/$identifier) != "404" ]; then
     echo "Skipping $identifier, series may already exist!"
     continue
   fi
 
-  CATALOGS=$(cat $identifier-metadata.json | jq 'map({title, flavor, fields: .fields | map(select(.id != "createdBy")) | map({id, value})})')
-  #echo "$CATALOGS"
+  # Massage the output we previous recieved to match what the endpoint is expecting for inputs
+  cat "$identifier-metadata.json" | jq 'map({title, flavor, fields: .fields | map(select(.id != "createdBy")) | map({id, value})})' > "$identifier-formatted.json"
 
   echo "Creating series on $TO_HOST"
   curl -f --digest -u "$TO_CREDS" -H 'X-Requested-Auth: Digest' -X POST $TO_HOST/api/series \
-    -d "metadata=$CATALOGS" \
-    -d "acl=$(cat $identifier-acl.json)"
+    -F "metadata=@./$identifier-formatted.json" \
+    -F "acl=@./$identifier-acl.json"
 
   rm -f $identifier*.json
 done

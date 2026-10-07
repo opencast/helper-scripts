@@ -68,3 +68,12 @@ jobs:
       env: name=translation-progress
       script:
         - shellcheck release-management/translation-progress/translation-progress.sh
+
+    - stage: test
+      env: name=acl-on-series-and-events
+      language: node_js
+      node_js:
+        - 8
+      script:
+        - cd acl-on-series-and-events && npm install && npm run lint
+

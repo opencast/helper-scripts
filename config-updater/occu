@@ -80,13 +80,13 @@ if [[ "$subcmd" == "status" ]]; then
     check_version "$base_version"
     check_version "$target_version"
 
-    echo -e "\e[1m----- Checking files in '$role_path/{templates,files}/'\e[0m"
+    echo -e "\033[1m----- Checking files in '$role_path/{templates,files}/'\033[0m"
     echo ""
 
     no_updates=""
     update_needed=""
     errors=""
-    for ansible_path in $(find . -regex "./$role_path/\(templates\|files\).*" -type f); do
+    for ansible_path in $(find "./$role_path/templates" "./$role_path/files" -type f); do
         repo_path=$(infer_repo_path "$ansible_path")
         infer_status=$?
         nice_ansible_path="${ansible_path#./"$role_path"/}"
@@ -104,13 +104,13 @@ if [[ "$subcmd" == "status" ]]; then
         cd "$prevdir"
     done
 
-    echo -e "\e[1;92mFiles without upstream changes between $base_version and $target_version (no update needed):\e[0m"
+    echo -e "\033[1;92mFiles without upstream changes between $base_version and $target_version (no update needed):\033[0m"
     echo -e "$no_updates"
 
-    echo -e "\e[1;91mFiles with upstream changes between $base_version and $target_version (merge required!):\e[0m"
+    echo -e "\033[1;91mFiles with upstream changes between $base_version and $target_version (merge required!):\033[0m"
     echo -e "$update_needed"
 
-    echo -e "\e[1;95mUnclear (manual checking needed!):\e[0m"
+    echo -e "\033[1;95mUnclear (manual checking needed!):\033[0m"
     echo -e "$errors"
 
 

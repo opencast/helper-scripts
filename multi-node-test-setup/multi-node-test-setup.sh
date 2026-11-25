@@ -2,7 +2,7 @@
 
 set -eux
 
-mvn clean install -DtrimStackTrace=false
+./mvnw clean install -DtrimStackTrace=false
 cd build
 find * -maxdepth 0 -type d -exec echo '{}' \; -exec rm -rI '{}' \;
 

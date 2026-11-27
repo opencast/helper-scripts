@@ -206,6 +206,51 @@ elif [[ "$subcmd" == "merge" ]]; then
     fi
 
 
+# ----- Subcommand DIFF ---------------------------------------------------------------------------------------------
+elif [[ "$subcmd" == "diff" ]]; then
+    if [[ "$#" -ne 3 && "$#" -ne 4 ]]; then
+        echo "Illegal number of parameters. Usage:"
+        echo "    occu diff <version> [<path>] [<path-in-repo>]"
+        echo ""
+        echo "Example:"
+        echo "    occu diff 17.3 roles/opencast/templates/security/mh_default_org.xml [etc/security/mh_default_org.xml]"
+        echo ""
+        echo "The script will try to infer the file's path in the OC repository from the given path."
+        echo "In case this doesn't work, the 'in repo' path can be given as 4th parameter."
+        exit 1
+    fi
+
+    version="$2"
+    ansible_path="$3"
+
+    check_version "$version"
+
+    # Infer the repository path of the file if no path is given
+    if [[ "$#" -eq 4 ]]; then
+        repo_path="$4"
+    else
+        repo_path=$(infer_repo_path "$ansible_path")
+        if [ $? -ne 0 ]; then
+            echo "Could not infer OC repo path from given path. Expected 'files/' or 'templates/' to"
+            echo "be in path."
+            exit 1
+        fi
+    fi
+
+    prevpwd=$(pwd)
+    cd "$ocdir"
+    if ! git cat-file -e "$version:$repo_path" 2>/dev/null; then
+        echo "Inferred path is '$repo_path' but that does not exist in the repository."
+        echo "Specify repository path explicitly as 4th parameter"
+        exit 1
+    fi
+
+    echo "Inferred repository path is: $repo_path"
+
+    basepath=$(mktemp)
+    git show "$version:$repo_path" >> "$basepath"
+    cd "$prevpwd"
+    diff -u --color "$basepath" "$ansible_path"
 
 
 else
